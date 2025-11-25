@@ -217,7 +217,8 @@ function App() {
             {featured.map((product) => (
               <Card
                 key={product.id}
-                className="group overflow-hidden border border-slate-800 bg-slate-950/80 hover:border-violet-500/60 transition-colors flex flex-col"
+                className="group overflow-hidden border border-slate-800 bg-slate-950/80 hover:border-violet-500/60 transition-colors flex flex-col cursor-pointer"
+                onClick={() => router.push(`/product/${product.slug}`)}
               >
                 <div className="relative h-40 w-full overflow-hidden bg-slate-900">
                   {product.images?.[0] && (
