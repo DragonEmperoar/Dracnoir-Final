@@ -91,7 +91,7 @@ function ProductPage() {
       const body = {
         productId: product.id,
         productSlug: product.slug,
-        quantity: 1,
+        quantity: quantity || 1,
         variantId: selectedVariant?.id || null,
       }
       const res = await fetch('/api/cart/items', {
