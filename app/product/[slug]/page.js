@@ -63,6 +63,23 @@ function ProductPage() {
     setSelectedVariant(variant)
   }
 
+  const handleChangeQuantity = (delta) => {
+    setQuantity((prev) => {
+      const next = prev + delta
+      if (next < 1) return 1
+      if (next > 10) return 10
+      return next
+    })
+  }
+
+  const handleCheckPincode = () => {
+    if (!pincode || pincode.trim().length < 4) {
+      setPincodeMessage('Enter a valid pincode to check delivery estimate.')
+      return
+    }
+    setPincodeMessage('Standard delivery: 3–7 business days • Express options coming soon.')
+  }
+
   const handleAddToCart = async () => {
     if (!product) return
     if (!user) {
