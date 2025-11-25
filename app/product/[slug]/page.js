@@ -399,6 +399,33 @@ function ProductPage() {
               )}
             </div>
 
+            <section className="mt-4 space-y-4 text-xs text-slate-300">
+              <div className="space-y-2 rounded-2xl border border-slate-800 bg-slate-950/80 p-4">
+                <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-slate-500">
+                  Delivery
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <input
+                    value={pincode}
+                    onChange={(e) => setPincode(e.target.value)}
+                    placeholder="Enter pincode"
+                    className="h-8 rounded-full border border-slate-700 bg-slate-900/80 px-3 text-[11px] text-slate-100 outline-none focus:border-violet-500"
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 rounded-full border-violet-500/70 bg-slate-950 text-[11px] text-violet-200 hover:bg-violet-500/10"
+                    onClick={handleCheckPincode}
+                  >
+                    Check
+                  </Button>
+                </div>
+                {pincodeMessage && (
+                  <p className="text-[11px] text-slate-400">{pincodeMessage}</p>
+                )}
+              </div>
+            </section>
+
             <section className="mt-4 space-y-3">
               <h2 className="text-sm font-semibold text-slate-100">Reviews</h2>
               {reviews.length === 0 && (
