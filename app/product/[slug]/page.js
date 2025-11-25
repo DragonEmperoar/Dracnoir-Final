@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { Star, ChevronLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useAuth } from '../../context/AuthContext'
 
 function ProductPage() {
