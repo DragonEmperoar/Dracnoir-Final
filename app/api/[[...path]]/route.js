@@ -245,6 +245,14 @@ function buildProductSort(params) {
   }
 }
 
+async function requireUserId(request) {
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.id) {
+    return null
+  }
+  return session.user.id
+}
+
 async function handleRoute(request, { params }) {
   const { path = [] } = params
   const route = `/${path.join('/')}`
