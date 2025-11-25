@@ -349,17 +349,6 @@ function ProductPage() {
                   )}
                 </div>
               )}
-                  {showSizeGuide && (
-                    <div className="mt-2 rounded-xl border border-slate-800 bg-slate-950/80 p-3 text-[11px] text-slate-300">
-                      <p className="mb-1 font-medium text-slate-200">Size guide</p>
-                      <p>
-                        Oversized fits are relaxed with dropped shoulders. If you prefer a
-                        standard ComicSense-style fit, choose Regular in your usual size.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
 
               <div className="flex flex-wrap items-center gap-3 border-t border-slate-800 pt-3 text-xs">
                 <div className="inline-flex items-center rounded-full border border-slate-700 bg-slate-900/80">
