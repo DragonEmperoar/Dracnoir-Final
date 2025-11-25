@@ -35,108 +35,169 @@ export async function OPTIONS() {
 async function ensureSeedData(db) {
   const productsCol = db.collection('products')
   const categoriesCol = db.collection('categories')
+  const reviewsCol = db.collection('reviews')
 
   const categoriesCount = await categoriesCol.countDocuments()
   const productsCount = await productsCol.countDocuments()
 
-  if (categoriesCount > 0 && productsCount > 0) return
+  // Seed categories + products once when both collections are empty
+  if (categoriesCount === 0 && productsCount === 0) {
+    const categories = [
+      { id: uuidv4(), slug: 'plushes', name: 'Plushes' },
+      { id: uuidv4(), slug: 't-shirts', name: 'T-Shirts' },
+      { id: uuidv4(), slug: 'action-figures', name: 'Action Figures' },
+    ]
 
-  const categories = [
-    { id: uuidv4(), slug: 'plushes', name: 'Plushes' },
-    { id: uuidv4(), slug: 't-shirts', name: 'T-Shirts' },
-    { id: uuidv4(), slug: 'action-figures', name: 'Action Figures' },
-  ]
+    const [plushCat, tshirtCat, figuresCat] = categories
+    const now = new Date()
 
-  const [plushCat, tshirtCat, figuresCat] = categories
+    const products = [
+      {
+        id: uuidv4(),
+        slug: 'chibi-hero-plush',
+        title: 'Chibi Hero Plush',
+        price: 29.99,
+        description:
+          'Super-soft chibi hero plush with oversized head and embroidered details.',
+        categoryId: plushCat.id,
+        categorySlug: plushCat.slug,
+        material: 'Premium polyester',
+        dimensions: '20cm x 12cm',
+        series: 'My Hero Plushademia',
+        images: [
+          'https://images.unsplash.com/photo-1590708622734-b1b8df3c3576',
+          'https://images.unsplash.com/photo-1707602985834-eca0a6d63b2f',
+        ],
+        rating: 4.8,
+        reviewCount: 32,
+        createdAt: now,
+        popularity: 90,
+        type: 'plush',
+      },
+      {
+        id: uuidv4(),
+        slug: 'neon-mecha-tee',
+        title: 'Neon Mecha Oversized Tee',
+        price: 39.99,
+        description:
+          'Streetwear-inspired oversized tee featuring a neon mecha print.',
+        categoryId: tshirtCat.id,
+        categorySlug: tshirtCat.slug,
+        material: '100% cotton',
+        dimensions: 'Unisex fit',
+        series: 'Neon Mecha Uprising',
+        images: ['https://images.unsplash.com/photo-1735720518679-4c0673e59035'],
+        rating: 4.6,
+        reviewCount: 18,
+        createdAt: now,
+        popularity: 80,
+        type: 'tshirt',
+        variants: [
+          {
+            id: uuidv4(),
+            fit: 'Oversized',
+            size: 'M',
+            color: 'Black',
+            stock: 25,
+          },
+          {
+            id: uuidv4(),
+            fit: 'Regular',
+            size: 'L',
+            color: 'White',
+            stock: 10,
+          },
+        ],
+      },
+      {
+        id: uuidv4(),
+        slug: 'dragon-summoner-premium-figure',
+        title: 'Dragon Summoner Premium Figure',
+        price: 129.99,
+        description:
+          'High-detail PVC figure with translucent dragon effects and dynamic pose.',
+        categoryId: figuresCat.id,
+        categorySlug: figuresCat.slug,
+        material: 'PVC + ABS',
+        dimensions: '28cm x 18cm',
+        series: 'Dragon Summoner Chronicles',
+        images: ['https://images.unsplash.com/photo-1590708622734-b1b8df3c3576'],
+        rating: 4.9,
+        reviewCount: 54,
+        createdAt: now,
+        popularity: 95,
+        type: 'action-figure',
+        subcategory: 'premium',
+      },
+    ]
 
-  const now = new Date()
+    await categoriesCol.insertMany(categories)
+    await productsCol.insertMany(products)
+  }
 
-  const products = [
-    {
-      id: uuidv4(),
-      slug: 'chibi-hero-plush',
-      title: 'Chibi Hero Plush',
-      price: 29.99,
-      description: 'Super-soft chibi hero plush with oversized head and embroidered details.',
-      categoryId: plushCat.id,
-      categorySlug: plushCat.slug,
-      material: 'Premium polyester',
-      dimensions: '20cm x 12cm',
-      series: 'My Hero Plushademia',
-      images: [
-        'https://images.unsplash.com/photo-1590708622734-b1b8df3c3576',
-        'https://images.unsplash.com/photo-1707602985834-eca0a6d63b2f',
-      ],
-      rating: 4.8,
-      reviewCount: 32,
-      createdAt: now,
-      popularity: 90,
-      type: 'plush',
-    },
-    {
-      id: uuidv4(),
-      slug: 'neon-mecha-tee',
-      title: 'Neon Mecha Oversized Tee',
-      price: 39.99,
-      description: 'Streetwear-inspired oversized tee featuring a neon mecha print.',
-      categoryId: tshirtCat.id,
-      categorySlug: tshirtCat.slug,
-      material: '100% cotton',
-      dimensions: 'Unisex fit',
-      series: 'Neon Mecha Uprising',
-      images: [
-        'https://images.unsplash.com/photo-1735720518679-4c0673e59035',
-      ],
-      rating: 4.6,
-      reviewCount: 18,
-      createdAt: now,
-      popularity: 80,
-      type: 'tshirt',
-      variants: [
+  // Seed a few demo reviews if none exist
+  const reviewsCount = await reviewsCol.countDocuments()
+  if (reviewsCount === 0) {
+    const products = await productsCol.find({}).toArray()
+    const bySlug = Object.fromEntries(products.map((p) => [p.slug, p]))
+    const now = new Date()
+
+    const demoReviews = []
+
+    if (bySlug['chibi-hero-plush']) {
+      const p = bySlug['chibi-hero-plush']
+      demoReviews.push(
         {
           id: uuidv4(),
-          fit: 'Oversized',
-          size: 'M',
-          color: 'Black',
-          stock: 25,
+          productId: p.id,
+          productSlug: p.slug,
+          rating: 5,
+          title: 'Peak cuddle energy',
+          text: 'Even softer than it looks. Perfect for late-night anime marathons.',
+          createdAt: now,
         },
         {
           id: uuidv4(),
-          fit: 'Regular',
-          size: 'L',
-          color: 'White',
-          stock: 10,
+          productId: p.id,
+          productSlug: p.slug,
+          rating: 4,
+          title: 'Great gift',
+          text: 'Got this for a friend, they absolutely loved it!',
+          createdAt: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 3),
         },
-      ],
-    },
-    {
-      id: uuidv4(),
-      slug: 'dragon-summoner-premium-figure',
-      title: 'Dragon Summoner Premium Figure',
-      price: 129.99,
-      description: 'High-detail PVC figure with translucent dragon effects and dynamic pose.',
-      categoryId: figuresCat.id,
-      categorySlug: figuresCat.slug,
-      material: 'PVC + ABS',
-      dimensions: '28cm x 18cm',
-      series: 'Dragon Summoner Chronicles',
-      images: [
-        'https://images.unsplash.com/photo-1590708622734-b1b8df3c3576',
-      ],
-      rating: 4.9,
-      reviewCount: 54,
-      createdAt: now,
-      popularity: 95,
-      type: 'action-figure',
-      subcategory: 'premium',
-    },
-  ]
+      )
+    }
 
-  await categoriesCol.deleteMany({})
-  await productsCol.deleteMany({})
+    if (bySlug['neon-mecha-tee']) {
+      const p = bySlug['neon-mecha-tee']
+      demoReviews.push({
+        id: uuidv4(),
+        productId: p.id,
+        productSlug: p.slug,
+        rating: 5,
+        title: 'My new con fit',
+        text: 'Print quality is insane and the oversized fit is perfect.',
+        createdAt: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 7),
+      })
+    }
 
-  await categoriesCol.insertMany(categories)
-  await productsCol.insertMany(products)
+    if (bySlug['dragon-summoner-premium-figure']) {
+      const p = bySlug['dragon-summoner-premium-figure']
+      demoReviews.push({
+        id: uuidv4(),
+        productId: p.id,
+        productSlug: p.slug,
+        rating: 5,
+        title: 'Centerpiece of my shelf',
+        text: 'The translucent effects look wild under RGB lighting.',
+        createdAt: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 10),
+      })
+    }
+
+    if (demoReviews.length > 0) {
+      await reviewsCol.insertMany(demoReviews)
+    }
+  }
 }
 
 // Helpers for listing products with basic filters
@@ -186,6 +247,7 @@ async function handleRoute(request, { params }) {
   const { path = [] } = params
   const route = `/${path.join('/')}`
   const method = request.method
+  const segments = route.split('/').filter(Boolean)
 
   try {
     const db = await connectToMongo()
@@ -193,7 +255,9 @@ async function handleRoute(request, { params }) {
 
     // Root test endpoint (for the old home test)
     if ((route === '/' || route === '/root') && method === 'GET') {
-      return handleCORS(NextResponse.json({ message: 'Hello World from Anime Store API' }))
+      return handleCORS(
+        NextResponse.json({ message: 'Hello World from Anime Store API' }),
+      )
     }
 
     // GET /api/categories
@@ -203,7 +267,7 @@ async function handleRoute(request, { params }) {
       return handleCORS(NextResponse.json(cleaned))
     }
 
-    // GET /api/products
+    // GET /api/products (listing with filters & pagination)
     if (route === '/products' && method === 'GET') {
       const { searchParams } = new URL(request.url)
       const page = Number(searchParams.get('page') || '1')
@@ -234,12 +298,39 @@ async function handleRoute(request, { params }) {
       )
     }
 
+    // GET /api/products/[slug]/reviews
+    if (
+      segments[0] === 'products' &&
+      segments.length === 3 &&
+      segments[2] === 'reviews' &&
+      method === 'GET'
+    ) {
+      const slug = segments[1]
+      const productsCol = db.collection('products')
+      const product = await productsCol.findOne({ slug })
+      if (!product) {
+        return handleCORS(
+          NextResponse.json({ error: 'Product not found' }, { status: 404 }),
+        )
+      }
+      const reviewsCol = db.collection('reviews')
+      const docs = await reviewsCol
+        .find({ productId: product.id })
+        .sort({ createdAt: -1 })
+        .limit(50)
+        .toArray()
+      const cleaned = docs.map(({ _id, ...rest }) => rest)
+      return handleCORS(NextResponse.json(cleaned))
+    }
+
     // GET /api/products/[slug]
-    if (route.startsWith('/products/') && method === 'GET') {
-      const slug = route.split('/')[2]
+    if (segments[0] === 'products' && segments.length === 2 && method === 'GET') {
+      const slug = segments[1]
       const product = await db.collection('products').findOne({ slug })
       if (!product) {
-        return handleCORS(NextResponse.json({ error: 'Product not found' }, { status: 404 }))
+        return handleCORS(
+          NextResponse.json({ error: 'Product not found' }, { status: 404 }),
+        )
       }
       const { _id, ...rest } = product
       return handleCORS(NextResponse.json(rest))
