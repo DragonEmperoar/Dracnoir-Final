@@ -285,10 +285,10 @@ function ProductPage() {
                 </div>
               </div>
 
-              {product.type === 'tshirt' && Array.isArray(product.variants) && (
+              {product.type === 'tshirt' && (
                 <div className="space-y-3 border-t border-slate-800 pt-3 text-xs">
                   <div className="flex items-center justify-between">
-                    <p className="font-medium text-slate-200">Select fit & size</p>
+                    <p className="font-medium text-slate-200">Select fit & color</p>
                     <button
                       type="button"
                       onClick={() => setShowSizeGuide((v) => !v)}
@@ -297,33 +297,58 @@ function ProductPage() {
                       {showSizeGuide ? 'Hide size guide' : 'View size guide'}
                     </button>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {product.variants.map((variant) => {
-                      const isActive = selectedVariant?.id === variant.id
-                      return (
-                        <button
-                          key={variant.id}
-                          type="button"
-                          onClick={() => handleSelectVariant(variant)}
-                          className={`rounded-full border px-3 py-1 text-[11px] transition-colors ${
-                            isActive
-                              ? 'border-violet-500 bg-violet-500/20 text-violet-100'
-                              : 'border-slate-700 bg-slate-900/80 text-slate-200 hover:border-violet-400/70'
-                          }`}
-                        >
-                          {variant.fit} • {variant.size} • {variant.color}
-                        </button>
-                      )
-                    })}
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="space-y-1">
+                      <p className="text-[11px] text-slate-400">Fit</p>
+                      <Select
+                        value={fit || ''}
+                        onValueChange={(value) => setFit(value)}
+                      >
+                        <SelectTrigger className="h-9 border-slate-700 bg-slate-900/80 text-xs text-slate-200">
+                          <SelectValue placeholder="Select fit" />
+                        </SelectTrigger>
+                        <SelectContent className="border-slate-800 bg-slate-900 text-xs text-slate-100">
+                          <SelectItem value="Oversized">Oversized fit</SelectItem>
+                          <SelectItem value="Regular">Regular fit</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <p className="text-[11px] text-slate-400">Color</p>
+                      <Select
+                        value={color || ''}
+                        onValueChange={(value) => setColor(value)}
+                      >
+                        <SelectTrigger className="h-9 border-slate-700 bg-slate-900/80 text-xs text-slate-200">
+                          <SelectValue placeholder="Select color" />
+                        </SelectTrigger>
+                        <SelectContent className="border-slate-800 bg-slate-900 text-xs text-slate-100">
+                          <SelectItem value="Black">Black</SelectItem>
+                          <SelectItem value="Blue">Blue</SelectItem>
+                          <SelectItem value="Brown">Brown</SelectItem>
+                          <SelectItem value="Peach">Peach</SelectItem>
+                          <SelectItem value="Olive">Olive</SelectItem>
+                          <SelectItem value="Mustard">Mustard</SelectItem>
+                          <SelectItem value="Beige">Beige</SelectItem>
+                          <SelectItem value="Wine">Wine</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                  {selectedVariant && (
-                    <p className="text-[11px] text-slate-400">
-                      In stock:{' '}
-                      <span className="text-slate-100">
-                        {selectedVariant.stock} pcs
-                      </span>
-                    </p>
+
+                  {showSizeGuide && (
+                    <div className="mt-2 rounded-xl border border-slate-800 bg-slate-950/80 p-3 text-[11px] text-slate-300">
+                      <p className="mb-1 font-medium text-slate-200">Size guide</p>
+                      <p>
+                        Oversized fits are relaxed with dropped shoulders. If you prefer a
+                        standard ComicSense-style fit, choose Regular in your usual size.
+                      </p>
+                    </div>
                   )}
+                </div>
+              )}
                   {showSizeGuide && (
                     <div className="mt-2 rounded-xl border border-slate-800 bg-slate-950/80 p-3 text-[11px] text-slate-300">
                       <p className="mb-1 font-medium text-slate-200">Size guide</p>
