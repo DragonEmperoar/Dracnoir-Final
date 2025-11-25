@@ -172,6 +172,7 @@ function App() {
                 <Card
                   key={cat.slug}
                   className={`group cursor-pointer border border-slate-800/80 bg-slate-950/80 hover:border-violet-500/60 transition-colors ${cat.accent}`}
+                  onClick={() => router.push(`/category/${cat.slug}`)}
                 >
                   <CardContent className="flex flex-col justify-between gap-3 p-4">
                     <div>
