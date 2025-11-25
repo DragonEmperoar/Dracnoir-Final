@@ -102,6 +102,40 @@ function App() {
             </Button>
           </div>
         </div>
+        {/* Secondary nav */}
+        <div className="border-t border-slate-800/80 bg-slate-950/80">
+          <div className="container mx-auto flex flex-wrap items-center justify-between gap-3 py-2 text-xs sm:text-sm">
+            <div className="flex items-center gap-3 text-slate-300">
+              <span className="text-[11px] uppercase tracking-[0.2em] text-slate-500">
+                Shop by category
+              </span>
+              <button
+                className="rounded-full border border-slate-700 bg-slate-900/80 px-3 py-1 text-[11px] text-slate-200 hover:border-violet-400 hover:text-violet-200"
+                onClick={() => router.push('/category/plushes')}
+              >
+                Plushes
+              </button>
+              <button
+                className="rounded-full border border-slate-700 bg-slate-900/80 px-3 py-1 text-[11px] text-slate-200 hover:border-violet-400 hover:text-violet-200"
+                onClick={() => router.push('/category/t-shirts')}
+              >
+                T-Shirts
+              </button>
+              <button
+                className="rounded-full border border-slate-700 bg-slate-900/80 px-3 py-1 text-[11px] text-slate-200 hover:border-violet-400 hover:text-violet-200"
+                onClick={() => router.push('/category/action-figures')}
+              >
+                Action Figures
+              </button>
+            </div>
+            <button
+              className="text-[11px] text-violet-300 hover:text-violet-200"
+              onClick={() => router.push('/products')}
+            >
+              View all products
+            </button>
+          </div>
+        </div>
       </header>
 
       {/* Hero section */}
