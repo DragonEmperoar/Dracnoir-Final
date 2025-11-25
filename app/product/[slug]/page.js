@@ -59,6 +59,42 @@ function ProductPage() {
     setSelectedVariant(variant)
   }
 
+  const handleAddToCart = async () => {
+    if (!product) return
+    if (!user) {
+      alert('Please log in with Google to add items to your cart.')
+      return
+    }
+    setAdding(true)
+    try {
+      const body = {
+        productId: product.id,
+        productSlug: product.slug,
+        quantity: 1,
+        variantId: selectedVariant?.id || null,
+      }
+      const res = await fetch('/api/cart/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      if (res.status === 401) {
+        alert('Session expired. Please log in again.')
+        return
+      }
+      if (!res.ok) {
+        console.error('Failed to add to cart')
+        return
+      }
+      // Optional: redirect or toast could go here; for now, stay on page
+      alert('Added to cart!')
+    } catch (e) {
+      console.error('Error adding to cart', e)
+    } finally {
+      setAdding(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-200">
