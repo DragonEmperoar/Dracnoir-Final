@@ -277,6 +277,121 @@ async function handleRoute(request, { params }) {
       return handleCORS(NextResponse.json(cleaned))
     }
 
+    // CART ENDPOINTS (auth required)
+    if (route === '/cart' && method === 'GET') {
+      const userId = await requireUserId(request)
+      if (!userId) {
+        return handleCORS(
+          NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
+        )
+      }
+      const cartsCol = db.collection('carts')
+      let cart = await cartsCol.findOne({ userId })
+      if (!cart) {
+        cart = { id: uuidv4(), userId, items: [], createdAt: new Date(), updatedAt: new Date() }
+        await cartsCol.insertOne(cart)
+      }
+      const { _id, ...rest } = cart
+      return handleCORS(NextResponse.json(rest))
+    }
+
+    if (route === '/cart/items' && method === 'POST') {
+      const userId = await requireUserId(request)
+      if (!userId) {
+        return handleCORS(
+          NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
+        )
+      }
+      const body = await request.json()
+      const { productId, productSlug, quantity = 1, variantId = null } = body || {}
+      if (!productId && !productSlug) {
+        return handleCORS(
+          NextResponse.json({ error: 'productId or productSlug required' }, { status: 400 }),
+        )
+      }
+
+      const productsCol = db.collection('products')
+      const product = productId
+        ? await productsCol.findOne({ id: productId })
+        : await productsCol.findOne({ slug: productSlug })
+
+      if (!product) {
+        return handleCORS(
+          NextResponse.json({ error: 'Product not found' }, { status: 404 }),
+        )
+      }
+
+      const cartsCol = db.collection('carts')
+      let cart = await cartsCol.findOne({ userId })
+      if (!cart) {
+        cart = { id: uuidv4(), userId, items: [], createdAt: new Date(), updatedAt: new Date() }
+        await cartsCol.insertOne(cart)
+      }
+
+      const items = cart.items || []
+      const existingIndex = items.findIndex(
+        (it) => it.productId === product.id && it.variantId === variantId,
+      )
+
+      const safeQty = Math.max(1, Number(quantity) || 1)
+
+      if (existingIndex >= 0) {
+        items[existingIndex].quantity += safeQty
+      } else {
+        items.push({
+          id: uuidv4(),
+          productId: product.id,
+          productSlug: product.slug,
+          title: product.title,
+          price: product.price,
+          image: product.images?.[0] || null,
+          quantity: safeQty,
+          variantId,
+          addedAt: new Date(),
+        })
+      }
+
+      await cartsCol.updateOne(
+        { id: cart.id },
+        { $set: { items, updatedAt: new Date() } },
+      )
+
+      const updated = await cartsCol.findOne({ id: cart.id })
+      const { _id, ...rest } = updated
+      return handleCORS(NextResponse.json(rest))
+    }
+
+    if (route === '/cart/items' && method === 'DELETE') {
+      const userId = await requireUserId(request)
+      if (!userId) {
+        return handleCORS(
+          NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
+        )
+      }
+      const body = await request.json()
+      const { itemId } = body || {}
+      if (!itemId) {
+        return handleCORS(
+          NextResponse.json({ error: 'itemId required' }, { status: 400 }),
+        )
+      }
+      const cartsCol = db.collection('carts')
+      const cart = await cartsCol.findOne({ userId })
+      if (!cart) {
+        return handleCORS(
+          NextResponse.json({ error: 'Cart not found' }, { status: 404 }),
+        )
+      }
+      const items = (cart.items || []).filter((it) => it.id !== itemId)
+      await cartsCol.updateOne(
+        { id: cart.id },
+        { $set: { items, updatedAt: new Date() } },
+      )
+      const updated = await cartsCol.findOne({ id: cart.id })
+      const { _id, ...rest } = updated
+      return handleCORS(NextResponse.json(rest))
+    }
+
     // GET /api/products (listing with filters & pagination)
     if (route === '/products' && method === 'GET') {
       const { searchParams } = new URL(request.url)
