@@ -255,9 +255,7 @@ function CategoryPage() {
                     <Button
                       size="sm"
                       className="mt-1 rounded-full bg-emerald-500 text-xs font-semibold text-slate-950 hover:bg-emerald-400"
-                      onClick={() =>
-                        handleFilterChange({ subcategory: 'premium' })
-                      }
+                      onClick={() => router.push('/products?subcategory=premium')}
                     >
                       Browse premium figures
                     </Button>
