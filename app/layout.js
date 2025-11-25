@@ -1,14 +1,17 @@
 import './globals.css'
+import { Inter } from 'next/font/google'
+
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'Next.js MongoDB Template',
-  description: 'A simple template with App Router, MongoDB, and shadcn/ui',
+  title: 'Otaku Nebula – Anime Merch Store',
+  description: 'Anime-themed e-commerce store for plushes, tees, and action figures.',
 }
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className="h-full">
+      <body className={`${inter.className} min-h-screen bg-background text-foreground`}>
         {children}
       </body>
     </html>

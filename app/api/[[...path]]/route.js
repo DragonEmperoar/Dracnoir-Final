@@ -2,12 +2,15 @@ import { MongoClient } from 'mongodb'
 import { v4 as uuidv4 } from 'uuid'
 import { NextResponse } from 'next/server'
 
-// MongoDB connection
+// MongoDB connection (reused across requests)
 let client
 let db
 
 async function connectToMongo() {
   if (!client) {
+    if (!process.env.MONGO_URL) {
+      throw new Error('MONGO_URL is not defined in environment')
+    }
     client = new MongoClient(process.env.MONGO_URL)
     await client.connect()
     db = client.db(process.env.DB_NAME)
@@ -15,7 +18,7 @@ async function connectToMongo() {
   return db
 }
 
-// Helper function to handle CORS
+// Helper: CORS
 function handleCORS(response) {
   response.headers.set('Access-Control-Allow-Origin', process.env.CORS_ORIGINS || '*')
   response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
@@ -24,12 +27,161 @@ function handleCORS(response) {
   return response
 }
 
-// OPTIONS handler for CORS
 export async function OPTIONS() {
   return handleCORS(new NextResponse(null, { status: 200 }))
 }
 
-// Route handler function
+// Seed minimal demo data if empty
+async function ensureSeedData(db) {
+  const productsCol = db.collection('products')
+  const categoriesCol = db.collection('categories')
+
+  const categoriesCount = await categoriesCol.countDocuments()
+  const productsCount = await productsCol.countDocuments()
+
+  if (categoriesCount > 0 && productsCount > 0) return
+
+  const categories = [
+    { id: uuidv4(), slug: 'plushes', name: 'Plushes' },
+    { id: uuidv4(), slug: 't-shirts', name: 'T-Shirts' },
+    { id: uuidv4(), slug: 'action-figures', name: 'Action Figures' },
+  ]
+
+  const [plushCat, tshirtCat, figuresCat] = categories
+
+  const now = new Date()
+
+  const products = [
+    {
+      id: uuidv4(),
+      slug: 'chibi-hero-plush',
+      title: 'Chibi Hero Plush',
+      price: 29.99,
+      description: 'Super-soft chibi hero plush with oversized head and embroidered details.',
+      categoryId: plushCat.id,
+      categorySlug: plushCat.slug,
+      material: 'Premium polyester',
+      dimensions: '20cm x 12cm',
+      series: 'My Hero Plushademia',
+      images: [
+        'https://images.unsplash.com/photo-1590708622734-b1b8df3c3576',
+        'https://images.unsplash.com/photo-1707602985834-eca0a6d63b2f',
+      ],
+      rating: 4.8,
+      reviewCount: 32,
+      createdAt: now,
+      popularity: 90,
+      type: 'plush',
+    },
+    {
+      id: uuidv4(),
+      slug: 'neon-mecha-tee',
+      title: 'Neon Mecha Oversized Tee',
+      price: 39.99,
+      description: 'Streetwear-inspired oversized tee featuring a neon mecha print.',
+      categoryId: tshirtCat.id,
+      categorySlug: tshirtCat.slug,
+      material: '100% cotton',
+      dimensions: 'Unisex fit',
+      series: 'Neon Mecha Uprising',
+      images: [
+        'https://images.unsplash.com/photo-1735720518679-4c0673e59035',
+      ],
+      rating: 4.6,
+      reviewCount: 18,
+      createdAt: now,
+      popularity: 80,
+      type: 'tshirt',
+      variants: [
+        {
+          id: uuidv4(),
+          fit: 'Oversized',
+          size: 'M',
+          color: 'Black',
+          stock: 25,
+        },
+        {
+          id: uuidv4(),
+          fit: 'Regular',
+          size: 'L',
+          color: 'White',
+          stock: 10,
+        },
+      ],
+    },
+    {
+      id: uuidv4(),
+      slug: 'dragon-summoner-premium-figure',
+      title: 'Dragon Summoner Premium Figure',
+      price: 129.99,
+      description: 'High-detail PVC figure with translucent dragon effects and dynamic pose.',
+      categoryId: figuresCat.id,
+      categorySlug: figuresCat.slug,
+      material: 'PVC + ABS',
+      dimensions: '28cm x 18cm',
+      series: 'Dragon Summoner Chronicles',
+      images: [
+        'https://images.unsplash.com/photo-1590708622734-b1b8df3c3576',
+      ],
+      rating: 4.9,
+      reviewCount: 54,
+      createdAt: now,
+      popularity: 95,
+      type: 'action-figure',
+      subcategory: 'premium',
+    },
+  ]
+
+  await categoriesCol.deleteMany({})
+  await productsCol.deleteMany({})
+
+  await categoriesCol.insertMany(categories)
+  await productsCol.insertMany(products)
+}
+
+// Helpers for listing products with basic filters
+function buildProductQuery(params) {
+  const query = {}
+  if (params.get('categorySlug')) {
+    query.categorySlug = params.get('categorySlug')
+  }
+  if (params.get('series')) {
+    query.series = params.get('series')
+  }
+  if (params.get('minPrice') || params.get('maxPrice')) {
+    query.price = {}
+    if (params.get('minPrice')) query.price.$gte = Number(params.get('minPrice'))
+    if (params.get('maxPrice')) query.price.$lte = Number(params.get('maxPrice'))
+  }
+  if (params.get('subcategory')) {
+    query.subcategory = params.get('subcategory')
+  }
+  if (params.get('search')) {
+    const s = params.get('search')
+    query.$or = [
+      { title: { $regex: s, $options: 'i' } },
+      { description: { $regex: s, $options: 'i' } },
+      { series: { $regex: s, $options: 'i' } },
+    ]
+  }
+  return query
+}
+
+function buildProductSort(params) {
+  const sortParam = params.get('sort') || 'popularity'
+  switch (sortParam) {
+    case 'price-asc':
+      return { price: 1 }
+    case 'price-desc':
+      return { price: -1 }
+    case 'newest':
+      return { createdAt: -1 }
+    case 'popularity':
+    default:
+      return { popularity: -1 }
+  }
+}
+
 async function handleRoute(request, { params }) {
   const { path = [] } = params
   const route = `/${path.join('/')}`
@@ -37,66 +189,74 @@ async function handleRoute(request, { params }) {
 
   try {
     const db = await connectToMongo()
+    await ensureSeedData(db)
 
-    // Root endpoint - GET /api/root (since /api/ is not accessible with catch-all)
-    if (route === '/root' && method === 'GET') {
-      return handleCORS(NextResponse.json({ message: "Hello World" }))
-    }
-    // Root endpoint - GET /api/root (since /api/ is not accessible with catch-all)
-    if (route === '/' && method === 'GET') {
-      return handleCORS(NextResponse.json({ message: "Hello World" }))
+    // Root test endpoint (for the old home test)
+    if ((route === '/' || route === '/root') && method === 'GET') {
+      return handleCORS(NextResponse.json({ message: 'Hello World from Anime Store API' }))
     }
 
-    // Status endpoints - POST /api/status
-    if (route === '/status' && method === 'POST') {
-      const body = await request.json()
-      
-      if (!body.client_name) {
-        return handleCORS(NextResponse.json(
-          { error: "client_name is required" }, 
-          { status: 400 }
-        ))
-      }
-
-      const statusObj = {
-        id: uuidv4(),
-        client_name: body.client_name,
-        timestamp: new Date()
-      }
-
-      await db.collection('status_checks').insertOne(statusObj)
-      return handleCORS(NextResponse.json(statusObj))
+    // GET /api/categories
+    if (route === '/categories' && method === 'GET') {
+      const categories = await db.collection('categories').find({}).toArray()
+      const cleaned = categories.map(({ _id, ...rest }) => rest)
+      return handleCORS(NextResponse.json(cleaned))
     }
 
-    // Status endpoints - GET /api/status
-    if (route === '/status' && method === 'GET') {
-      const statusChecks = await db.collection('status_checks')
-        .find({})
-        .limit(1000)
+    // GET /api/products
+    if (route === '/products' && method === 'GET') {
+      const { searchParams } = new URL(request.url)
+      const page = Number(searchParams.get('page') || '1')
+      const limit = Math.min(Number(searchParams.get('limit') || '12'), 50)
+
+      const query = buildProductQuery(searchParams)
+      const sort = buildProductSort(searchParams)
+
+      const col = db.collection('products')
+      const total = await col.countDocuments(query)
+      const items = await col
+        .find(query)
+        .sort(sort)
+        .skip((page - 1) * limit)
+        .limit(limit)
         .toArray()
 
-      // Remove MongoDB's _id field from response
-      const cleanedStatusChecks = statusChecks.map(({ _id, ...rest }) => rest)
-      
-      return handleCORS(NextResponse.json(cleanedStatusChecks))
+      const cleaned = items.map(({ _id, ...rest }) => rest)
+
+      return handleCORS(
+        NextResponse.json({
+          items: cleaned,
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit) || 1,
+        }),
+      )
     }
 
-    // Route not found
-    return handleCORS(NextResponse.json(
-      { error: `Route ${route} not found` }, 
-      { status: 404 }
-    ))
+    // GET /api/products/[slug]
+    if (route.startsWith('/products/') && method === 'GET') {
+      const slug = route.split('/')[2]
+      const product = await db.collection('products').findOne({ slug })
+      if (!product) {
+        return handleCORS(NextResponse.json({ error: 'Product not found' }, { status: 404 }))
+      }
+      const { _id, ...rest } = product
+      return handleCORS(NextResponse.json(rest))
+    }
 
+    // Fallback
+    return handleCORS(
+      NextResponse.json({ error: `Route ${route} not found` }, { status: 404 }),
+    )
   } catch (error) {
     console.error('API Error:', error)
-    return handleCORS(NextResponse.json(
-      { error: "Internal server error" }, 
-      { status: 500 }
-    ))
+    return handleCORS(
+      NextResponse.json({ error: 'Internal server error' }, { status: 500 }),
+    )
   }
 }
 
-// Export all HTTP methods
 export const GET = handleRoute
 export const POST = handleRoute
 export const PUT = handleRoute
