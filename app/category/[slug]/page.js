@@ -153,6 +153,13 @@ function CategoryPage() {
 
   const fetchPage = async (targetPage, opts = { append: false }) => {
     if (!slug) return
+    if (slug === 'action-figures' && !filters.subcategory) {
+      // Require a subcategory selection (premium / sustainable) before loading
+      setProducts([])
+      setHasMore(false)
+      setPage(1)
+      return
+    }
     setLoading(true)
     try {
       const qs = buildQueryString(slug, filters, targetPage)
