@@ -15,7 +15,14 @@ API_BASE = f"{BASE_URL}/api"
 
 def test_endpoint(method, endpoint, expected_status=200, params=None, data=None, headers=None):
     """Test a single endpoint with detailed error reporting"""
-    url = urljoin(API_BASE, endpoint.lstrip('/'))
+    # Ensure endpoint starts with /api if not already
+    if not endpoint.startswith('/api'):
+        if endpoint.startswith('/'):
+            endpoint = '/api' + endpoint
+        else:
+            endpoint = '/api/' + endpoint
+    
+    url = urljoin(BASE_URL, endpoint.lstrip('/'))
     
     try:
         print(f"\n🧪 Testing {method} {url}")
