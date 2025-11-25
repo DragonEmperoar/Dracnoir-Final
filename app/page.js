@@ -106,9 +106,9 @@ function App() {
 
       {/* Hero section */}
       <main className="container mx-auto px-4 pb-16 pt-8 space-y-12">
-        <section className="grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] items-stretch">
+        <section className="grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] items-stretch min-h-[480px]">
           <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-950/60">
-            <div className="relative h-72 sm:h-80 md:h-96 w-full">
+            <div className="relative h-full min-h-[18rem] sm:min-h-[20rem] md:min-h-[24rem] w-full">
               <Image
                 src={heroImages[heroIndex]}
                 alt="Anime merch hero"
