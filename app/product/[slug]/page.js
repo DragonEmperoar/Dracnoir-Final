@@ -254,8 +254,8 @@ function ProductPage() {
               </div>
             </div>
 
-            <div className="space-y-3 rounded-2xl border border-slate-800 bg-slate-950/80 p-4">
-              <div className="flex items-baseline justify-between">
+            <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-950/80 p-4">
+              <div className="flex items-baseline justify-between gap-4">
                 <div>
                   <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
                     Price
@@ -264,18 +264,36 @@ function ProductPage() {
                     ${product.price?.toFixed?.(2) ?? '0.00'}
                   </p>
                 </div>
-                {product.subcategory && (
-                  <span className="rounded-full border border-emerald-500/60 bg-emerald-500/10 px-3 py-1 text-[11px] text-emerald-200">
-                    {product.subcategory === 'premium'
-                      ? 'Premium figure'
-                      : 'Sustainable series'}
-                  </span>
-                )}
+                <div className="flex flex-col items-end gap-1 text-[11px] text-slate-400">
+                  <div className="flex items-center gap-1 text-amber-300">
+                    <Star className="h-3 w-3" />
+                    {avgRating && (
+                      <span className="font-semibold">{avgRating.toFixed(1)}</span>
+                    )}
+                    <span className="text-slate-500">({reviewCount || 0})</span>
+                  </div>
+                  {product.subcategory && (
+                    <span className="rounded-full border border-emerald-500/60 bg-emerald-500/10 px-3 py-1 text-[11px] text-emerald-200">
+                      {product.subcategory === 'premium'
+                        ? 'Premium figure'
+                        : 'Sustainable series'}
+                    </span>
+                  )}
+                </div>
               </div>
 
               {product.type === 'tshirt' && Array.isArray(product.variants) && (
-                <div className="mt-3 space-y-3 border-t border-slate-800 pt-3 text-xs">
-                  <p className="font-medium text-slate-200">Select fit & size</p>
+                <div className="space-y-3 border-t border-slate-800 pt-3 text-xs">
+                  <div className="flex items-center justify-between">
+                    <p className="font-medium text-slate-200">Select fit & size</p>
+                    <button
+                      type="button"
+                      onClick={() => setShowSizeGuide((v) => !v)}
+                      className="text-[11px] text-violet-300 hover:text-violet-200"
+                    >
+                      {showSizeGuide ? 'Hide size guide' : 'View size guide'}
+                    </button>
+                  </div>
                   <div className="flex flex-wrap gap-2">
                     {product.variants.map((variant) => {
                       const isActive = selectedVariant?.id === variant.id
@@ -303,26 +321,59 @@ function ProductPage() {
                       </span>
                     </p>
                   )}
+                  {showSizeGuide && (
+                    <div className="mt-2 rounded-xl border border-slate-800 bg-slate-950/80 p-3 text-[11px] text-slate-300">
+                      <p className="mb-1 font-medium text-slate-200">Size guide</p>
+                      <p>
+                        Oversized fits are relaxed with dropped shoulders. If you prefer a
+                        standard ComicSense-style fit, choose Regular in your usual size.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-center gap-3 border-t border-slate-800 pt-3 text-xs">
+                <div className="inline-flex items-center rounded-full border border-slate-700 bg-slate-900/80">
+                  <button
+                    type="button"
+                    className="px-3 py-1 text-slate-300 hover:text-slate-100"
+                    onClick={() => handleChangeQuantity(-1)}
+                  >
+                    -
+                  </button>
+                  <span className="min-w-[2rem] text-center text-slate-100">
+                    {quantity}
+                  </span>
+                  <button
+                    type="button"
+                    className="px-3 py-1 text-slate-300 hover:text-slate-100"
+                    onClick={() => handleChangeQuantity(1)}
+                  >
+                    +
+                  </button>
+                </div>
+                <span className="text-slate-500">
+                  Max 10 per order • You can update quantity in cart too.
+                </span>
+              </div>
+
+              <div className="flex flex-col gap-2 pt-1 sm:flex-row">
                 <Button
-                  className="rounded-full bg-violet-500 text-xs font-semibold text-white hover:bg-violet-400"
+                  className="flex-1 rounded-full bg-violet-500 text-xs font-semibold text-white hover:bg-violet-400"
                   onClick={handleAddToCart}
+                  disabled={adding}
                 >
-                  Add to cart
+                  {adding ? 'Adding...' : 'Add to cart'}
                 </Button>
                 <Button
                   variant="outline"
-                  className="rounded-full border-slate-700 bg-slate-900/80 text-xs text-slate-100 hover:bg-slate-800"
+                  className="flex-1 rounded-full border-violet-500/70 bg-slate-950 text-xs text-violet-200 hover:bg-violet-500/10"
+                  onClick={() => alert('Buy now will take you straight to checkout in the next iteration.')}
                 >
-                  Add to wishlist
+                  Buy now
                 </Button>
               </div>
-              <p className="mt-1 text-[11px] text-slate-500">
-                Cart and checkout flow coming up next – this button will wire into your persistent cart.
-              </p>
             </div>
 
             <div className="grid gap-4 text-xs text-slate-300 sm:grid-cols-2">
