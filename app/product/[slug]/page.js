@@ -134,10 +134,29 @@ function ProductPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-50">
       <main className="container mx-auto px-4 pb-16 pt-8">
+        <div className="mb-3 text-[11px] text-slate-500 flex items-center gap-1">
+          <button
+            className="hover:text-slate-200 flex items-center gap-1"
+            onClick={() => router.back()}
+          >
+            <ChevronLeft className="h-3 w-3" /> Home
+          </button>
+          <span className="mx-1">/</span>
+          <span className="capitalize text-slate-400">
+            {product.type === 'tshirt'
+              ? 'T-Shirts'
+              : product.type === 'plush'
+              ? 'Plushes'
+              : 'Figures'}
+          </span>
+          <span className="mx-1">/</span>
+          <span className="text-slate-200 line-clamp-1">{product.title}</span>
+        </div>
+
         <div className="mb-6 flex items-center justify-between text-xs text-slate-400">
           <button
             className="inline-flex items-center gap-1 rounded-full border border-slate-700 bg-slate-900/80 px-3 py-1 text-[11px] text-slate-200 hover:bg-slate-800"
-            onClick={() => window.history.back()}
+            onClick={() => router.back()}
           >
             <ChevronLeft className="h-3 w-3" /> Back
           </button>
