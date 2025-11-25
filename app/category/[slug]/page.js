@@ -294,145 +294,129 @@ function CategoryPage() {
           )}
         </section>
 
-        {/* Filters + grid */}
-        <section className="grid gap-8 md:grid-cols-[minmax(0,_1.1fr)_minmax(0,_2.2fr)]">
-          {/* Filters */}
-          <aside className="space-y-5 rounded-2xl border border-slate-800/80 bg-slate-950/80 p-4">
-            <div className="space-y-2">
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-400">
-                Filters
-              </p>
-              <Input
-                placeholder="Search by name or series"
-                value={filters.search}
-                onChange={(e) =>
-                  handleFilterChange({ search: e.target.value })
-                }
-                className="h-9 border-slate-700 bg-slate-900/80 text-sm placeholder:text-slate-500"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-slate-300">Anime series</p>
-              <Select
-                value={filters.series || 'all'}
-                onValueChange={(value) =>
-                  handleFilterChange({ series: value === 'all' ? '' : value })
-                }
-              >
-                <SelectTrigger className="h-9 border-slate-700 bg-slate-900/80 text-xs text-slate-200">
-                  <SelectValue placeholder="All series" />
-                </SelectTrigger>
-                <SelectContent className="max-h-64 border-slate-800 bg-slate-900 text-xs text-slate-100">
-                  <SelectItem value="all">All series</SelectItem>
-                  {selectedSeriesOptions.map((name) => (
-                    <SelectItem key={name} value={name}>
-                      {name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-slate-300">Price range ($)</p>
-              <div className="flex gap-2 text-xs">
+        {/* Only show filters + grid for non-figure categories */}
+        {slug !== 'action-figures' && (
+          <section className="grid gap-8 md:grid-cols-[minmax(0,_1.1fr)_minmax(0,_2.2fr)]">
+            {/* Filters */}
+            <aside className="space-y-5 rounded-2xl border border-slate-800/80 bg-slate-950/80 p-4">
+              <div className="space-y-2">
+                <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-400">
+                  Filters
+                </p>
                 <Input
-                  type="number"
-                  inputMode="decimal"
-                  placeholder="Min"
-                  value={filters.minPrice}
+                  placeholder="Search by name or series"
+                  value={filters.search}
                   onChange={(e) =>
-                    handleFilterChange({ minPrice: e.target.value })
+                    handleFilterChange({ search: e.target.value })
                   }
-                  className="h-9 w-full border-slate-700 bg-slate-900/80 text-xs"
-                />
-                <Input
-                  type="number"
-                  inputMode="decimal"
-                  placeholder="Max"
-                  value={filters.maxPrice}
-                  onChange={(e) =>
-                    handleFilterChange({ maxPrice: e.target.value })
-                  }
-                  className="h-9 w-full border-slate-700 bg-slate-900/80 text-xs"
+                  className="h-9 border-slate-700 bg-slate-900/80 text-sm placeholder:text-slate-500"
                 />
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-slate-300">Sort by</p>
-              <Select
-                value={filters.sort}
-                onValueChange={(value) => handleFilterChange({ sort: value })}
-              >
-                <SelectTrigger className="h-9 border-slate-700 bg-slate-900/80 text-xs text-slate-200">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="border-slate-800 bg-slate-900 text-xs text-slate-100">
-                  {sortOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-slate-300">Anime series</p>
+                <Select
+                  value={filters.series || 'all'}
+                  onValueChange={(value) =>
+                    handleFilterChange({ series: value === 'all' ? '' : value })
+                  }
+                >
+                  <SelectTrigger className="h-9 border-slate-700 bg-slate-900/80 text-xs text-slate-200">
+                    <SelectValue placeholder="All series" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-64 border-slate-800 bg-slate-900 text-xs text-slate-100">
+                    <SelectItem value="all">All series</SelectItem>
+                    {selectedSeriesOptions.map((name) => (
+                      <SelectItem key={name} value={name}>
+                        {name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {isFigures && filters.subcategory && (
-              <div className="flex items-center justify-between rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-[11px] text-emerald-100">
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-slate-300">Price range ($)</p>
+                <div className="flex gap-2 text-xs">
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    placeholder="Min"
+                    value={filters.minPrice}
+                    onChange={(e) =>
+                      handleFilterChange({ minPrice: e.target.value })
+                    }
+                    className="h-9 w-full border-slate-700 bg-slate-900/80 text-xs"
+                  />
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    placeholder="Max"
+                    value={filters.maxPrice}
+                    onChange={(e) =>
+                      handleFilterChange({ maxPrice: e.target.value })
+                    }
+                    className="h-9 w-full border-slate-700 bg-slate-900/80 text-xs"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-slate-300">Sort by</p>
+                <Select
+                  value={filters.sort}
+                  onValueChange={(value) => handleFilterChange({ sort: value })}
+                >
+                  <SelectTrigger className="h-9 border-slate-700 bg-slate-900/80 text-xs text-slate-200">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="border-slate-800 bg-slate-900 text-xs text-slate-100">
+                    {sortOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </aside>
+
+            {/* Products grid */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between text-xs text-slate-400">
                 <span>
-                  Showing {filters.subcategory === 'premium' ? 'premium' : 'sustainable'}
-                  {' '}figures
+                  {products.length > 0
+                    ? `Showing ${products.length} item${products.length !== 1 ? 's' : ''}`
+                    : loading
+                    ? 'Loading drops...'
+                    : 'No items match these filters yet.'}
                 </span>
-                <button
-                  onClick={() => handleFilterChange({ subcategory: '' })}
-                  className="inline-flex items-center gap-1 text-[10px] text-emerald-200/80 hover:text-emerald-100"
-                >
-                  Clear
-                  <ChevronRight className="h-3 w-3" />
-                </button>
               </div>
-            )}
-          </aside>
-
-          {/* Products grid */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between text-xs text-slate-400">
-              <span>
-                {slug === 'action-figures' && !filters.subcategory
-                  ? 'Choose Premium or Sustainable to see figures.'
-                  : products.length > 0
-                  ? `Showing ${products.length} item${products.length !== 1 ? 's' : ''}`
-                  : loading
-                  ? 'Loading drops...'
-                  : 'No items match these filters yet.'}
-              </span>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onClick={() => handleProductClick(product)}
-                />
-              ))}
-            </div>
-            {hasMore && (
-              <div className="mt-4 flex justify-center">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={loading}
-                  onClick={handleLoadMore}
-                  className="rounded-full border-slate-700 bg-slate-900/80 text-xs text-slate-100 hover:bg-slate-800"
-                >
-                  {loading ? 'Loading more...' : 'Load more'}
-                </Button>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {products.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onClick={() => handleProductClick(product)}
+                  />
+                ))}
               </div>
-            )}
-          </div>
-        </section>
+              {hasMore && (
+                <div className="mt-4 flex justify-center">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={loading}
+                    onClick={handleLoadMore}
+                    className="rounded-full border-slate-700 bg-slate-900/80 text-xs text-slate-100 hover:bg-slate-800"
+                  >
+                    {loading ? 'Loading more...' : 'Load more'}
+                  </Button>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
       </main>
     </div>
   )
