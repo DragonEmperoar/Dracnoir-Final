@@ -22,6 +22,7 @@ function ProductPage() {
   const [activeImage, setActiveImage] = useState(0)
 
   const [selectedVariant, setSelectedVariant] = useState(null)
+  const [adding, setAdding] = useState(false)
 
   useEffect(() => {
     if (!slug) return
