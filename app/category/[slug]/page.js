@@ -284,9 +284,7 @@ function CategoryPage() {
                     variant="outline"
                     size="sm"
                     className="mt-1 w-fit rounded-full border-emerald-500/60 bg-transparent text-[11px] text-emerald-200 hover:bg-emerald-500/10"
-                    onClick={() =>
-                      handleFilterChange({ subcategory: 'sustainable' })
-                    }
+                    onClick={() => router.push('/products?subcategory=sustainable')}
                   >
                     View sustainable picks
                   </Button>
