@@ -404,7 +404,9 @@ function CategoryPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between text-xs text-slate-400">
               <span>
-                {products.length > 0
+                {slug === 'action-figures' && !filters.subcategory
+                  ? 'Choose Premium or Sustainable to see figures.'
+                  : products.length > 0
                   ? `Showing ${products.length} item${products.length !== 1 ? 's' : ''}`
                   : loading
                   ? 'Loading drops...'
