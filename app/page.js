@@ -126,11 +126,18 @@ function App() {
                     Plushes, tees, and figures from iconic series—curated for otaku shelves, gaming setups, and cozy midnight binges.
                   </p>
                   <div className="flex flex-wrap gap-3 pt-2">
-                    <Button className="bg-violet-500 hover:bg-violet-400 text-white text-sm px-4 sm:px-5 py-2 rounded-full flex items-center gap-2">
-                      Shop featured
+                    <Button
+                      className="bg-violet-500 hover:bg-violet-400 text-white text-sm px-4 sm:px-5 py-2 rounded-full flex items-center gap-2"
+                      onClick={() => router.push('/products')}
+                    >
+                      Shop all products
                       <ChevronRight className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" className="border-slate-700 bg-slate-900/60 text-slate-100 hover:bg-slate-800 rounded-full text-sm px-4 sm:px-5 py-2">
+                    <Button
+                      variant="outline"
+                      className="border-slate-700 bg-slate-900/60 text-slate-100 hover:bg-slate-800 rounded-full text-sm px-4 sm:px-5 py-2"
+                      onClick={() => router.push('/products')}
+                    >
                       Browse all categories
                     </Button>
                   </div>
