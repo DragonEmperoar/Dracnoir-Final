@@ -49,6 +49,7 @@ function useHeroCarousel(intervalMs = 5000) {
 }
 
 function App() {
+  const router = useRouter()
   const { user, loginWithGoogle } = useAuth()
   const [heroIndex, setHeroIndex] = useHeroCarousel()
   const [featured, setFeatured] = useState([])
