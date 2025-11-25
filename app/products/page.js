@@ -194,14 +194,16 @@ const AllProductsPage = () => {
             <div className="space-y-2">
               <p className="text-xs font-medium text-slate-300">Anime series</p>
               <Select
-                value={filters.series || ''}
-                onValueChange={(value) => handleFilterChange({ series: value })}
+                value={filters.series || 'all'}
+                onValueChange={(value) =>
+                  handleFilterChange({ series: value === 'all' ? '' : value })
+                }
               >
                 <SelectTrigger className="h-9 border-slate-700 bg-slate-900/80 text-xs text-slate-200">
                   <SelectValue placeholder="All series" />
                 </SelectTrigger>
                 <SelectContent className="max-h-64 border-slate-800 bg-slate-900 text-xs text-slate-100">
-                  <SelectItem value="">All series</SelectItem>
+                  <SelectItem value="all">All series</SelectItem>
                   {selectedSeriesOptions.map((name) => (
                     <SelectItem key={name} value={name}>
                       {name}
