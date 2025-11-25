@@ -10,6 +10,8 @@ import { useAuth } from '../../context/AuthContext'
 
 function ProductPage() {
   const params = useParams()
+  const router = useRouter()
+  const { user } = useAuth()
   const rawSlug = params?.slug
   const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug
 
