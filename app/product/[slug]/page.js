@@ -23,6 +23,10 @@ function ProductPage() {
 
   const [selectedVariant, setSelectedVariant] = useState(null)
   const [adding, setAdding] = useState(false)
+  const [quantity, setQuantity] = useState(1)
+  const [pincode, setPincode] = useState('')
+  const [pincodeMessage, setPincodeMessage] = useState('')
+  const [showSizeGuide, setShowSizeGuide] = useState(false)
 
   useEffect(() => {
     if (!slug) return
