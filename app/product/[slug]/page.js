@@ -25,6 +25,8 @@ function ProductPage() {
   const [selectedVariant, setSelectedVariant] = useState(null)
   const [adding, setAdding] = useState(false)
   const [quantity, setQuantity] = useState(1)
+  const [fit, setFit] = useState('')
+  const [color, setColor] = useState('')
   const [pincode, setPincode] = useState('')
   const [pincodeMessage, setPincodeMessage] = useState('')
   const [showSizeGuide, setShowSizeGuide] = useState(false)
