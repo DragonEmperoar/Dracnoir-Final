@@ -206,7 +206,12 @@ function App() {
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-slate-100">Trending right now</h2>
-            <button className="text-xs text-violet-300 hover:text-violet-200">View all</button>
+            <button
+              className="text-xs text-violet-300 hover:text-violet-200"
+              onClick={() => router.push('/products')}
+            >
+              View all
+            </button>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {featured.map((product) => (
