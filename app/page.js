@@ -76,9 +76,9 @@ function App() {
             </span>
             <div>
               <div className="text-sm font-semibold tracking-wide text-violet-200">
-                Otaku Nebula
+                Dracnoir
               </div>
-              <div className="text-xs text-slate-400">Anime merch for your multiverse</div>
+              <div className="text-xs text-slate-400">Anime merch for your hoard</div>
             </div>
           </div>
           <div className="flex items-center gap-3 text-xs sm:text-sm">
