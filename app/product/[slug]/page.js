@@ -227,7 +227,10 @@ function ProductPage() {
               )}
 
               <div className="mt-3 flex flex-wrap gap-2">
-                <Button className="rounded-full bg-violet-500 text-xs font-semibold text-white hover:bg-violet-400">
+                <Button
+                  className="rounded-full bg-violet-500 text-xs font-semibold text-white hover:bg-violet-400"
+                  onClick={handleAddToCart}
+                >
                   Add to cart
                 </Button>
                 <Button
