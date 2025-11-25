@@ -80,8 +80,13 @@ function App() {
             </div>
           </div>
           <div className="flex items-center gap-3 text-xs sm:text-sm">
-            <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white">
-              Login
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-slate-300 hover:text-white"
+              onClick={() => loginWithGoogle()}
+            >
+              {user ? `Hi, ${user.name?.split?.(' ')?.[0] || 'otaku'}` : 'Login with Google'}
             </Button>
             <Button size="sm" className="gap-1 bg-violet-500 hover:bg-violet-400 text-white">
               <ShoppingCart className="h-4 w-4" />
