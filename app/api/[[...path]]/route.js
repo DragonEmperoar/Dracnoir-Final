@@ -131,10 +131,62 @@ async function ensureSeedData(db) {
         type: 'action-figure',
         subcategory: 'premium',
       },
+      {
+        id: uuidv4(),
+        slug: 'forest-guardian-sustainable-figure',
+        title: 'Forest Guardian Sustainable Figure',
+        price: 89.99,
+        description:
+          'Eco-friendly collectible crafted with recycled materials and minimal packaging.',
+        categoryId: figuresCat.id,
+        categorySlug: figuresCat.slug,
+        material: 'Recycled PVC blend',
+        dimensions: '22cm x 14cm',
+        series: 'Verdant Spirits',
+        images: ['https://images.unsplash.com/photo-1590708622734-b1b8df3c3576'],
+        rating: 4.7,
+        reviewCount: 21,
+        createdAt: now,
+        popularity: 88,
+        type: 'action-figure',
+        subcategory: 'sustainable',
+      },
     ]
 
     await categoriesCol.insertMany(categories)
     await productsCol.insertMany(products)
+  }
+
+  // Ensure at least one sustainable figure exists for demos
+  const sustainableExists = await productsCol.findOne({
+    type: 'action-figure',
+    subcategory: 'sustainable',
+  })
+  if (!sustainableExists) {
+    const figuresCatDoc = await categoriesCol.findOne({ slug: 'action-figures' })
+    if (figuresCatDoc) {
+      const now = new Date()
+      await productsCol.insertOne({
+        id: uuidv4(),
+        slug: 'forest-guardian-sustainable-figure',
+        title: 'Forest Guardian Sustainable Figure',
+        price: 89.99,
+        description:
+          'Eco-friendly collectible crafted with recycled materials and minimal packaging.',
+        categoryId: figuresCatDoc.id,
+        categorySlug: figuresCatDoc.slug,
+        material: 'Recycled PVC blend',
+        dimensions: '22cm x 14cm',
+        series: 'Verdant Spirits',
+        images: ['https://images.unsplash.com/photo-1590708622734-b1b8df3c3576'],
+        rating: 4.7,
+        reviewCount: 21,
+        createdAt: now,
+        popularity: 88,
+        type: 'action-figure',
+        subcategory: 'sustainable',
+      })
+    }
   }
 
   // Seed a few demo reviews if none exist
