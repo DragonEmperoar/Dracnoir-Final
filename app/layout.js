@@ -5,8 +5,8 @@ import Providers from './providers'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'Otaku Nebula – Anime Merch Store',
-  description: 'Anime-themed e-commerce store for plushes, tees, and action figures.',
+  title: 'Dracnoir – Anime Merch Store',
+  description: 'Dracnoir: anime-themed e-commerce store for plushes, tees, and action figures.',
 }
 
 export default function RootLayout({ children }) {
