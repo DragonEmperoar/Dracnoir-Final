@@ -92,7 +92,11 @@ function App() {
             >
               {user ? `Hi, ${user.name?.split?.(' ')?.[0] || 'otaku'}` : 'Login with Google'}
             </Button>
-            <Button size="sm" className="gap-1 bg-violet-500 hover:bg-violet-400 text-white">
+            <Button
+              size="sm"
+              className="gap-1 bg-violet-500 hover:bg-violet-400 text-white"
+              onClick={() => router.push('/cart')}
+            >
               <ShoppingCart className="h-4 w-4" />
               Cart
             </Button>
