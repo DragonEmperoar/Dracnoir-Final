@@ -19,6 +19,20 @@ const CheckoutPage = () => {
   const [selectedAddressId, setSelectedAddressId] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showAddressDialog, setShowAddressDialog] = useState(false)
+  const [newAddress, setNewAddress] = useState({
+    label: '',
+    name: '',
+    phone: '',
+    line1: '',
+    line2: '',
+    city: '',
+    state: '',
+    postalCode: '',
+    country: '',
+    isDefault: false,
+  })
+  const [savingAddress, setSavingAddress] = useState(false)
 
   useEffect(() => {
     if (!user) {
