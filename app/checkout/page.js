@@ -33,6 +33,10 @@ const CheckoutPage = () => {
     isDefault: false,
   })
   const [savingAddress, setSavingAddress] = useState(false)
+  const [couponCode, setCouponCode] = useState('')
+  const [appliedCoupon, setAppliedCoupon] = useState(null)
+  const [couponError, setCouponError] = useState('')
+  const [applyingCoupon, setApplyingCoupon] = useState(false)
 
   useEffect(() => {
     if (!user) {
