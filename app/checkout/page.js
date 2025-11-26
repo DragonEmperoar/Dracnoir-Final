@@ -261,6 +261,148 @@ const CheckoutPage = () => {
                       ))}
                     </div>
                   )}
+                  
+                  {/* Add New Address Button */}
+                  <Dialog open={showAddressDialog} onOpenChange={setShowAddressDialog}>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="mt-2 w-full border-dashed border-violet-500/40 bg-slate-950/60 text-xs text-violet-300 hover:border-violet-400 hover:bg-violet-500/10 hover:text-violet-200"
+                      >
+                        <Plus className="mr-1 h-3 w-3" />
+                        Add New Address
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-h-[90vh] overflow-y-auto border-slate-800 bg-slate-950">
+                      <DialogHeader>
+                        <DialogTitle className="text-slate-100">Add New Shipping Address</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="label" className="text-xs text-slate-300">Label *</Label>
+                          <Input
+                            id="label"
+                            placeholder="Home, Work, etc."
+                            value={newAddress.label}
+                            onChange={(e) => setNewAddress({ ...newAddress, label: e.target.value })}
+                            className="border-slate-800 bg-slate-900 text-slate-100"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="name" className="text-xs text-slate-300">Full Name</Label>
+                          <Input
+                            id="name"
+                            placeholder="John Doe"
+                            value={newAddress.name}
+                            onChange={(e) => setNewAddress({ ...newAddress, name: e.target.value })}
+                            className="border-slate-800 bg-slate-900 text-slate-100"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="phone" className="text-xs text-slate-300">Phone</Label>
+                          <Input
+                            id="phone"
+                            placeholder="+1 234 567 8900"
+                            value={newAddress.phone}
+                            onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
+                            className="border-slate-800 bg-slate-900 text-slate-100"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="line1" className="text-xs text-slate-300">Address Line 1 *</Label>
+                          <Input
+                            id="line1"
+                            placeholder="Street address"
+                            value={newAddress.line1}
+                            onChange={(e) => setNewAddress({ ...newAddress, line1: e.target.value })}
+                            className="border-slate-800 bg-slate-900 text-slate-100"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="line2" className="text-xs text-slate-300">Address Line 2</Label>
+                          <Input
+                            id="line2"
+                            placeholder="Apartment, suite, etc."
+                            value={newAddress.line2}
+                            onChange={(e) => setNewAddress({ ...newAddress, line2: e.target.value })}
+                            className="border-slate-800 bg-slate-900 text-slate-100"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="city" className="text-xs text-slate-300">City *</Label>
+                            <Input
+                              id="city"
+                              placeholder="City"
+                              value={newAddress.city}
+                              onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+                              className="border-slate-800 bg-slate-900 text-slate-100"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="state" className="text-xs text-slate-300">State *</Label>
+                            <Input
+                              id="state"
+                              placeholder="State"
+                              value={newAddress.state}
+                              onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
+                              className="border-slate-800 bg-slate-900 text-slate-100"
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="postalCode" className="text-xs text-slate-300">Postal Code *</Label>
+                            <Input
+                              id="postalCode"
+                              placeholder="ZIP / Postal"
+                              value={newAddress.postalCode}
+                              onChange={(e) => setNewAddress({ ...newAddress, postalCode: e.target.value })}
+                              className="border-slate-800 bg-slate-900 text-slate-100"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="country" className="text-xs text-slate-300">Country *</Label>
+                            <Input
+                              id="country"
+                              placeholder="Country"
+                              value={newAddress.country}
+                              onChange={(e) => setNewAddress({ ...newAddress, country: e.target.value })}
+                              className="border-slate-800 bg-slate-900 text-slate-100"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id="isDefault"
+                            checked={newAddress.isDefault}
+                            onChange={(e) => setNewAddress({ ...newAddress, isDefault: e.target.checked })}
+                            className="h-4 w-4 rounded border-slate-700 bg-slate-900 text-violet-500"
+                          />
+                          <Label htmlFor="isDefault" className="text-xs text-slate-300">
+                            Set as default address
+                          </Label>
+                        </div>
+                        <div className="flex justify-end space-x-2 pt-4">
+                          <Button
+                            variant="outline"
+                            onClick={() => setShowAddressDialog(false)}
+                            className="border-slate-700 text-slate-300 hover:bg-slate-900"
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            onClick={handleSaveAddress}
+                            disabled={savingAddress || !newAddress.label || !newAddress.line1 || !newAddress.city || !newAddress.state || !newAddress.postalCode || !newAddress.country}
+                            className="bg-violet-500 text-white hover:bg-violet-400"
+                          >
+                            {savingAddress ? 'Saving...' : 'Save Address'}
+                          </Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
 
                 <div className="border-t border-slate-800 pt-3 text-slate-300">
