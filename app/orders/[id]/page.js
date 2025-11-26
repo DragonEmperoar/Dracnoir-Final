@@ -114,7 +114,7 @@ const OrderDetailPage = () => {
                           <p className="text-sm text-slate-400">Qty: {item.quantity}</p>
                         </div>
                         <p className="text-sm font-semibold text-slate-100">
-                          ${(item.price || 0).toFixed(2)}
+                          ₹{(item.price || 0).toFixed(0)}
                         </p>
                       </div>
                     ))}
