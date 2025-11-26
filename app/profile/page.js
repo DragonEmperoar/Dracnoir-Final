@@ -19,15 +19,17 @@ const ProfilePage = () => {
 
   if (!user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-200">
-        Loading profile...
-      </div>
+      <AppShell>
+        <div className="flex min-h-[60vh] items-center justify-center text-slate-200">
+          Loading profile...
+        </div>
+      </AppShell>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-50">
-      <main className="container mx-auto px-4 pb-16 pt-8 space-y-8">
+    <AppShell>
+      <div className="space-y-8">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-violet-300/80">Account</p>
