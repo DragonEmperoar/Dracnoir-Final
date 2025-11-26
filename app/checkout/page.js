@@ -82,8 +82,46 @@ const CheckoutPage = () => {
     (sum, item) => sum + (item.price || 0) * (item.quantity || 1),
     0,
   )
+  
+  const discount = appliedCoupon ? (subtotal * appliedCoupon.discount / 100) : 0
+  const total = subtotal - discount
 
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId)
+  
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError('Please enter a coupon code')
+      return
+    }
+    
+    setApplyingCoupon(true)
+    setCouponError('')
+    
+    try {
+      const res = await fetch(`/api/coupons/validate?code=${couponCode.trim()}`)
+      const data = await res.json()
+      
+      if (!res.ok) {
+        setCouponError(data.error || 'Invalid coupon code')
+        setAppliedCoupon(null)
+        return
+      }
+      
+      setAppliedCoupon(data)
+      setCouponError('')
+    } catch (e) {
+      console.error(e)
+      setCouponError('Unable to apply coupon right now')
+    } finally {
+      setApplyingCoupon(false)
+    }
+  }
+  
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null)
+    setCouponCode('')
+    setCouponError('')
+  }
 
   const handleSaveAddress = async () => {
     setSavingAddress(true)
