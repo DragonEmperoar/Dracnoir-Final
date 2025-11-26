@@ -115,7 +115,7 @@ async function ensureSeedData(db) {
         id: uuidv4(),
         slug: 'dragon-summoner-premium-figure',
         title: 'Dragon Summoner Premium Figure',
-        price: 129.99,
+        price: 10399,
         description:
           'High-detail PVC figure with translucent dragon effects and dynamic pose.',
         categoryId: figuresCat.id,
