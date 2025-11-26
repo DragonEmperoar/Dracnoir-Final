@@ -220,3 +220,5 @@ test_plan:
 agent_communication:
   - agent: "testing"
     message: "Backend API testing completed successfully. All 8 core backend tasks are working correctly with 100% success rate. Fixed URL routing issue in test script. All endpoints return proper JSON responses with CORS headers. Database seeding working correctly. No 500 errors encountered. Ready for main agent to summarize and finish."
+  - agent: "main"
+    message: "Implemented two new features: (1) Added 'New Address' creation dialog on checkout page with full form and validation. (2) Expanded profile page into multi-section tabbed dashboard with Account Info, Addresses, Orders, Wishlist, and Preferences tabs. Ready for backend testing."
