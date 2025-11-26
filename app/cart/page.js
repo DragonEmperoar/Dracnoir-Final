@@ -7,6 +7,7 @@ import { Trash2, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useAuth } from '../context/AuthContext'
+import AppShell from '../AppShell'
 
 const CartPage = () => {
   const { user } = useAuth()
