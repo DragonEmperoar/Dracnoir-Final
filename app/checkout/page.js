@@ -615,8 +615,9 @@ const CheckoutPage = () => {
                   <Button
                     className="mt-3 w-full rounded-full bg-violet-500 text-xs font-semibold text-white hover:bg-violet-400"
                     onClick={handlePlaceOrder}
+                    disabled={loading}
                   >
-                    Place order
+                    {loading ? 'Processing...' : 'Proceed to Payment'}
                   </Button>
                 </div>
               </CardContent>
