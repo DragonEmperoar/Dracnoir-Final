@@ -415,7 +415,7 @@ const CheckoutPage = () => {
                         Add New Address
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-h-[90vh] overflow-y-auto border-slate-800 bg-slate-950">
+                    <DialogContent className="max-h-[90vh] max-w-[95vw] sm:max-w-lg overflow-y-auto border-slate-800 bg-slate-950">
                       <DialogHeader>
                         <DialogTitle className="text-slate-100">Add New Shipping Address</DialogTitle>
                       </DialogHeader>
