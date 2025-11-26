@@ -428,6 +428,15 @@ function ProductPage() {
                   Buy now
                 </Button>
               </div>
+
+              {showAdded && (
+                <div className="pointer-events-none absolute inset-x-4 bottom-4 flex justify-center">
+                  <div className="flex items-center gap-2 rounded-full border border-emerald-500/60 bg-emerald-500/15 px-4 py-2 text-[11px] text-emerald-100 shadow-lg">
+                    <CheckCircle2 className="h-4 w-4" />
+                    <span>Added to cart</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="grid gap-4 text-xs text-slate-300 sm:grid-cols-2">
