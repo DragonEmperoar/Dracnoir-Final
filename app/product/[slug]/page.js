@@ -294,7 +294,7 @@ function ProductPage() {
               </div>
             </div>
 
-            <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-950/80 p-4">
+            <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-950/80 p-4 relative">
               <div className="flex items-baseline justify-between gap-4">
                 <div>
                   <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
