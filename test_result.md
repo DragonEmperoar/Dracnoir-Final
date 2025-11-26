@@ -200,6 +200,18 @@ backend:
       - working: true
         agent: "testing"
         comment: "MongoDB connection working, automatic seeding successful with 3 categories and 3 products. All data properly structured with UUIDs"
+  
+  - task: "Coupon validation API endpoint"
+    implemented: true
+    working: "NA"
+    file: "/app/app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added GET /api/coupons/validate?code=XXX endpoint. Mock validation with 3 test coupons: ANIME10 (10% off), DRACNOIR15 (15% off), WELCOME20 (20% off). Returns coupon details or 404 for invalid codes."
 
   - task: "Address endpoints (GET, POST, PUT, DELETE)"
     implemented: true
