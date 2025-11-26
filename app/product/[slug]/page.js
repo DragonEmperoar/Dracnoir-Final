@@ -112,7 +112,8 @@ function ProductPage() {
         console.error('Failed to add to cart')
         return
       }
-      alert('Added to cart!')
+      setShowAdded(true)
+      setTimeout(() => setShowAdded(false), 2000)
     } catch (e) {
       console.error('Error adding to cart', e)
     } finally {
