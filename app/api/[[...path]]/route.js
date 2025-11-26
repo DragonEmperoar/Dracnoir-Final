@@ -645,6 +645,35 @@ async function handleRoute(request, { params }) {
       return handleCORS(NextResponse.json(rest))
     }
 
+    // GET /api/coupons/validate?code=XXXX
+    if (segments[0] === 'coupons' && segments[1] === 'validate' && method === 'GET') {
+      const { searchParams } = new URL(request.url)
+      const code = searchParams.get('code')
+      
+      if (!code) {
+        return handleCORS(
+          NextResponse.json({ error: 'Coupon code required' }, { status: 400 }),
+        )
+      }
+      
+      // Mock coupon validation - in production, this would check a coupons collection
+      const validCoupons = {
+        'ANIME10': { code: 'ANIME10', discount: 10, description: '10% off' },
+        'DRACNOIR15': { code: 'DRACNOIR15', discount: 15, description: '15% off' },
+        'WELCOME20': { code: 'WELCOME20', discount: 20, description: '20% off for new users' },
+      }
+      
+      const coupon = validCoupons[code.toUpperCase()]
+      
+      if (!coupon) {
+        return handleCORS(
+          NextResponse.json({ error: 'Invalid coupon code' }, { status: 404 }),
+        )
+      }
+      
+      return handleCORS(NextResponse.json(coupon))
+    }
+
     // GET /api/products (listing with filters & pagination)
     if (route === '/products' && method === 'GET') {
       const { searchParams } = new URL(request.url)
