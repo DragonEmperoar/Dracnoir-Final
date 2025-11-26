@@ -72,7 +72,11 @@ function App() {
       {/* Top nav */}
       <header className="border-b border-slate-800/80 bg-slate-950/70 backdrop-blur">
         <div className="container mx-auto flex items-center justify-between py-4">
-          <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="flex items-center gap-2 text-left"
+            onClick={() => router.push('/')}
+          >
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-violet-500/20 text-violet-300 text-lg font-bold">
               ON
             </span>
@@ -82,7 +86,7 @@ function App() {
               </div>
               <div className="text-xs text-slate-400">Anime merch for your hoard</div>
             </div>
-          </div>
+          </button>
           <div className="flex items-center gap-3 text-xs sm:text-sm">
             <Button
               variant="ghost"
