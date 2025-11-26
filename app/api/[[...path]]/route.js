@@ -543,6 +543,108 @@ async function handleRoute(request, { params }) {
       }
     }
 
+    // ORDERS ENDPOINTS (auth required)
+    if (route === '/orders' && method === 'GET') {
+      const userId = await requireUserId(request)
+      if (!userId) {
+        return handleCORS(
+          NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
+        )
+      }
+      const col = db.collection('orders')
+      const docs = await col
+        .find({ userId })
+        .sort({ createdAt: -1 })
+        .limit(20)
+        .toArray()
+      const cleaned = docs.map(({ _id, ...rest }) => rest)
+      return handleCORS(NextResponse.json(cleaned))
+    }
+
+    if (route === '/orders' && method === 'POST') {
+      const userId = await requireUserId(request)
+      if (!userId) {
+        return handleCORS(
+          NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
+        )
+      }
+      const body = await request.json()
+      const { addressId } = body || {}
+
+      const cartsCol = db.collection('carts')
+      const cart = await cartsCol.findOne({ userId })
+      if (!cart || !cart.items || cart.items.length === 0) {
+        return handleCORS(
+          NextResponse.json({ error: 'Cart is empty' }, { status: 400 }),
+        )
+      }
+
+      const addrCol = db.collection('addresses')
+      const address = await addrCol.findOne({ id: addressId, userId })
+      if (!address) {
+        return handleCORS(
+          NextResponse.json({ error: 'Address not found' }, { status: 400 }),
+        )
+      }
+
+      const subtotal = (cart.items || []).reduce(
+        (sum, item) => sum + (item.price || 0) * (item.quantity || 1),
+        0,
+      )
+
+      const ordersCol = db.collection('orders')
+      const now = new Date()
+      const order = {
+        id: uuidv4(),
+        userId,
+        items: cart.items,
+        addressSnapshot: {
+          label: address.label,
+          name: address.name,
+          phone: address.phone,
+          line1: address.line1,
+          line2: address.line2,
+          city: address.city,
+          state: address.state,
+          postalCode: address.postalCode,
+          country: address.country,
+        },
+        subtotal,
+        status: 'placed',
+        createdAt: now,
+        updatedAt: now,
+      }
+
+      await ordersCol.insertOne(order)
+      // Clear cart after order
+      await cartsCol.updateOne(
+        { id: cart.id },
+        { $set: { items: [], updatedAt: new Date() } },
+      )
+
+      const { _id, ...rest } = order
+      return handleCORS(NextResponse.json(rest))
+    }
+
+    if (segments[0] === 'orders' && segments.length === 2 && method === 'GET') {
+      const orderId = segments[1]
+      const userId = await requireUserId(request)
+      if (!userId) {
+        return handleCORS(
+          NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
+        )
+      }
+      const ordersCol = db.collection('orders')
+      const order = await ordersCol.findOne({ id: orderId, userId })
+      if (!order) {
+        return handleCORS(
+          NextResponse.json({ error: 'Order not found' }, { status: 404 }),
+        )
+      }
+      const { _id, ...rest } = order
+      return handleCORS(NextResponse.json(rest))
+    }
+
     // GET /api/products (listing with filters & pagination)
     if (route === '/products' && method === 'GET') {
       const { searchParams } = new URL(request.url)

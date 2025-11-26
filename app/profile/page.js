@@ -31,6 +31,7 @@ const ProfilePage = () => {
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
   const [error, setError] = useState('')
+  const [orders, setOrders] = useState([])
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -44,15 +45,21 @@ const ProfilePage = () => {
       setLoadingAddresses(true)
       setError('')
       try {
-        const res = await fetch('/api/addresses')
-        if (!res.ok) {
-          throw new Error('Failed to load addresses')
+        const [addrRes, ordersRes] = await Promise.all([
+          fetch('/api/addresses'),
+          fetch('/api/orders'),
+        ])
+        if (addrRes.ok) {
+          const addrData = await addrRes.json()
+          setAddresses(Array.isArray(addrData) ? addrData : [])
         }
-        const data = await res.json()
-        setAddresses(Array.isArray(data) ? data : [])
+        if (ordersRes.ok) {
+          const ordersData = await ordersRes.json()
+          setOrders(Array.isArray(ordersData) ? ordersData : [])
+        }
       } catch (e) {
         console.error(e)
-        setError('Unable to load saved addresses right now.')
+        setError('Unable to load profile data right now.')
       } finally {
         setLoadingAddresses(false)
       }
@@ -158,7 +165,7 @@ const ProfilePage = () => {
             <p className="text-xs uppercase tracking-[0.2em] text-violet-300/80">Account</p>
             <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">Profile</h1>
             <p className="mt-1 text-sm text-slate-300">
-              Manage your Dracnoir account, saved addresses and more.
+              Manage your Dracnoir account, saved addresses and orders.
             </p>
           </div>
           <Button
@@ -170,6 +177,10 @@ const ProfilePage = () => {
             Logout
           </Button>
         </div>
+
+        {error && (
+          <p className="text-xs text-red-300">{error}</p>
+        )}
 
         <div className="grid gap-6 md:grid-cols-2">
           {/* Basic info */}
@@ -191,9 +202,6 @@ const ProfilePage = () => {
                   Saved addresses
                 </p>
               </div>
-              {error && (
-                <p className="text-[11px] text-red-300">{error}</p>
-              )}
               {loadingAddresses ? (
                 <p className="text-xs text-slate-400">Loading addresses...</p>
               ) : addresses.length === 0 ? (
@@ -342,6 +350,43 @@ const ProfilePage = () => {
                   )}
                 </div>
               </form>
+            </CardContent>
+          </Card>
+
+          {/* Orders */}
+          <Card className="border border-slate-800 bg-slate-950/80">
+            <CardContent className="space-y-3 p-4 text-sm">
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+                Recent orders
+              </p>
+              {orders.length === 0 ? (
+                <p className="text-xs text-slate-400">
+                  No orders yet. They will show up here after you place one.
+                </p>
+              ) : (
+                <div className="space-y-2 text-xs text-slate-200">
+                  {orders.map((order) => (
+                    <button
+                      key={order.id}
+                      type="button"
+                      className="flex w-full items-center justify-between rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-2 text-left hover:border-violet-500/70"
+                      onClick={() => router.push(`/orders/${order.id}`)}
+                    >
+                      <div>
+                        <p className="font-medium text-slate-100">
+                          #{order.id?.slice?.(-6) || order.id}
+                        </p>
+                        <p className="text-slate-400">
+                          {new Date(order.createdAt).toLocaleString()} •{' '}
+                          {order.items?.length || 0} item
+                          {order.items?.length === 1 ? '' : 's'}
+                        </p>
+                      </div>
+                      <p className="text-emerald-300">{order.status}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
