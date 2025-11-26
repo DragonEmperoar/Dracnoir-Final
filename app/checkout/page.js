@@ -170,31 +170,130 @@ const CheckoutPage = () => {
     }
   }
 
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script')
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+      script.onload = () => resolve(true)
+      script.onerror = () => resolve(false)
+      document.body.appendChild(script)
+    })
+  }
+
   const handlePlaceOrder = async () => {
     if (!items.length) {
       alert('Your cart is empty.')
       return
     }
     if (!selectedAddress) {
-      alert('Please add and select a shipping address in your profile before placing an order.')
-      router.push('/profile')
+      alert('Please add and select a shipping address before placing an order.')
       return
     }
+    
+    setLoading(true)
+    
     try {
-      const res = await fetch('/api/orders', {
+      // Step 1: Create order in our system
+      const orderRes = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ addressId: selectedAddress.id }),
       })
-      const data = await res.json()
-      if (!res.ok) {
-        alert(data?.error || 'Unable to place order right now.')
+      const orderData = await orderRes.json()
+      if (!orderRes.ok) {
+        alert(orderData?.error || 'Unable to create order.')
+        setLoading(false)
         return
       }
-      router.push(`/orders/${data.id}`)
+      
+      // Step 2: Load Razorpay script
+      const scriptLoaded = await loadRazorpayScript()
+      if (!scriptLoaded) {
+        alert('Payment gateway failed to load. Please check your connection.')
+        setLoading(false)
+        return
+      }
+      
+      // Step 3: Create Razorpay order
+      const paymentOrderRes = await fetch('/api/payment/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: total,
+          currency: 'INR',
+          orderId: orderData.id,
+          notes: {
+            orderId: orderData.id,
+            userId: user.id,
+          },
+        }),
+      })
+      const razorpayOrder = await paymentOrderRes.json()
+      
+      if (!paymentOrderRes.ok) {
+        alert('Unable to initialize payment. Please try again.')
+        setLoading(false)
+        return
+      }
+      
+      // Step 4: Open Razorpay checkout
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency,
+        name: 'Dracnoir',
+        description: `Order #${orderData.id.slice(-6)}`,
+        order_id: razorpayOrder.id,
+        handler: async (response) => {
+          try {
+            // Verify payment
+            const verifyRes = await fetch('/api/payment/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,\n                razorpay_signature: response.razorpay_signature,
+                orderId: orderData.id,
+              }),
+            })
+            
+            if (verifyRes.ok) {
+              router.push(`/orders/${orderData.id}`)
+            } else {
+              alert('Payment verification failed. Please contact support.')
+            }
+          } catch (error) {
+            console.error('Payment verification error:', error)
+            alert('Payment verification failed.')
+          }
+        },
+        prefill: {
+          name: user.name || selectedAddress.name,
+          email: user.email,
+          contact: selectedAddress.phone || '',
+        },
+        theme: {
+          color: '#8b5cf6',
+        },
+        modal: {
+          ondismiss: () => {
+            setLoading(false)
+          },
+        },
+      }
+      
+      const razorpay = new window.Razorpay(options)
+      razorpay.open()
+      
+      razorpay.on('payment.failed', (response) => {
+        alert('Payment failed. Please try again.')
+        setLoading(false)
+      })
+      
     } catch (e) {
       console.error(e)
-      alert('Unable to place order right now.')
+      alert('Unable to process payment right now.')
+      setLoading(false)
     }
   }
 
