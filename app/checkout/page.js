@@ -447,15 +447,71 @@ const CheckoutPage = () => {
                   </Dialog>
                 </div>
 
+                {/* Coupon Code Section */}
+                <div className="space-y-2 border-t border-slate-800 pt-3">
+                  <Label className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                    Coupon Code
+                  </Label>
+                  {appliedCoupon ? (
+                    <div className="flex items-center justify-between rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2">
+                      <div>
+                        <p className="text-xs font-medium text-emerald-300">
+                          {appliedCoupon.code} Applied
+                        </p>
+                        <p className="text-[10px] text-emerald-400/80">
+                          {appliedCoupon.discount}% discount
+                        </p>
+                      </div>
+                      <button
+                        onClick={handleRemoveCoupon}
+                        className="text-xs text-emerald-300 hover:text-emerald-200"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Enter code"
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value)}
+                        className="h-8 border-slate-800 bg-slate-900 text-xs text-slate-100"
+                      />
+                      <Button
+                        size="sm"
+                        onClick={handleApplyCoupon}
+                        disabled={applyingCoupon}
+                        className="h-8 rounded-lg bg-violet-500 text-xs hover:bg-violet-400"
+                      >
+                        {applyingCoupon ? 'Applying...' : 'Apply'}
+                      </Button>
+                    </div>
+                  )}
+                  {couponError && (
+                    <p className="text-xs text-red-300">{couponError}</p>
+                  )}
+                </div>
+
+                {/* Order Summary */}
                 <div className="border-t border-slate-800 pt-3 text-slate-300">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Subtotal</span>
+                  <div className="flex items-center justify-between text-sm">
+                    <span>Subtotal</span>
+                    <span className="text-slate-50">₹{subtotal.toFixed(0)}</span>
+                  </div>
+                  {appliedCoupon && (
+                    <div className="mt-1 flex items-center justify-between text-sm">
+                      <span className="text-emerald-300">Discount ({appliedCoupon.discount}%)</span>
+                      <span className="text-emerald-300">-₹{discount.toFixed(0)}</span>
+                    </div>
+                  )}
+                  <div className="mt-2 flex items-center justify-between border-t border-slate-800 pt-2">
+                    <span className="text-sm font-semibold">Total</span>
                     <span className="text-lg font-semibold text-slate-50">
-                      ${subtotal.toFixed(2)}
+                      ₹{total.toFixed(0)}
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-slate-400">
-                    Taxes, shipping and discounts will be shown here in the full checkout.
+                    Taxes and shipping calculated at final checkout.
                   </p>
                   <Button
                     className="mt-3 w-full rounded-full bg-violet-500 text-xs font-semibold text-white hover:bg-violet-400"
