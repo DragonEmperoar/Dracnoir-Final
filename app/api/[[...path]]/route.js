@@ -80,7 +80,7 @@ async function ensureSeedData(db) {
         id: uuidv4(),
         slug: 'neon-mecha-tee',
         title: 'Neon Mecha Oversized Tee',
-        price: 39.99,
+        price: 3199,
         description:
           'Streetwear-inspired oversized tee featuring a neon mecha print.',
         categoryId: tshirtCat.id,
