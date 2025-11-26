@@ -261,6 +261,42 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "Converted profile into tabbed dashboard with 5 sections: Account Info (user details), Addresses (existing CRUD), Orders (existing list), Wishlist (empty state with browse CTA), Preferences (notification & regional settings). Tab navigation with lucide icons."
+  
+  - task: "Currency conversion from USD to INR"
+    implemented: true
+    working: "NA"
+    file: "Multiple files"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Converted all prices from $ to ₹ across entire application. Updated seed data (₹2399, ₹3199, ₹10399, ₹7199). Updated displays in homepage, product pages, cart, checkout, profile. Changed price format from .toFixed(2) to .toFixed(0) for whole rupees."
+  
+  - task: "Checkout page - Coupon code section"
+    implemented: true
+    working: "NA"
+    file: "/app/app/checkout/page.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added coupon code input with apply/remove functionality on checkout. Shows discount calculation in order summary. Integrated with GET /api/coupons/validate endpoint."
+  
+  - task: "Login button text fix"
+    implemented: true
+    working: "NA"
+    file: "/app/app/AppShell.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Fixed header button to show 'Login/Signup via Email' when not logged in, and 'Account options' when logged in. Dynamic based on user auth state."
 
 metadata:
   created_by: "testing_agent"
