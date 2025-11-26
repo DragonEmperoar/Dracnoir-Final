@@ -687,30 +687,46 @@ async function handleRoute(request, { params }) {
       // For now, any authenticated user can access
       
       const usersCol = db.collection('users')
-      const ordersCol = db.collection('orders')
       
-      // Get all users
-      const users = await usersCol.find({}).sort({ createdAt: -1 }).toArray()
-      
-      // Get order counts for each user
-      const usersWithStats = await Promise.all(
-        users.map(async (user) => {
-          const orderCount = await ordersCol.countDocuments({ userId: user.id })
-          const orders = await ordersCol.find({ userId: user.id }).toArray()
-          const totalSpent = orders.reduce((sum, order) => sum + (order.subtotal || 0), 0)
-          
-          return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            image: user.image,
-            createdAt: user.createdAt,
-            emailVerified: user.emailVerified,
-            orderCount,
-            totalSpent,
+      // Use aggregation pipeline to fetch users with order stats in a single query
+      const usersWithStats = await usersCol
+        .aggregate([
+          {
+            $sort: { createdAt: -1 }
+          },
+          {
+            $limit: 100 // Limit to 100 users for performance
+          },
+          {
+            $lookup: {
+              from: 'orders',
+              localField: 'id',
+              foreignField: 'userId',
+              as: 'orders'
+            }
+          },
+          {
+            $addFields: {
+              orderCount: { $size: '$orders' },
+              totalSpent: {
+                $sum: '$orders.subtotal'
+              }
+            }
+          },
+          {
+            $project: {
+              id: 1,
+              name: 1,
+              email: 1,
+              image: 1,
+              createdAt: 1,
+              emailVerified: 1,
+              orderCount: 1,
+              totalSpent: 1
+            }
           }
-        })
-      )
+        ])
+        .toArray()
       
       return handleCORS(NextResponse.json(usersWithStats))
     }
