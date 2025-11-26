@@ -46,28 +46,56 @@ const OrderDetailPage = () => {
 
   return (
     <AppShell>
-      <div className="space-y-6">
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-violet-300/80">Order</p>
-          <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-            {order ? 'Order placed' : 'Order details'}
-          </h1>
-          {order && (
-            <p className="mt-1 text-sm text-slate-300">
-              Order ID: <span className="font-mono text-slate-100">{order.id}</span>
-            </p>
-          )}
-        </div>
-
+      <div className="space-y-8">
         {loading ? (
-          <p className="text-sm text-slate-300">Loading order...</p>
+          <p className="text-base text-slate-300">Loading order...</p>
         ) : error ? (
-          <p className="text-sm text-red-300">{error}</p>
+          <p className="text-base text-red-300">{error}</p>
         ) : !order ? (
-          <p className="text-sm text-slate-300">Order not found.</p>
+          <p className="text-base text-slate-300">Order not found.</p>
         ) : (
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,_1.4fr)_minmax(0,_1.2fr)]">
-            <Card className="border border-slate-800 bg-slate-950/80">
+          <>
+            <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-emerald-500/40 bg-emerald-500/5 px-6 py-6 text-center md:flex-row md:justify-between">
+              <div className="flex items-center gap-4">
+                <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/15">
+                  <CheckCircle2 className="h-8 w-8 text-emerald-400 animate-pulse" />
+                  <span className="pointer-events-none absolute inset-0 rounded-full border border-emerald-500/40" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-300">
+                    Order placed
+                  </p>
+                  <p className="mt-1 text-lg font-semibold text-slate-50">
+                    Your Dracnoir haul is locked in.
+                  </p>
+                  <p className="mt-1 text-sm text-slate-300">
+                    Order ID:{' '}
+                    <span className="font-mono text-slate-100">
+                      {order.id}
+                    </span>
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4 flex flex-col gap-2 text-sm text-slate-200 md:mt-0">
+                <Button
+                  size="sm"
+                  className="w-full rounded-full bg-violet-500 text-xs font-semibold text-white hover:bg-violet-400"
+                  onClick={() => window.scrollTo({ top: 9999, behavior: 'smooth' })}
+                >
+                  View order summary
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-full rounded-full border-slate-700 bg-slate-950 text-xs text-slate-100 hover:bg-slate-900"
+                  onClick={() => router.push('/')}
+                >
+                  Continue shopping
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,_1.4fr)_minmax(0,_1.2fr)]">
               <CardContent className="space-y-3 p-4 text-sm">
                 <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
                   Items
