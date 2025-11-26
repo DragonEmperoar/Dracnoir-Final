@@ -421,7 +421,7 @@ function ProductPage() {
                 <Button
                   variant="outline"
                   className="flex-1 rounded-full border-violet-500/70 bg-slate-950 text-xs text-violet-200 hover:bg-violet-500/10"
-                  onClick={() => alert('Buy now will take you straight to checkout in the next iteration.')}
+                  onClick={handleBuyNow}
                 >
                   Buy now
                 </Button>
