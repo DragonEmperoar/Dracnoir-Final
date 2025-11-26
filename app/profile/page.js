@@ -251,14 +251,15 @@ const ProfilePage = () => {
             </Card>
           )}
 
-          {/* Saved addresses */}
-          <Card className="border border-slate-800 bg-slate-950/80">
-            <CardContent className="space-y-3 p-4 text-sm">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
-                  Saved addresses
-                </p>
-              </div>
+          {/* Addresses Tab */}
+          {activeTab === 'addresses' && (
+            <Card className="border border-slate-800 bg-slate-950/80">
+              <CardContent className="space-y-3 p-4 text-sm">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+                    Saved addresses
+                  </p>
+                </div>
               {loadingAddresses ? (
                 <p className="text-xs text-slate-400">Loading addresses...</p>
               ) : addresses.length === 0 ? (
