@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { ChevronRight, ChevronLeft, Star, Search } from 'lucide-react'
+import { ChevronRight, ChevronLeft, Star } from 'lucide-react'
 import AppShell from './AppShell'
 
 const HomePage = () => {
@@ -12,14 +11,6 @@ const HomePage = () => {
   const [categories, setCategories] = useState([])
   const [trendingProducts, setTrendingProducts] = useState([])
   const [currentSlide, setCurrentSlide] = useState(0)
-  const [searchQuery, setSearchQuery] = useState('')
-  
-  const handleSearch = (e) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`)
-    }
-  }
 
   const heroSlides = [
     {
