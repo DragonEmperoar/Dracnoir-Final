@@ -301,7 +301,7 @@ function ProductPage() {
                     Price
                   </p>
                   <p className="text-2xl font-semibold text-slate-50">
-                    ${product.price?.toFixed?.(2) ?? '0.00'}
+                    ₹{product.price?.toFixed?.(0) ?? '0'}
                   </p>
                 </div>
                 <div className="flex flex-col items-end gap-1 text-[11px] text-slate-400">
