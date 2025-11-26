@@ -409,7 +409,8 @@ const ProfilePage = () => {
                 </div>
               </form>
             </CardContent>
-          </Card>
+            </Card>
+          )}
 
           {/* Orders */}
           <Card className="border border-slate-800 bg-slate-950/80">
