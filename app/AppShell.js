@@ -40,7 +40,15 @@ const AppShell = ({ children }) => {
               className="text-slate-300 hover:text-white"
               onClick={() => (user ? router.push('/profile') : loginWithGoogle())}
             >
-              {user ? `Hi, ${user.name?.split?.(' ')?.[0] || 'otaku'}` : 'Login / Profile'}
+              {user ? `Hi, ${user.name?.split?.(' ')?.[0] || 'otaku'}` : 'Login with Google'}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-slate-700 bg-slate-900/60 text-slate-200 hover:bg-slate-800"
+              onClick={() => router.push('/login')}
+            >
+              Email login / Sign up
             </Button>
             <Button
               size="sm"
