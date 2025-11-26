@@ -224,16 +224,32 @@ const ProfilePage = () => {
 
         {/* Tab Content */}
         <div className="space-y-6">
-          {/* Basic info */}
-          <Card className="border border-slate-800 bg-slate-950/80">
-            <CardContent className="space-y-2 p-4 text-sm">
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
-                Basic info
-              </p>
-              <p className="text-slate-100">{user.name || 'Otaku'}</p>
-              <p className="text-slate-400">{user.email}</p>
-            </CardContent>
-          </Card>
+          {/* Account Info Tab */}
+          {activeTab === 'account' && (
+            <Card className="border border-slate-800 bg-slate-950/80">
+              <CardContent className="space-y-4 p-6">
+                <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+                  Basic info
+                </p>
+                <div className="space-y-3">
+                  <div>
+                    <Label className="text-xs text-slate-400">Name</Label>
+                    <p className="mt-1 text-sm text-slate-100">{user.name || 'Otaku'}</p>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-slate-400">Email</Label>
+                    <p className="mt-1 text-sm text-slate-100">{user.email}</p>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-slate-400">Member Since</Label>
+                    <p className="mt-1 text-sm text-slate-100">
+                      {new Date().toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Saved addresses */}
           <Card className="border border-slate-800 bg-slate-950/80">
