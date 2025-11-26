@@ -33,11 +33,11 @@ const AppShell = ({ children }) => {
             </div>
           </button>
 
-          <div className="flex items-center gap-3 text-xs sm:text-sm">
+          <div className="flex items-center gap-1 sm:gap-3 text-xs sm:text-sm">
             <Button
               variant="ghost"
               size="sm"
-              className="text-slate-300 hover:text-white"
+              className="h-8 px-2 sm:px-3 text-slate-300 hover:text-white"
               onClick={() => router.push('/products')}
             >
               <Search className="h-4 w-4" />
@@ -45,7 +45,7 @@ const AppShell = ({ children }) => {
             <Button
               variant="ghost"
               size="sm"
-              className="text-slate-300 hover:text-white"
+              className="hidden md:inline-flex h-8 px-2 sm:px-3 text-slate-300 hover:text-white"
               onClick={() => (user ? router.push('/profile') : loginWithGoogle())}
             >
               {user ? `Hi, ${user.name?.split?.(' ')?.[0] || 'otaku'}` : 'Login with Google'}
@@ -53,18 +53,19 @@ const AppShell = ({ children }) => {
             <Button
               variant="outline"
               size="sm"
-              className="border-slate-700 bg-slate-900/60 text-slate-200 hover:bg-slate-800"
+              className="h-8 px-2 sm:px-3 border-slate-700 bg-slate-900/60 text-slate-200 hover:bg-slate-800"
               onClick={() => router.push(user ? '/profile' : '/login')}
             >
-              {user ? 'Account options' : 'Login/Signup via Email'}
+              <span className="hidden sm:inline">{user ? 'Account' : 'Login'}</span>
+              <span className="sm:hidden">{user ? 'Profile' : 'Login'}</span>
             </Button>
             <Button
               size="sm"
-              className="gap-1 bg-violet-500 hover:bg-violet-400 text-white"
+              className="h-8 px-2 sm:px-3 gap-1 bg-violet-500 hover:bg-violet-400 text-white"
               onClick={() => router.push('/cart')}
             >
               <ShoppingCart className="h-4 w-4" />
-              Cart
+              <span className="hidden sm:inline">Cart</span>
             </Button>
           </div>
         </div>
