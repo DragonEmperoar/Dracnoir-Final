@@ -1,7 +1,7 @@
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
-import { ChevronLeft, ShoppingCart } from 'lucide-react'
+import { ChevronLeft, ShoppingCart, Search } from 'lucide-react'
 import { useAuth } from './context/AuthContext'
 import { Button } from '@/components/ui/button'
 
