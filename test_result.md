@@ -202,7 +202,29 @@ backend:
         comment: "MongoDB connection working, automatic seeding successful with 3 categories and 3 products. All data properly structured with UUIDs"
 
 frontend:
-  # Frontend testing not performed as per testing agent scope
+  - task: "Checkout page - Add New Address dialog"
+    implemented: true
+    working: "NA"
+    file: "/app/app/checkout/page.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added dialog modal with full address form on checkout page. Includes validation, saves via POST /api/addresses, auto-refreshes list, and auto-selects new address. Uses shadcn Dialog, Input, Label components."
+  
+  - task: "Profile page - Multi-section tabbed dashboard"
+    implemented: true
+    working: "NA"
+    file: "/app/app/profile/page.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Converted profile into tabbed dashboard with 5 sections: Account Info (user details), Addresses (existing CRUD), Orders (existing list), Wishlist (empty state with browse CTA), Preferences (notification & regional settings). Tab navigation with lucide icons."
 
 metadata:
   created_by: "testing_agent"
