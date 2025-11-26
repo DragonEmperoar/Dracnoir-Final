@@ -113,7 +113,7 @@ function ProductCard({ product, onClick }) {
             <span className="text-slate-500">({product.reviewCount || 0})</span>
           </div>
           <div className="text-sm font-semibold text-slate-50">
-            ${product.price?.toFixed?.(2) ?? '0.00'}
+            ₹{product.price?.toFixed?.(0) ?? '0'}
           </div>
         </div>
       </CardContent>
