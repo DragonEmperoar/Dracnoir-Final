@@ -215,8 +215,8 @@ function CategoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-50">
-      <main className="container mx-auto px-4 pb-16 pt-8 space-y-10">
+    <AppShell>
+      <div className="space-y-10">
         <section className="space-y-6">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
