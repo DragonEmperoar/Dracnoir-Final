@@ -58,7 +58,7 @@ async function ensureSeedData(db) {
         id: uuidv4(),
         slug: 'chibi-hero-plush',
         title: 'Chibi Hero Plush',
-        price: 29.99,
+        price: 2399,
         description:
           'Super-soft chibi hero plush with oversized head and embroidered details.',
         categoryId: plushCat.id,
