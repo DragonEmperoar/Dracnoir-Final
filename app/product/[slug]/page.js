@@ -111,10 +111,40 @@ function ProductPage() {
         console.error('Failed to add to cart')
         return
       }
-      // Optional: redirect or toast could go here; for now, stay on page
       alert('Added to cart!')
     } catch (e) {
       console.error('Error adding to cart', e)
+    } finally {
+      setAdding(false)
+    }
+  }
+
+  const handleBuyNow = async () => {
+    if (!product) return
+    if (!user) {
+      alert('Please log in with Google first, then tap Buy now again to jump to checkout.')
+      return
+    }
+    setAdding(true)
+    try {
+      const body = {
+        productId: product.id,
+        productSlug: product.slug,
+        quantity: quantity || 1,
+        variantId: selectedVariant?.id || null,
+      }
+      const res = await fetch('/api/cart/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      if (!res.ok) {
+        console.error('Failed to prepare cart for buy now')
+        return
+      }
+      router.push('/checkout')
+    } catch (e) {
+      console.error('Error in buy now', e)
     } finally {
       setAdding(false)
     }
