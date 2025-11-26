@@ -48,7 +48,7 @@ const AppShell = ({ children }) => {
               className="border-slate-700 bg-slate-900/60 text-slate-200 hover:bg-slate-800"
               onClick={() => router.push('/login')}
             >
-              Email login / Sign up
+              Account options
             </Button>
             <Button
               size="sm"
