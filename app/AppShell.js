@@ -71,36 +71,36 @@ const AppShell = ({ children }) => {
         </div>
 
         {/* Secondary nav: show on all pages for now */}
-        <div className="border-t border-slate-800/80 bg-slate-950/80">
-          <div className="container mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-2 text-xs sm:text-sm">
-            <div className="flex flex-wrap items-center gap-3 text-slate-300">
-              <span className="text-[11px] uppercase tracking-[0.2em] text-slate-500">
+        <div className="border-t border-slate-800/80 bg-slate-950/80 overflow-x-auto">
+          <div className="container mx-auto flex items-center justify-between gap-2 sm:gap-3 px-4 py-2 text-xs sm:text-sm min-w-max sm:min-w-0">
+            <div className="flex items-center gap-2 sm:gap-3 text-slate-300">
+              <span className="hidden sm:inline text-[11px] uppercase tracking-[0.2em] text-slate-500">
                 Shop by category
               </span>
               <button
-                className="rounded-full border border-slate-700 bg-slate-900/80 px-3 py-1 text-[11px] text-slate-200 hover:border-violet-400 hover:text-violet-200"
+                className="rounded-full border border-slate-700 bg-slate-900/80 px-2 sm:px-3 py-1 text-[10px] sm:text-[11px] text-slate-200 hover:border-violet-400 hover:text-violet-200 whitespace-nowrap"
                 onClick={() => router.push('/category/plushes')}
               >
                 Plushes
               </button>
               <button
-                className="rounded-full border border-slate-700 bg-slate-900/80 px-3 py-1 text-[11px] text-slate-200 hover:border-violet-400 hover:text-violet-200"
+                className="rounded-full border border-slate-700 bg-slate-900/80 px-2 sm:px-3 py-1 text-[10px] sm:text-[11px] text-slate-200 hover:border-violet-400 hover:text-violet-200 whitespace-nowrap"
                 onClick={() => router.push('/category/t-shirts')}
               >
                 T-Shirts
               </button>
               <button
-                className="rounded-full border border-slate-700 bg-slate-900/80 px-3 py-1 text-[11px] text-slate-200 hover:border-violet-400 hover:text-violet-200"
+                className="rounded-full border border-slate-700 bg-slate-900/80 px-2 sm:px-3 py-1 text-[10px] sm:text-[11px] text-slate-200 hover:border-violet-400 hover:text-violet-200 whitespace-nowrap"
                 onClick={() => router.push('/category/action-figures')}
               >
-                Action Figures
+                Figures
               </button>
             </div>
             <button
-              className="text-[11px] text-violet-300 hover:text-violet-200"
+              className="text-[10px] sm:text-[11px] text-violet-300 hover:text-violet-200 whitespace-nowrap"
               onClick={() => router.push('/products')}
             >
-              View all products
+              View all
             </button>
           </div>
         </div>
