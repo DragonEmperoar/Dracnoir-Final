@@ -488,8 +488,8 @@ function ProductPage() {
             </section>
           </section>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   )
 }
 
