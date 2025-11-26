@@ -22,6 +22,34 @@ export const authOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
+    CredentialsProvider({
+      name: 'Credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error('Email and password required')
+        }
+        const client = new MongoClient(process.env.MONGO_URL)
+        await client.connect()
+        const db = client.db(process.env.DB_NAME)
+        const usersCol = db.collection('users')
+        const user = await usersCol.findOne({ email: credentials.email })
+        if (!user || !user.passwordHash) {
+          throw new Error('Invalid email or password')
+        }
+        const isValid = await bcrypt.compare(
+          credentials.password,
+          user.passwordHash,
+        )
+        if (!isValid) {
+          throw new Error('Invalid email or password')
+        }
+        return { id: user.id, name: user.name, email: user.email }
+      },
+    }),
   ],
   session: {
     strategy: 'jwt',
