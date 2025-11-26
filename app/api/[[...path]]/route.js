@@ -444,6 +444,105 @@ async function handleRoute(request, { params }) {
       return handleCORS(NextResponse.json(rest))
     }
 
+    // ADDRESS ENDPOINTS (auth required)
+    if (route === '/addresses' && method === 'GET') {
+      const userId = await requireUserId(request)
+      if (!userId) {
+        return handleCORS(
+          NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
+        )
+      }
+      const col = db.collection('addresses')
+      const docs = await col
+        .find({ userId })
+        .sort({ createdAt: -1 })
+        .toArray()
+      const cleaned = docs.map(({ _id, ...rest }) => rest)
+      return handleCORS(NextResponse.json(cleaned))
+    }
+
+    if (route === '/addresses' && method === 'POST') {
+      const userId = await requireUserId(request)
+      if (!userId) {
+        return handleCORS(
+          NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
+        )
+      }
+      const body = await request.json()
+      const now = new Date()
+      const address = {
+        id: uuidv4(),
+        userId,
+        label: body.label || 'Home',
+        name: body.name || '',
+        phone: body.phone || '',
+        line1: body.line1 || '',
+        line2: body.line2 || '',
+        city: body.city || '',
+        state: body.state || '',
+        postalCode: body.postalCode || '',
+        country: body.country || '',
+        isDefault: Boolean(body.isDefault),
+        createdAt: now,
+        updatedAt: now,
+      }
+      const col = db.collection('addresses')
+      if (address.isDefault) {
+        await col.updateMany({ userId }, { $set: { isDefault: false } })
+      }
+      await col.insertOne(address)
+      const { _id, ...rest } = address
+      return handleCORS(NextResponse.json(rest))
+    }
+
+    if (segments[0] === 'addresses' && segments.length === 2) {
+      const addressId = segments[1]
+      const userId = await requireUserId(request)
+      if (!userId) {
+        return handleCORS(
+          NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
+        )
+      }
+      const col = db.collection('addresses')
+
+      if (method === 'PUT') {
+        const body = await request.json()
+        const update = {
+          label: body.label,
+          name: body.name,
+          phone: body.phone,
+          line1: body.line1,
+          line2: body.line2,
+          city: body.city,
+          state: body.state,
+          postalCode: body.postalCode,
+          country: body.country,
+          updatedAt: new Date(),
+        }
+        if (body.isDefault != null) {
+          const isDefault = Boolean(body.isDefault)
+          if (isDefault) {
+            await col.updateMany({ userId }, { $set: { isDefault: false } })
+          }
+          update.isDefault = isDefault
+        }
+        await col.updateOne({ id: addressId, userId }, { $set: update })
+        const updated = await col.findOne({ id: addressId, userId })
+        if (!updated) {
+          return handleCORS(
+            NextResponse.json({ error: 'Not found' }, { status: 404 }),
+          )
+        }
+        const { _id, ...rest } = updated
+        return handleCORS(NextResponse.json(rest))
+      }
+
+      if (method === 'DELETE') {
+        await col.deleteOne({ id: addressId, userId })
+        return handleCORS(NextResponse.json({ success: true }))
+      }
+    }
+
     // GET /api/products (listing with filters & pagination)
     if (route === '/products' && method === 'GET') {
       const { searchParams } = new URL(request.url)
