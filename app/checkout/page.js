@@ -115,8 +115,8 @@ const CheckoutPage = () => {
             </Card>
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </AppShell>
   )
 }
 
