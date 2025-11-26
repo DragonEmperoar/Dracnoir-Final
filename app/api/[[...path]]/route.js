@@ -135,7 +135,7 @@ async function ensureSeedData(db) {
         id: uuidv4(),
         slug: 'forest-guardian-sustainable-figure',
         title: 'Forest Guardian Sustainable Figure',
-        price: 89.99,
+        price: 7199,
         description:
           'Eco-friendly collectible crafted with recycled materials and minimal packaging.',
         categoryId: figuresCat.id,
