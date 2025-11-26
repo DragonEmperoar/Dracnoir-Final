@@ -32,6 +32,7 @@ const AdminDashboard = () => {
   })
   const [products, setProducts] = useState([])
   const [orders, setOrders] = useState([])
+  const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
