@@ -19,14 +19,14 @@ const AppShell = ({ children }) => {
         <div className="container mx-auto flex items-center justify-between py-4 px-4">
           <button
             type="button"
-            className="flex items-center gap-2 text-left"
+            className="flex items-center gap-3 text-left"
             onClick={() => router.push('/')}
           >
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-violet-500/20 text-violet-300 text-lg font-bold">
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-600 text-white text-xl font-bold shadow-lg shadow-violet-500/30">
               ON
             </span>
             <div>
-              <div className="text-sm font-semibold tracking-wide text-violet-200">
+              <div className="text-2xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-violet-300 to-purple-300">
                 Dracnoir
               </div>
               <div className="text-xs text-slate-400">Anime merch for your hoard</div>
