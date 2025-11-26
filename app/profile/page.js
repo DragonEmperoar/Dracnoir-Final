@@ -70,8 +70,8 @@ const ProfilePage = () => {
             </CardContent>
           </Card>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   )
 }
 
