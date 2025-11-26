@@ -417,8 +417,8 @@ function CategoryPage() {
             </div>
           </section>
         )}
-      </main>
-    </div>
+      </div>
+    </AppShell>
   )
 }
 
