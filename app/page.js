@@ -238,8 +238,8 @@ function App() {
             )}
           </div>
         </section>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   )
 }
 
