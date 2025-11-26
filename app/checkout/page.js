@@ -81,6 +81,53 @@ const CheckoutPage = () => {
 
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId)
 
+  const handleSaveAddress = async () => {
+    setSavingAddress(true)
+    try {
+      const res = await fetch('/api/addresses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newAddress),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        alert(data?.error || 'Unable to save address.')
+        return
+      }
+      const savedAddress = await res.json()
+      
+      // Refresh addresses list
+      const addrRes = await fetch('/api/addresses', { cache: 'no-store' })
+      if (addrRes.ok) {
+        const addrData = await addrRes.json()
+        const list = Array.isArray(addrData) ? addrData : []
+        setAddresses(list)
+        // Auto-select the newly created address
+        setSelectedAddressId(savedAddress.id)
+      }
+      
+      // Reset form and close dialog
+      setNewAddress({
+        label: '',
+        name: '',
+        phone: '',
+        line1: '',
+        line2: '',
+        city: '',
+        state: '',
+        postalCode: '',
+        country: '',
+        isDefault: false,
+      })
+      setShowAddressDialog(false)
+    } catch (e) {
+      console.error(e)
+      alert('Unable to save address right now.')
+    } finally {
+      setSavingAddress(false)
+    }
+  }
+
   const handlePlaceOrder = async () => {
     if (!items.length) {
       alert('Your cart is empty.')
