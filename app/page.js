@@ -76,27 +76,6 @@ const HomePage = () => {
   return (
     <AppShell>
       <div className="space-y-12">
-        {/* Search Bar */}
-        <div className="mx-auto max-w-2xl">
-          <form onSubmit={handleSearch} className="relative">
-            <Input
-              type="text"
-              placeholder="Search for anime merch, plushes, figures, t-shirts..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-12 rounded-full border-slate-800 bg-slate-950/80 pl-12 pr-4 text-sm text-slate-100 placeholder:text-slate-500 focus:border-violet-500 focus:ring-violet-500"
-            />
-            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-            <Button
-              type="submit"
-              size="sm"
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-violet-500 px-4 text-xs font-semibold hover:bg-violet-400"
-            >
-              Search
-            </Button>
-          </form>
-        </div>
-
         <div className="grid gap-6 md:grid-cols-2">
           <div
             className="group relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900/80 to-slate-950/80"
