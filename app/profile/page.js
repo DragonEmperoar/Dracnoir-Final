@@ -486,7 +486,7 @@ const ProfilePage = () => {
                         />
                         <div className="flex-1">
                           <p className="text-xs font-medium text-slate-100">{item.title}</p>
-                          <p className="mt-1 text-xs text-violet-300">${item.price}</p>
+                          <p className="mt-1 text-xs text-violet-300">₹{item.price}</p>
                           <div className="mt-2 flex gap-2">
                             <Button
                               size="sm"
