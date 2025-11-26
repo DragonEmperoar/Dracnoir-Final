@@ -1,0 +1,103 @@
+<analysis>
+The user provided a comprehensive problem statement for building a full-stack, anime-themed e-commerce website named Dracnoir. The initial tech stack requested was Next.js/React/Tailwind with a Node/Express backend and a PostgreSQL/Prisma database. The AI engineer adapted this to a Next.js full-stack application using API Routes and a MongoDB database, as dictated by the environment.
+
+The development process was iterative and highly interactive. The engineer began by scaffolding the homepage and basic product/category APIs. Following user direction, the project expanded significantly. Key implementation phases included:
+1.  **Product Experience:** Building dynamic category and product detail pages with advanced filtering, sub-category logic (e.g., Premium vs. Sustainable figures), and UI redesigns based on user-provided inspiration.
+2.  **Authentication:** Integrating  for both Google OAuth and a custom Credentials Provider for email/password login. This involved extensive debugging of configuration, dependencies, and client-side component logic.
+3.  **Global UI/UX:** Refactoring the application to use a global  component, providing a consistent header (with auth state, clickable logo, cart access), a secondary navigation bar, a back button, and a footer across all pages.
+4.  **Cart & Checkout:** Implementing a complete, auth-gated cart and a multi-step checkout flow. This includes adding items, viewing the cart, selecting a shipping address from a saved list, and placing an order, which creates a document in the  collection.
+5.  **User Profile:** Building a profile page that displays user info, a full CRUD interface for saved addresses, and a list of recent orders.
+
+The work involved significant refactoring and debugging, responding to user feedback on UI/UX details, fixing compile/runtime errors, and clarifying requirements. The final state before this summary is a substantially functional MVP, with the next tasks focused on enhancing the checkout and profile pages.
+
+The user's primary language is English. The next agent must respond in English.
+</analysis>
+<product_requirements>
+The goal is to build a fully functional, responsive anime-themed e-commerce website named Dracnoir.
+
+**Implemented Features:**
+-   **Homepage:** A landing page with a hero carousel, a grid of product categories, and a Trending Products section. The company logo Dracnoir is a clickable link to home.
+-   **Branding & Navigation:** The site is named Dracnoir. A global  ensures a consistent header, secondary navigation bar (for categories), footer, and back button are present on all pages.
+-   **Product Browsing:**
+    -   Category pages () with filtering (search, series, price) and sorting.
+    -   A dedicated All Products page ().
+    -   A unique flow for Action Figures that first presents two CTAs (Premium & Sustainable) before showing a filtered product list.
+    -   Detailed product pages () with an image gallery, description, reviews, and variant selectors (for T-shirts, using separate dropdowns for fit and color).
+-   **Authentication:** Dual login system using NextAuth.js:
+    -   Google OAuth.
+    -   Email & Password (with bcrypt hashing), fully integrated into the same session management system.
+-   **User Profile ():** A dashboard for logged-in users showing:
+    -   Basic account info (name, email).
+    -   Full CRUD functionality for Saved Addresses.
+    -   A list of Recent Orders with links to detail pages.
+-   **Cart & Checkout:**
+    -   A persistent, user-specific cart ().
+    -   An Add to Cart popup on product pages.
+    -   A Buy Now button that adds to cart and redirects to checkout.
+    -   A multi-step checkout page () where users can select a saved shipping address.
+    -   A functional Place Order button that creates an order in the database, clears the cart, and redirects to an order confirmation page.
+-   **Order Confirmation ():** A success page with an animated green tick, order details, and CTAs to continue shopping or view the summary.
+</product_requirements>
+<key_technical_concepts>
+- **Framework/Stack:** Next.js (App Router), React, Tailwind CSS.
+- **Backend:** Next.js API Routes served from a single monolithic file () handling all non-auth business logic.
+- **Database:** MongoDB (accessed via  env variable), using UUIDs for IDs instead of Mongo's .
+- **Authentication:**  with the .
+  - **Providers:** Google (OAuth) and Credentials (email/password).
+  - **Session Strategy:** JWT (JSON Web Tokens).
+- **UI:** shadcn/ui components,  for icons.
+- **State Management:** React hooks (, , ) and a custom .
+</key_technical_concepts>
+<code_architecture>
+The application follows a standard Next.js 14 App Router structure. The backend logic is unconventionally centralized in a single dynamic route handler, while authentication is managed through NextAuth's dedicated route. A global  component enforces a consistent layout.
+
+**Directory Structure:**
+
+
+**Key Files:**
+
+-   ****
+    -   **Importance:** This is the core monolithic backend for all non-authentication logic. It handles product seeding, fetching products with filters, managing cart items, CRUD for addresses, and creating/fetching orders. It's a critical, albeit unconventional, part of the architecture.
+    -   **Changes:** Continuously edited to add new endpoints (, , ), extend existing ones (product filters), and seed new data (sustainable figures).
+
+-   ****
+    -   **Importance:** This file configures . It defines the authentication providers (Google, Credentials), the MongoDB adapter for data persistence, session strategy (JWT), and callbacks for token/session management.
+    -   **Changes:** Initially created for Google provider, it was later updated to include the  for email/password login, integrating  for password validation.
+
+-   ****
+    -   **Importance:** This is a crucial client component that provides the global UI layout. It contains the main header (logo, auth buttons, cart), the secondary Shop by category navigation, a conditional back button, and the footer. It ensures a consistent look and feel across all pages.
+    -   **Changes:** Created late in the project to unify the UI, refactoring header/footer logic out of individual pages.
+
+-   ****
+    -   **Importance:** The root layout for the entire application. It sets up the basic HTML structure, fonts, and global styles.
+    -   **Changes:** Modified to wrap its children with the  component, which contains the  and , separating client-side context from server-side metadata.
+
+-   ****
+    -   **Importance:** The final step before order creation. It fetches the user's cart and saved addresses, allows address selection, and triggers the order placement API call.
+    -   **Changes:** Heavily iterated upon. Initially a simple summary, it was updated to include a dynamic address selection UI. The layout was changed from horizontal to vertical with larger fonts based on user feedback. The Place Order button was wired to a real API endpoint. The latest request is to add a new address option here.
+
+-   ****
+    -   **Importance:** The user's account dashboard. It's an authenticated route that serves as a hub for managing personal data.
+    -   **Changes:** Evolved from a basic placeholder to a functional page with sections for account info, a full CRUD interface for saved addresses, and a list of recent orders. The user has requested to expand it into a multi-section dashboard.
+</code_architecture>
+<pending_tasks>
+- **Expand  dashboard:** Implement sections for Wishlist and user Preferences.
+- **Admin Dashboard:** Implement full CRUD for products (with image uploads), and management screens for users, orders, and coupons, plus analytics.
+- **Wishlist:** Add Add to Wishlist functionality on product pages and a dedicated section in the user profile.
+- **Coupon System:** Implement the backend model and API for applying coupons in the cart/checkout.
+- **Payment Integration:** Integrate Razorpay for real payment processing.
+- **Static Pages:** Create FAQ and Terms & Conditions pages.
+- **SEO & Performance:** Add Schema.org structured data and perform other optimizations.
+</pending_tasks>
+<current_work>
+The engineer was actively working on two user requests simultaneously, both aimed at refining the user experience for account management and checkout.
+
+1.  **Adding a New Address option on the Checkout Page ():** The user pointed out that while they can *select* a saved address on the checkout page, there is no option to add a new address directly from that page. They are currently forced to navigate back to their profile to do so. The task is to add a form or modal on  to create a new address on the fly. The last file read in the trajectory was , indicating the engineer was analyzing it to implement this change.
+
+2.  **Expanding the Profile Page into a Multi-Section Dashboard:** The user explicitly requested to expand /profile as a multi-section dashboard. This follows feedback that the Account Options entry point felt bare. The plan is to keep the  page for authentication but to enrich the  page with more features beyond the existing Saved Addresses and Recent Orders. This likely involves adding tabs or sections for Wishlist and Preferences, which are currently pending tasks.
+
+In summary, the immediate focus is on improving the address management flow during checkout and building out the user profile into a more comprehensive dashboard.
+</current_work>
+<optional_next_step>
+Add a button and modal on the  page to allow users to create a new shipping address without leaving the checkout flow.
+</optional_next_step>

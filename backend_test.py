@@ -10,7 +10,7 @@ import sys
 from urllib.parse import urljoin
 
 # Configuration
-BASE_URL = "https://otakushop-2.preview.emergentagent.com"
+BASE_URL = "https://anime-commerce-2.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 def test_endpoint(method, endpoint, expected_status=200, params=None, data=None, headers=None):
