@@ -155,8 +155,11 @@ const CartPage = () => {
                 <p className="text-xs text-slate-400">
                   Taxes and shipping will be calculated at checkout.
                 </p>
-                <Button className="w-full rounded-full bg-violet-500 text-xs font-semibold text-white hover:bg-violet-400">
-                  Checkout (coming next)
+                <Button
+                  className="w-full rounded-full bg-violet-500 text-xs font-semibold text-white hover:bg-violet-400"
+                  onClick={() => router.push('/checkout')}
+                >
+                  Checkout
                 </Button>
               </CardContent>
             </Card>
