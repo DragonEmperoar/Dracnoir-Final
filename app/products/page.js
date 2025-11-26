@@ -165,8 +165,8 @@ const AllProductsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-50">
-      <main className="container mx-auto px-4 pb-16 pt-8 space-y-10">
+    <AppShell>
+      <div className="space-y-10">
         <section className="space-y-3">
           <p className="text-xs uppercase tracking-[0.2em] text-violet-300/80">Dracnoir</p>
           <h1 className="text-2xl font-semibold tracking-tight text-slate-50 md:text-3xl">
