@@ -31,6 +31,7 @@ function ProductPage() {
   const [pincode, setPincode] = useState('')
   const [pincodeMessage, setPincodeMessage] = useState('')
   const [showSizeGuide, setShowSizeGuide] = useState(false)
+  const [showAdded, setShowAdded] = useState(false)
 
   useEffect(() => {
     if (!slug) return
