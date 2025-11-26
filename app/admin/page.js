@@ -333,14 +333,48 @@ const AdminDashboard = () => {
 
             {/* Users Tab */}
             {activeTab === 'users' && (
-              <Card className="border border-slate-800 bg-slate-950/80">
-                <CardContent className="p-6 text-center">
-                  <Users className="mx-auto h-12 w-12 text-slate-700" />
-                  <p className="mt-4 text-sm text-slate-400">
-                    User management coming soon
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="space-y-4">
+                <p className="text-sm text-slate-300">{users.length} registered users</p>
+                
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {users.map((user) => (
+                    <Card key={user.id} className="border border-slate-800 bg-slate-950/80">
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-3">
+                          {user.image ? (
+                            <img
+                              src={user.image}
+                              alt={user.name}
+                              className="h-12 w-12 rounded-full border border-slate-700"
+                            />
+                          ) : (
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-sm font-semibold text-slate-400">
+                              {user.name?.charAt(0)?.toUpperCase() || 'U'}
+                            </div>
+                          )}
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-slate-100">{user.name || 'Anonymous'}</p>
+                            <p className="text-xs text-slate-400">{user.email}</p>
+                            <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                              <span className="rounded-full bg-violet-500/10 px-2 py-0.5 text-violet-300">
+                                {user.orderCount} orders
+                              </span>
+                              {user.totalSpent > 0 && (
+                                <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-emerald-300">
+                                  ₹{user.totalSpent.toFixed(0)}
+                                </span>
+                              )}
+                            </div>
+                            <p className="mt-2 text-xs text-slate-500">
+                              Joined {new Date(user.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
             )}
           </>
         )}
