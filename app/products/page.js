@@ -291,8 +291,8 @@ const AllProductsPage = () => {
             )}
           </div>
         </section>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   )
 }
 
