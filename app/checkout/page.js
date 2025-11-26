@@ -63,7 +63,7 @@ const CheckoutPage = () => {
 
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId)
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (!items.length) {
       alert('Your cart is empty.')
       return
@@ -73,9 +73,22 @@ const CheckoutPage = () => {
       router.push('/profile')
       return
     }
-    alert(
-      'Order placement is stubbed for now. In a full build, this would create an order with your selected address and cart items.',
-    )
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ addressId: selectedAddress.id }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        alert(data?.error || 'Unable to place order right now.')
+        return
+      }
+      router.push(`/orders/${data.id}`)
+    } catch (e) {
+      console.error(e)
+      alert('Unable to place order right now.')
+    }
   }
 
   return (
