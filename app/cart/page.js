@@ -130,7 +130,7 @@ const CartPage = () => {
                           Qty: <span className="font-semibold">{item.quantity}</span>
                         </p>
                         <p className="text-sm font-semibold text-slate-50">
-                          ${(item.price || 0).toFixed(2)}
+                          ₹{(item.price || 0).toFixed(0)}
                         </p>
                       </div>
                     </div>
