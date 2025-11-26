@@ -50,9 +50,10 @@ const AdminDashboard = () => {
   const loadData = async () => {
     setLoading(true)
     try {
-      const [productsRes, ordersRes] = await Promise.all([
+      const [productsRes, ordersRes, usersRes] = await Promise.all([
         fetch('/api/products?limit=100'),
         fetch('/api/orders'),
+        fetch('/api/users'),
       ])
       
       if (productsRes.ok) {
@@ -70,6 +71,12 @@ const AdminDashboard = () => {
           totalOrders: ordersData.length,
           totalRevenue: revenue 
         }))
+      }
+      
+      if (usersRes.ok) {
+        const usersData = await usersRes.json()
+        setUsers(usersData || [])
+        setStats(prev => ({ ...prev, totalUsers: usersData.length }))
       }
     } catch (error) {
       console.error('Failed to load admin data:', error)
