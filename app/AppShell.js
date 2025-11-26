@@ -1,16 +1,29 @@
 'use client'
 
+import { useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { ChevronLeft, ShoppingCart, Search } from 'lucide-react'
+import { ChevronLeft, ShoppingCart, Search, X } from 'lucide-react'
 import { useAuth } from './context/AuthContext'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 const AppShell = ({ children }) => {
   const pathname = usePathname()
   const router = useRouter()
   const { user, loginWithGoogle } = useAuth()
+  const [showSearch, setShowSearch] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
   const isHome = pathname === '/'
+  
+  const handleSearch = (e) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`)
+      setShowSearch(false)
+      setSearchQuery('')
+    }
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-50">
