@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useAuth } from '../../context/AuthContext'
-import AppShell from '../AppShell'
+import AppShell from '../../AppShell'
 
 function ProductPage() {
   const params = useParams()
