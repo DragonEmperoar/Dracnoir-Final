@@ -168,15 +168,23 @@ const ProfilePage = () => {
     )
   }
 
+  const tabs = [
+    { id: 'account', label: 'Account Info', icon: User },
+    { id: 'addresses', label: 'Addresses', icon: MapPin },
+    { id: 'orders', label: 'Orders', icon: Package },
+    { id: 'wishlist', label: 'Wishlist', icon: Heart },
+    { id: 'preferences', label: 'Preferences', icon: Settings },
+  ]
+
   return (
     <AppShell>
       <div className="space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-violet-300/80">Account</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-violet-300/80">Dashboard</p>
             <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">Profile</h1>
             <p className="mt-1 text-sm text-slate-300">
-              Manage your Dracnoir account, saved addresses and orders.
+              Manage your Dracnoir account, addresses, orders, wishlist and preferences.
             </p>
           </div>
           <Button
@@ -193,7 +201,29 @@ const ProfilePage = () => {
           <p className="text-xs text-red-300">{error}</p>
         )}
 
-        <div className="grid gap-6 md:grid-cols-2">
+        {/* Tab Navigation */}
+        <div className="flex flex-wrap gap-2">
+          {tabs.map((tab) => {
+            const Icon = tab.icon
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium transition-colors ${
+                  activeTab === tab.id
+                    ? 'bg-violet-500 text-white'
+                    : 'border border-slate-800 bg-slate-950/80 text-slate-300 hover:border-violet-500/50 hover:bg-slate-900'
+                }`}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                {tab.label}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Tab Content */}
+        <div className="space-y-6">
           {/* Basic info */}
           <Card className="border border-slate-800 bg-slate-950/80">
             <CardContent className="space-y-2 p-4 text-sm">
