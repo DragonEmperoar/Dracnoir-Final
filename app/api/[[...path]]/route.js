@@ -589,8 +589,8 @@ async function handleRoute(request, { params }) {
           NextResponse.json({ error: 'Product not found' }, { status: 404 }),
         )
       }
-      const reviewsCol = db.collection('reviews')
-      const docs = await reviewsCol
+      const reviewsColInstance = db.collection('reviews')
+      const docs = await reviewsColInstance
         .find({ productId: product.id })
         .sort({ createdAt: -1 })
         .limit(50)

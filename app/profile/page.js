@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../context/AuthContext'
 import { Card, CardContent } from '@/components/ui/card'
@@ -8,15 +8,137 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import AppShell from '../AppShell'
 
+const emptyForm = {
+  label: '',
+  name: '',
+  phone: '',
+  line1: '',
+  line2: '',
+  city: '',
+  state: '',
+  postalCode: '',
+  country: '',
+  isDefault: false,
+}
+
 const ProfilePage = () => {
   const { user, logout, status } = useAuth()
   const router = useRouter()
+
+  const [addresses, setAddresses] = useState([])
+  const [loadingAddresses, setLoadingAddresses] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [form, setForm] = useState(emptyForm)
+  const [editingId, setEditingId] = useState(null)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/')
     }
   }, [status, router])
+
+  useEffect(() => {
+    if (!user) return
+    const load = async () => {
+      setLoadingAddresses(true)
+      setError('')
+      try {
+        const res = await fetch('/api/addresses')
+        if (!res.ok) {
+          throw new Error('Failed to load addresses')
+        }
+        const data = await res.json()
+        setAddresses(Array.isArray(data) ? data : [])
+      } catch (e) {
+        console.error(e)
+        setError('Unable to load saved addresses right now.')
+      } finally {
+        setLoadingAddresses(false)
+      }
+    }
+    load()
+  }, [user])
+
+  const handleChange = (field, value) => {
+    setForm((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleToggleDefault = () => {
+    setForm((prev) => ({ ...prev, isDefault: !prev.isDefault }))
+  }
+
+  const resetForm = () => {
+    setForm(emptyForm)
+    setEditingId(null)
+  }
+
+  const handleEdit = (addr) => {
+    setEditingId(addr.id)
+    setForm({
+      label: addr.label || '',
+      name: addr.name || '',
+      phone: addr.phone || '',
+      line1: addr.line1 || '',
+      line2: addr.line2 || '',
+      city: addr.city || '',
+      state: addr.state || '',
+      postalCode: addr.postalCode || '',
+      country: addr.country || '',
+      isDefault: Boolean(addr.isDefault),
+    })
+  }
+
+  const handleDelete = async (id) => {
+    try {
+      await fetch(`/api/addresses/${id}`, {
+        method: 'DELETE',
+      })
+      setAddresses((prev) => prev.filter((a) => a.id !== id))
+    } catch (e) {
+      console.error('Failed to delete address', e)
+    }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!form.line1 || !form.city || !form.postalCode) {
+      alert('Please fill at least address line 1, city and pincode.')
+      return
+    }
+    setSaving(true)
+    setError('')
+    try {
+      const payload = {
+        ...form,
+      }
+      const res = await fetch(
+        editingId ? `/api/addresses/${editingId}` : '/api/addresses',
+        {
+          method: editingId ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        },
+      )
+      if (!res.ok) {
+        throw new Error('Failed to save address')
+      }
+      const saved = await res.json()
+      if (editingId) {
+        setAddresses((prev) =>
+          prev.map((a) => (a.id === saved.id ? saved : a)),
+        )
+      } else {
+        setAddresses((prev) => [saved, ...prev])
+      }
+      resetForm()
+    } catch (e) {
+      console.error(e)
+      setError('Unable to save this address right now.')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   if (!user) {
     return (
@@ -36,7 +158,7 @@ const ProfilePage = () => {
             <p className="text-xs uppercase tracking-[0.2em] text-violet-300/80">Account</p>
             <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">Profile</h1>
             <p className="mt-1 text-sm text-slate-300">
-              Manage your Dracnoir account, preferences and saved details.
+              Manage your Dracnoir account, saved addresses and more.
             </p>
           </div>
           <Button
@@ -50,6 +172,7 @@ const ProfilePage = () => {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
+          {/* Basic info */}
           <Card className="border border-slate-800 bg-slate-950/80">
             <CardContent className="space-y-2 p-4 text-sm">
               <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
@@ -60,14 +183,165 @@ const ProfilePage = () => {
             </CardContent>
           </Card>
 
+          {/* Saved addresses */}
           <Card className="border border-slate-800 bg-slate-950/80">
-            <CardContent className="space-y-2 p-4 text-sm">
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
-                Saved addresses
-              </p>
-              <p className="text-slate-400 text-xs">
-                Address book, preferences and more will appear here in the next iteration.
-              </p>
+            <CardContent className="space-y-3 p-4 text-sm">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+                  Saved addresses
+                </p>
+              </div>
+              {error && (
+                <p className="text-[11px] text-red-300">{error}</p>
+              )}
+              {loadingAddresses ? (
+                <p className="text-xs text-slate-400">Loading addresses...</p>
+              ) : addresses.length === 0 ? (
+                <p className="text-xs text-slate-400">
+                  No addresses yet. Add one below to speed up checkout.
+                </p>
+              ) : (
+                <div className="space-y-2 text-xs text-slate-200">
+                  {addresses.map((addr) => (
+                    <div
+                      key={addr.id}
+                      className="flex items-start justify-between rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-2"
+                    >
+                      <div>
+                        <p className="font-medium text-slate-100">
+                          {addr.label || 'Address'}
+                          {addr.isDefault && (
+                            <span className="ml-2 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-300">
+                              Default
+                            </span>
+                          )}
+                        </p>
+                        <p className="text-slate-300">
+                          {addr.name} {addr.phone && `• ${addr.phone}`}
+                        </p>
+                        <p className="text-slate-400">
+                          {addr.line1}
+                          {addr.line2 ? `, ${addr.line2}` : ''}
+                        </p>
+                        <p className="text-slate-400">
+                          {addr.city}, {addr.state} {addr.postalCode}
+                        </p>
+                        <p className="text-slate-500">{addr.country}</p>
+                      </div>
+                      <div className="ml-3 flex flex-col items-end gap-1">
+                        <button
+                          type="button"
+                          className="text-[11px] text-violet-300 hover:text-violet-200"
+                          onClick={() => handleEdit(addr)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          className="text-[11px] text-slate-400 hover:text-red-300"
+                          onClick={() => handleDelete(addr.id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Address form */}
+              <form
+                onSubmit={handleSubmit}
+                className="mt-3 space-y-2 rounded-xl border border-slate-800 bg-slate-950/80 p-3 text-xs"
+              >
+                <p className="text-[11px] font-medium text-slate-200">
+                  {editingId ? 'Edit address' : 'Add new address'}
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    placeholder="Label (Home, Work)"
+                    value={form.label}
+                    onChange={(e) => handleChange('label', e.target.value)}
+                    className="h-8 border-slate-700 bg-slate-900/80 text-[11px]"
+                  />
+                  <Input
+                    placeholder="Name"
+                    value={form.name}
+                    onChange={(e) => handleChange('name', e.target.value)}
+                    className="h-8 border-slate-700 bg-slate-900/80 text-[11px]"
+                  />
+                  <Input
+                    placeholder="Phone"
+                    value={form.phone}
+                    onChange={(e) => handleChange('phone', e.target.value)}
+                    className="h-8 border-slate-700 bg-slate-900/80 text-[11px]"
+                  />
+                  <Input
+                    placeholder="Country"
+                    value={form.country}
+                    onChange={(e) => handleChange('country', e.target.value)}
+                    className="h-8 border-slate-700 bg-slate-900/80 text-[11px]"
+                  />
+                  <Input
+                    placeholder="Address line 1"
+                    value={form.line1}
+                    onChange={(e) => handleChange('line1', e.target.value)}
+                    className="col-span-2 h-8 border-slate-700 bg-slate-900/80 text-[11px]"
+                  />
+                  <Input
+                    placeholder="Address line 2 (optional)"
+                    value={form.line2}
+                    onChange={(e) => handleChange('line2', e.target.value)}
+                    className="col-span-2 h-8 border-slate-700 bg-slate-900/80 text-[11px]"
+                  />
+                  <Input
+                    placeholder="City"
+                    value={form.city}
+                    onChange={(e) => handleChange('city', e.target.value)}
+                    className="h-8 border-slate-700 bg-slate-900/80 text-[11px]"
+                  />
+                  <Input
+                    placeholder="State"
+                    value={form.state}
+                    onChange={(e) => handleChange('state', e.target.value)}
+                    className="h-8 border-slate-700 bg-slate-900/80 text-[11px]"
+                  />
+                  <Input
+                    placeholder="Pincode"
+                    value={form.postalCode}
+                    onChange={(e) => handleChange('postalCode', e.target.value)}
+                    className="h-8 border-slate-700 bg-slate-900/80 text-[11px]"
+                  />
+                  <label className="flex items-center gap-2 text-[11px] text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={form.isDefault}
+                      onChange={handleToggleDefault}
+                      className="h-3 w-3 rounded border-slate-700 bg-slate-900"
+                    />
+                    Set as default
+                  </label>
+                </div>
+                <div className="mt-2 flex items-center gap-2">
+                  <Button
+                    type="submit"
+                    size="sm"
+                    disabled={saving}
+                    className="h-7 rounded-full bg-violet-500 text-[11px] font-semibold text-white hover:bg-violet-400"
+                  >
+                    {saving ? 'Saving...' : editingId ? 'Update' : 'Save'}
+                  </Button>
+                  {editingId && (
+                    <button
+                      type="button"
+                      className="text-[11px] text-slate-400 hover:text-slate-200"
+                      onClick={resetForm}
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              </form>
             </CardContent>
           </Card>
         </div>
