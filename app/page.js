@@ -7,6 +7,7 @@ import { ShoppingCart, Star, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useAuth } from './context/AuthContext'
+import AppShell from './AppShell'
 
 const heroImages = [
   'https://images.unsplash.com/photo-1735720518679-4c0673e59035',
