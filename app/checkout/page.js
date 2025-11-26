@@ -119,43 +119,45 @@ const CheckoutPage = () => {
             Your cart is empty. Add items before checking out.
           </div>
         ) : (
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,_1.4fr)_minmax(0,_1.2fr)]">
+          <div className="space-y-6 text-base text-slate-200">
             {/* Items */}
             <Card className="border border-slate-800 bg-slate-950/80">
-              <CardContent className="space-y-3 p-4 text-sm">
-                <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
-                  Items
+              <CardContent className="space-y-4 p-5">
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
+                  Items in your cart
                 </p>
-                {items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between border-b border-slate-800/60 py-2 text-xs last:border-0"
-                  >
-                    <div>
-                      <p className="text-slate-100">{item.title}</p>
-                      <p className="text-slate-400">Qty: {item.quantity}</p>
+                <div className="space-y-3">
+                  {items.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between border-b border-slate-800/60 pb-2 last:border-0"
+                    >
+                      <div>
+                        <p className="text-slate-100">{item.title}</p>
+                        <p className="text-sm text-slate-400">Qty: {item.quantity}</p>
+                      </div>
+                      <p className="text-sm font-semibold text-slate-100">
+                        ${(item.price || 0).toFixed(2)}
+                      </p>
                     </div>
-                    <p className="text-slate-100">
-                      ${(item.price || 0).toFixed(2)}
-                    </p>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </CardContent>
             </Card>
 
-            {/* Summary + address */}
-            <Card className="h-fit border border-slate-800 bg-slate-950/80">
+            {/* Summary + address vertically stacked */}
+            <Card className="border border-slate-800 bg-slate-950/80">
               <CardContent className="space-y-4 p-5 text-sm">
-                <div className="space-y-2 text-xs text-slate-300">
-                  <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-slate-500">
+                <div className="space-y-2 text-slate-300">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
                     Shipping address
                   </p>
                   {addresses.length === 0 ? (
                     <div className="space-y-1">
-                      <p>No saved addresses found.</p>
+                      <p className="text-sm">No saved addresses found.</p>
                       <button
                         type="button"
-                        className="text-[11px] text-violet-300 hover:text-violet-200"
+                        className="text-xs text-violet-300 hover:text-violet-200"
                         onClick={() => router.push('/profile')}
                       >
                         Add an address in your profile
@@ -168,7 +170,7 @@ const CheckoutPage = () => {
                           key={addr.id}
                           type="button"
                           onClick={() => setSelectedAddressId(addr.id)}
-                          className={`w-full rounded-xl border px-3 py-2 text-left text-[11px] transition-colors ${
+                          className={`w-full rounded-xl border px-3 py-2 text-left text-xs transition-colors ${
                             addr.id === selectedAddressId
                               ? 'border-violet-500 bg-violet-500/10 text-slate-50'
                               : 'border-slate-800 bg-slate-950/80 text-slate-300 hover:border-violet-400'
@@ -182,35 +184,37 @@ const CheckoutPage = () => {
                               </span>
                             )}
                           </p>
-                          <p>
+                          <p className="text-sm">
                             {addr.line1}
                             {addr.line2 ? `, ${addr.line2}` : ''}
                           </p>
-                          <p>
+                          <p className="text-sm">
                             {addr.city}, {addr.state} {addr.postalCode}
                           </p>
-                          <p className="text-slate-400">{addr.country}</p>
+                          <p className="text-xs text-slate-400">{addr.country}</p>
                         </button>
                       ))}
                     </div>
                   )}
                 </div>
 
-                <div className="flex items-center justify-between border-t border-slate-800 pt-3">
-                  <span className="text-slate-300">Subtotal</span>
-                  <span className="text-base font-semibold text-slate-50">
-                    ${subtotal.toFixed(2)}
-                  </span>
+                <div className="border-t border-slate-800 pt-3 text-slate-300">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Subtotal</span>
+                    <span className="text-lg font-semibold text-slate-50">
+                      ${subtotal.toFixed(2)}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-slate-400">
+                    Taxes, shipping and discounts will be shown here in the full checkout.
+                  </p>
+                  <Button
+                    className="mt-3 w-full rounded-full bg-violet-500 text-xs font-semibold text-white hover:bg-violet-400"
+                    onClick={handlePlaceOrder}
+                  >
+                    Place order
+                  </Button>
                 </div>
-                <p className="text-xs text-slate-400">
-                  Taxes, shipping and discounts will be shown here in the full checkout.
-                </p>
-                <Button
-                  className="w-full rounded-full bg-violet-500 text-xs font-semibold text-white hover:bg-violet-400"
-                  onClick={handlePlaceOrder}
-                >
-                  Place order (stub)
-                </Button>
               </CardContent>
             </Card>
           </div>
