@@ -161,8 +161,8 @@ function ProductPage() {
   const reviewCount = product.reviewCount || reviews.length
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-50">
-      <main className="container mx-auto px-4 pb-16 pt-8">
+    <AppShell>
+      <div className="space-y-6">
         <div className="mb-3 text-[11px] text-slate-500 flex items-center gap-1">
           <button
             className="hover:text-slate-200 flex items-center gap-1"
