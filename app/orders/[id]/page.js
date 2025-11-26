@@ -148,7 +148,7 @@ const OrderDetailPage = () => {
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Subtotal</span>
                       <span className="text-lg font-semibold text-slate-50">
-                        ${order.subtotal?.toFixed?.(2) ?? '0.00'}
+                        ₹{order.subtotal?.toFixed?.(0) ?? '0'}
                       </span>
                     </div>
                     <p className="mt-1 text-sm text-slate-500">
