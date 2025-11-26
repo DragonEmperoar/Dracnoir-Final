@@ -47,8 +47,8 @@ const CheckoutPage = () => {
   )
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-50">
-      <main className="container mx-auto px-4 pb-16 pt-8 space-y-8">
+    <AppShell>
+      <div className="space-y-8">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-violet-300/80">Checkout</p>
