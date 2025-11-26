@@ -412,42 +412,196 @@ const ProfilePage = () => {
             </Card>
           )}
 
-          {/* Orders */}
-          <Card className="border border-slate-800 bg-slate-950/80">
-            <CardContent className="space-y-3 p-4 text-sm">
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
-                Recent orders
-              </p>
-              {orders.length === 0 ? (
-                <p className="text-xs text-slate-400">
-                  No orders yet. They will show up here after you place one.
+          {/* Orders Tab */}
+          {activeTab === 'orders' && (
+            <Card className="border border-slate-800 bg-slate-950/80">
+              <CardContent className="space-y-3 p-4 text-sm">
+                <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+                  Recent orders
                 </p>
-              ) : (
-                <div className="space-y-2 text-xs text-slate-200">
-                  {orders.map((order) => (
-                    <button
-                      key={order.id}
-                      type="button"
-                      className="flex w-full items-center justify-between rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-2 text-left hover:border-violet-500/70"
-                      onClick={() => router.push(`/orders/${order.id}`)}
+                {orders.length === 0 ? (
+                  <p className="text-xs text-slate-400">
+                    No orders yet. They will show up here after you place one.
+                  </p>
+                ) : (
+                  <div className="space-y-2 text-xs text-slate-200">
+                    {orders.map((order) => (
+                      <button
+                        key={order.id}
+                        type="button"
+                        className="flex w-full items-center justify-between rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-2 text-left hover:border-violet-500/70"
+                        onClick={() => router.push(`/orders/${order.id}`)}
+                      >
+                        <div>
+                          <p className="font-medium text-slate-100">
+                            #{order.id?.slice?.(-6) || order.id}
+                          </p>
+                          <p className="text-slate-400">
+                            {new Date(order.createdAt).toLocaleString()} •{' '}
+                            {order.items?.length || 0} item
+                            {order.items?.length === 1 ? '' : 's'}
+                          </p>
+                        </div>
+                        <p className="text-emerald-300">{order.status}</p>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Wishlist Tab */}
+          {activeTab === 'wishlist' && (
+            <Card className="border border-slate-800 bg-slate-950/80">
+              <CardContent className="space-y-3 p-4 text-sm">
+                <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+                  Your wishlist
+                </p>
+                {wishlist.length === 0 ? (
+                  <div className="space-y-2 py-8 text-center">
+                    <Heart className="mx-auto h-12 w-12 text-slate-700" />
+                    <p className="text-xs text-slate-400">
+                      Your wishlist is empty. Browse products and add items you love!
+                    </p>
+                    <Button
+                      size="sm"
+                      className="mt-3 rounded-full bg-violet-500 text-xs hover:bg-violet-400"
+                      onClick={() => router.push('/products')}
                     >
-                      <div>
-                        <p className="font-medium text-slate-100">
-                          #{order.id?.slice?.(-6) || order.id}
-                        </p>
-                        <p className="text-slate-400">
-                          {new Date(order.createdAt).toLocaleString()} •{' '}
-                          {order.items?.length || 0} item
-                          {order.items?.length === 1 ? '' : 's'}
-                        </p>
+                      Browse Products
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {wishlist.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex gap-3 rounded-xl border border-slate-800 bg-slate-950/80 p-3"
+                      >
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          className="h-20 w-20 rounded-lg object-cover"
+                        />
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-slate-100">{item.title}</p>
+                          <p className="mt-1 text-xs text-violet-300">${item.price}</p>
+                          <div className="mt-2 flex gap-2">
+                            <Button
+                              size="sm"
+                              className="h-6 rounded-full bg-violet-500 text-[10px] hover:bg-violet-400"
+                              onClick={() => router.push(`/product/${item.slug}`)}
+                            >
+                              View
+                            </Button>
+                            <button
+                              className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-red-300"
+                              onClick={() => setWishlist((prev) => prev.filter((w) => w.id !== item.id))}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              Remove
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                      <p className="text-emerald-300">{order.status}</p>
-                    </button>
-                  ))}
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Preferences Tab */}
+          {activeTab === 'preferences' && (
+            <Card className="border border-slate-800 bg-slate-950/80">
+              <CardContent className="space-y-4 p-6">
+                <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+                  Account preferences
+                </p>
+
+                {/* Notification Settings */}
+                <div className="space-y-3">
+                  <Label className="text-xs font-medium text-slate-300">Notifications</Label>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs text-slate-400">Email Notifications</label>
+                      <input
+                        type="checkbox"
+                        checked={preferences.emailNotifications}
+                        onChange={(e) =>
+                          setPreferences({ ...preferences, emailNotifications: e.target.checked })
+                        }
+                        className="h-4 w-4 rounded border-slate-700 bg-slate-900 text-violet-500"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs text-slate-400">Order Updates</label>
+                      <input
+                        type="checkbox"
+                        checked={preferences.orderUpdates}
+                        onChange={(e) =>
+                          setPreferences({ ...preferences, orderUpdates: e.target.checked })
+                        }
+                        className="h-4 w-4 rounded border-slate-700 bg-slate-900 text-violet-500"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs text-slate-400">Newsletter</label>
+                      <input
+                        type="checkbox"
+                        checked={preferences.newsletter}
+                        onChange={(e) =>
+                          setPreferences({ ...preferences, newsletter: e.target.checked })
+                        }
+                        className="h-4 w-4 rounded border-slate-700 bg-slate-900 text-violet-500"
+                      />
+                    </div>
+                  </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+
+                {/* Regional Settings */}
+                <div className="space-y-3">
+                  <Label className="text-xs font-medium text-slate-300">Regional Settings</Label>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-slate-400">Currency</Label>
+                      <select
+                        value={preferences.currency}
+                        onChange={(e) => setPreferences({ ...preferences, currency: e.target.value })}
+                        className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-slate-100"
+                      >
+                        <option value="USD">USD - US Dollar</option>
+                        <option value="EUR">EUR - Euro</option>
+                        <option value="GBP">GBP - British Pound</option>
+                        <option value="JPY">JPY - Japanese Yen</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-slate-400">Language</Label>
+                      <select
+                        value={preferences.language}
+                        onChange={(e) => setPreferences({ ...preferences, language: e.target.value })}
+                        className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-slate-100"
+                      >
+                        <option value="en">English</option>
+                        <option value="ja">日本語 (Japanese)</option>
+                        <option value="es">Español (Spanish)</option>
+                        <option value="fr">Français (French)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <Button
+                  className="mt-4 rounded-full bg-violet-500 text-xs hover:bg-violet-400"
+                  onClick={() => alert('Preferences saved! (This is a demo - actual backend saving will be implemented later)')}
+                >
+                  Save Preferences
+                </Button>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </AppShell>
