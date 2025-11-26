@@ -122,31 +122,35 @@ function ProductPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-200">
-        Loading product...
-      </div>
+      <AppShell>
+        <div className="flex min-h-[60vh] items-center justify-center text-slate-200">
+          Loading product...
+        </div>
+      </AppShell>
     )
   }
 
   if (error || !product) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-slate-950 px-4 text-center text-slate-200">
-        <p className="mb-2 text-sm uppercase tracking-[0.2em] text-slate-500">
-          Product
-        </p>
-        <h1 className="text-lg font-semibold">This product slipped into another universe.</h1>
-        <p className="mt-2 max-w-sm text-sm text-slate-400">
-          {error || 'We could not find the page you were looking for.'}
-        </p>
-        <Button
-          variant="outline"
-          size="sm"
-          className="mt-4 rounded-full border-slate-700 bg-slate-900/80 text-xs text-slate-100 hover:bg-slate-800"
-          onClick={() => (window.location.href = '/')}
-        >
-          <ChevronLeft className="mr-1 h-3 w-3" /> Back to home
-        </Button>
-      </div>
+      <AppShell>
+        <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center text-slate-200">
+          <p className="mb-2 text-sm uppercase tracking-[0.2em] text-slate-500">
+            Product
+          </p>
+          <h1 className="text-lg font-semibold">This product slipped into another universe.</h1>
+          <p className="mt-2 max-w-sm text-sm text-slate-400">
+            {error || 'We could not find the page you were looking for.'}
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-4 rounded-full border-slate-700 bg-slate-900/80 text-xs text-slate-100 hover:bg-slate-800"
+            onClick={() => router.push('/')}
+          >
+            <ChevronLeft className="mr-1 h-3 w-3" /> Back to home
+          </Button>
+        </div>
+      </AppShell>
     )
   }
 
