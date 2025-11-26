@@ -29,58 +29,85 @@ const AppShell = ({ children }) => {
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-50">
       {/* Global header */}
       <header className="border-b border-slate-800/80 bg-slate-950/70 backdrop-blur">
-        <div className="container mx-auto flex items-center justify-between py-4 px-4">
-          <button
-            type="button"
-            className="flex items-center gap-2 sm:gap-3 text-left"
-            onClick={() => router.push('/')}
-          >
-            <span className="inline-flex h-8 w-8 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-600 text-white text-base sm:text-xl font-bold shadow-lg shadow-violet-500/30">
-              ON
-            </span>
-            <div className="hidden sm:block">
-              <div className="text-xl sm:text-2xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-violet-300 to-purple-300">
-                Dracnoir
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              className="flex items-center gap-2 sm:gap-3 text-left"
+              onClick={() => router.push('/')}
+            >
+              <span className="inline-flex h-8 w-8 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-600 text-white text-base sm:text-xl font-bold shadow-lg shadow-violet-500/30">
+                ON
+              </span>
+              <div className="hidden sm:block">
+                <div className="text-xl sm:text-2xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-violet-300 to-purple-300">
+                  Dracnoir
+                </div>
+                <div className="text-xs text-slate-400">Anime merch for your hoard</div>
               </div>
-              <div className="text-xs text-slate-400">Anime merch for your hoard</div>
-            </div>
-          </button>
+            </button>
 
-          <div className="flex items-center gap-1 sm:gap-3 text-xs sm:text-sm">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 px-2 sm:px-3 text-slate-300 hover:text-white"
-              onClick={() => router.push('/products')}
-            >
-              <Search className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="hidden md:inline-flex h-8 px-2 sm:px-3 text-slate-300 hover:text-white"
-              onClick={() => (user ? router.push('/profile') : loginWithGoogle())}
-            >
-              {user ? `Hi, ${user.name?.split?.(' ')?.[0] || 'otaku'}` : 'Login with Google'}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 px-2 sm:px-3 border-slate-700 bg-slate-900/60 text-slate-200 hover:bg-slate-800"
-              onClick={() => router.push(user ? '/profile' : '/login')}
-            >
-              <span className="hidden sm:inline">{user ? 'Account' : 'Login'}</span>
-              <span className="sm:hidden">{user ? 'Profile' : 'Login'}</span>
-            </Button>
-            <Button
-              size="sm"
-              className="h-8 px-2 sm:px-3 gap-1 bg-violet-500 hover:bg-violet-400 text-white"
-              onClick={() => router.push('/cart')}
-            >
-              <ShoppingCart className="h-4 w-4" />
-              <span className="hidden sm:inline">Cart</span>
-            </Button>
+            <div className="flex items-center gap-1 sm:gap-3 text-xs sm:text-sm">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2 sm:px-3 text-slate-300 hover:text-white"
+                onClick={() => setShowSearch(!showSearch)}
+              >
+                <Search className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hidden md:inline-flex h-8 px-2 sm:px-3 text-slate-300 hover:text-white"
+                onClick={() => (user ? router.push('/profile') : loginWithGoogle())}
+              >
+                {user ? `Hi, ${user.name?.split?.(' ')?.[0] || 'otaku'}` : 'Login with Google'}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 px-2 sm:px-3 border-slate-700 bg-slate-900/60 text-slate-200 hover:bg-slate-800"
+                onClick={() => router.push(user ? '/profile' : '/login')}
+              >
+                <span className="hidden sm:inline">{user ? 'Account' : 'Login'}</span>
+                <span className="sm:hidden">{user ? 'Profile' : 'Login'}</span>
+              </Button>
+              <Button
+                size="sm"
+                className="h-8 px-2 sm:px-3 gap-1 bg-violet-500 hover:bg-violet-400 text-white"
+                onClick={() => router.push('/cart')}
+              >
+                <ShoppingCart className="h-4 w-4" />
+                <span className="hidden sm:inline">Cart</span>
+              </Button>
+            </div>
           </div>
+          
+          {/* Search Bar */}
+          {showSearch && (
+            <form onSubmit={handleSearch} className="mt-3 relative">
+              <Input
+                type="text"
+                placeholder="Search for anime merch, plushes, figures, t-shirts..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoFocus
+                className="h-10 rounded-full border-slate-800 bg-slate-900 pl-10 pr-10 text-sm text-slate-100 placeholder:text-slate-500 focus:border-violet-500 focus:ring-violet-500"
+              />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <button
+                type="button"
+                onClick={() => {
+                  setShowSearch(false)
+                  setSearchQuery('')
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </form>
+          )}
         </div>
 
         {/* Secondary nav: show on all pages for now */}
