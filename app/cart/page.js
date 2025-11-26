@@ -150,7 +150,7 @@ const CartPage = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-slate-300">Subtotal</span>
                   <span className="text-base font-semibold text-slate-50">
-                    ${subtotal.toFixed(2)}
+                    ₹{subtotal.toFixed(0)}
                   </span>
                 </div>
                 <p className="text-xs text-slate-400">
