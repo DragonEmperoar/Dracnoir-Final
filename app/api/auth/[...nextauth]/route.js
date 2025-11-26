@@ -1,7 +1,9 @@
 import NextAuth from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
+import CredentialsProvider from 'next-auth/providers/credentials'
 import { MongoClient } from 'mongodb'
 import { MongoDBAdapter } from '@auth/mongodb-adapter'
+import bcrypt from 'bcryptjs'
 
 let clientPromise
 
