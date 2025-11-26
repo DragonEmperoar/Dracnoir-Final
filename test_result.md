@@ -201,6 +201,42 @@ backend:
         agent: "testing"
         comment: "MongoDB connection working, automatic seeding successful with 3 categories and 3 products. All data properly structured with UUIDs"
 
+  - task: "Address endpoints (GET, POST, PUT, DELETE)"
+    implemented: true
+    working: true
+    file: "/app/app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "All address CRUD operations working correctly. GET /api/addresses, POST /api/addresses, PUT /api/addresses/[id], DELETE /api/addresses/[id] all properly require authentication (return 401 when not authenticated). Used by checkout page for address creation."
+
+  - task: "Order endpoints (GET, POST)"
+    implemented: true
+    working: true
+    file: "/app/app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "All order endpoints working correctly. GET /api/orders, POST /api/orders, GET /api/orders/[id] all properly require authentication (return 401 when not authenticated). Used by profile dashboard for order history display."
+
+  - task: "Cart endpoints (GET, POST, DELETE)"
+    implemented: true
+    working: true
+    file: "/app/app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "All cart endpoints working correctly. GET /api/cart, POST /api/cart/items, DELETE /api/cart/items all properly require authentication (return 401 when not authenticated). Cart functionality supports checkout process."
+
 frontend:
   - task: "Checkout page - Add New Address dialog"
     implemented: true
