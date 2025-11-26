@@ -27,6 +27,7 @@ const ProfilePage = () => {
   const { user, logout, status } = useAuth()
   const router = useRouter()
 
+  const [activeTab, setActiveTab] = useState('account')
   const [addresses, setAddresses] = useState([])
   const [loadingAddresses, setLoadingAddresses] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -34,6 +35,14 @@ const ProfilePage = () => {
   const [editingId, setEditingId] = useState(null)
   const [error, setError] = useState('')
   const [orders, setOrders] = useState([])
+  const [wishlist, setWishlist] = useState([])
+  const [preferences, setPreferences] = useState({
+    emailNotifications: true,
+    orderUpdates: true,
+    newsletter: false,
+    currency: 'USD',
+    language: 'en',
+  })
 
   useEffect(() => {
     if (status === 'unauthenticated') {
