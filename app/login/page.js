@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 import AppShell from '../AppShell'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -24,22 +25,37 @@ const LoginPage = () => {
     setSuccess('')
 
     try {
-      const res = await fetch('/api/auth/credentials', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode, email, password, name }),
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        setError(data?.error || 'Something went wrong')
-        return
-      }
       if (mode === 'signup') {
+        // Create account via REST endpoint
+        const res = await fetch('/api/auth/credentials', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode, email, password, name }),
+        })
+        const data = await res.json()
+        if (!res.ok) {
+          setError(data?.error || 'Something went wrong')
+          return
+        }
         setSuccess('Account created. You can now log in with these credentials.')
         setMode('login')
-      } else {
-        setSuccess('Login successful (credentials verified).')
+        return
       }
+
+      // Login via NextAuth credentials provider
+      const res = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
+      })
+
+      if (res?.error) {
+        setError(res.error)
+        return
+      }
+
+      setSuccess('Logged in successfully.')
+      router.push('/')
     } catch (err) {
       console.error(err)
       setError('Something went wrong. Please try again.')
