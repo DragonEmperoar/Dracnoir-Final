@@ -234,7 +234,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "All backend API endpoints tested and working"
+    - "Checkout page - Add New Address dialog"
+    - "Profile page - Multi-section tabbed dashboard"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
