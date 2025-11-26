@@ -88,7 +88,7 @@ function App() {
               variant="ghost"
               size="sm"
               className="text-slate-300 hover:text-white"
-              onClick={() => loginWithGoogle()}
+              onClick={() => (user ? router.push('/profile') : loginWithGoogle())}
             >
               {user ? `Hi, ${user.name?.split?.(' ')?.[0] || 'otaku'}` : 'Login with Google'}
             </Button>
