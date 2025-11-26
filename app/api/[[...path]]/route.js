@@ -674,6 +674,47 @@ async function handleRoute(request, { params }) {
       return handleCORS(NextResponse.json(coupon))
     }
 
+    // GET /api/users (admin only)
+    if (route === '/users' && method === 'GET') {
+      const userId = await requireUserId(request)
+      if (!userId) {
+        return handleCORS(
+          NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
+        )
+      }
+      
+      // TODO: Add admin role check here
+      // For now, any authenticated user can access
+      
+      const usersCol = db.collection('users')
+      const ordersCol = db.collection('orders')
+      
+      // Get all users
+      const users = await usersCol.find({}).sort({ createdAt: -1 }).toArray()
+      
+      // Get order counts for each user
+      const usersWithStats = await Promise.all(
+        users.map(async (user) => {
+          const orderCount = await ordersCol.countDocuments({ userId: user.id })
+          const orders = await ordersCol.find({ userId: user.id }).toArray()
+          const totalSpent = orders.reduce((sum, order) => sum + (order.subtotal || 0), 0)
+          
+          return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            image: user.image,
+            createdAt: user.createdAt,
+            emailVerified: user.emailVerified,
+            orderCount,
+            totalSpent,
+          }
+        })
+      )
+      
+      return handleCORS(NextResponse.json(usersWithStats))
+    }
+
     // GET /api/products (listing with filters & pagination)
     if (route === '/products' && method === 'GET') {
       const { searchParams } = new URL(request.url)
