@@ -166,8 +166,8 @@ const CartPage = () => {
             </Card>
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </AppShell>
   )
 }
 
