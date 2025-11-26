@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import AppShell from '../AppShell'
 
 const ANIME_SERIES = [
   'Naruto',
