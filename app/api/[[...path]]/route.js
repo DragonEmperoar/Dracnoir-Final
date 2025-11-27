@@ -683,8 +683,15 @@ async function handleRoute(request, { params }) {
         )
       }
       
-      // TODO: Add admin role check here
-      // For now, any authenticated user can access
+      // Admin check
+      const usersCol = db.collection('users')
+      const currentUser = await usersCol.findOne({ id: userId })
+      
+      if (!currentUser || !currentUser.isAdmin) {
+        return handleCORS(
+          NextResponse.json({ error: 'Admin access required' }, { status: 403 }),
+        )
+      }
       
       const usersCol = db.collection('users')
       
