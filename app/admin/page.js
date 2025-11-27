@@ -34,18 +34,42 @@ const AdminDashboard = () => {
   const [orders, setOrders] = useState([])
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [adminCheckDone, setAdminCheckDone] = useState(false)
+  const [accessDenied, setAccessDenied] = useState(false)
 
   useEffect(() => {
+    if (status === 'loading') return
+    
     if (status === 'unauthenticated') {
       router.push('/login')
       return
     }
     
-    // TODO: Add admin role check
-    // For now, any logged-in user can access
-    
-    loadData()
+    if (status === 'authenticated') {
+      checkAdminAccess()
+    }
   }, [status, router])
+
+  const checkAdminAccess = async () => {
+    try {
+      const res = await fetch('/api/admin/check')
+      const data = await res.json()
+      
+      if (data.isAdmin) {
+        setIsAdmin(true)
+        setAdminCheckDone(true)
+        loadData()
+      } else {
+        setAccessDenied(true)
+        setAdminCheckDone(true)
+      }
+    } catch (error) {
+      console.error('Admin check failed:', error)
+      setAccessDenied(true)
+      setAdminCheckDone(true)
+    }
+  }
 
   const loadData = async () => {
     setLoading(true)
