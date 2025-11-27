@@ -116,11 +116,54 @@ const AdminDashboard = () => {
     { id: 'users', label: 'Users', icon: Users },
   ]
 
-  if (!user) {
+  if (!adminCheckDone || (status === 'authenticated' && !isAdmin && !accessDenied)) {
     return (
       <AppShell>
         <div className="flex min-h-[60vh] items-center justify-center">
-          <p className="text-slate-300">Loading...</p>
+          <div className="text-center">
+            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-violet-500 border-t-transparent"></div>
+            <p className="text-slate-300">Verifying admin access...</p>
+          </div>
+        </div>
+      </AppShell>
+    )
+  }
+
+  if (accessDenied) {
+    return (
+      <AppShell>
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <Card className="border-red-800/50 bg-red-950/20 p-8 text-center">
+            <CardContent>
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h2 className="mb-2 text-xl font-bold text-red-300">Access Denied</h2>
+              <p className="mb-4 text-sm text-slate-300">
+                You don't have permission to access the admin dashboard.
+              </p>
+              <p className="mb-6 text-xs text-slate-400">
+                Only authorized administrators can access this area.
+              </p>
+              <div className="flex gap-3 justify-center">
+                <Button
+                  variant="outline"
+                  className="border-slate-700 text-slate-300"
+                  onClick={() => router.push('/')}
+                >
+                  Go to Homepage
+                </Button>
+                <Button
+                  className="bg-violet-500 hover:bg-violet-400"
+                  onClick={() => router.push('/profile')}
+                >
+                  Go to Profile
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </AppShell>
     )
