@@ -1,34 +1,38 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { signIn, useSession } from 'next-auth/react'
 import AppShell from '../AppShell'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 
 const LoginPage = () => {
   const router = useRouter()
   const { data: session, status } = useSession()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [mode, setMode] = useState('login')
-  const [name, setName] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
   
   // Check if user just logged in with Google and should redirect to admin
   useEffect(() => {
-    if (status === 'authenticated' && typeof window !== 'undefined') {
-      const adminRedirect = localStorage.getItem('admin_redirect')
-      if (adminRedirect === 'true') {
-        localStorage.removeItem('admin_redirect')
+    if (status === 'authenticated') {
+      const adminRedirect = typeof window !== 'undefined' ? localStorage.getItem('admin_redirect') : null
+      
+      // Check if user is the admin
+      const isAdminEmail = session?.user?.email === 'chirayu1264@gmail.com'
+      
+      if (adminRedirect === 'true' || isAdminEmail) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('admin_redirect')
+        }
         router.push('/admin')
+      } else {
+        router.push('/')
       }
     }
-  }, [status, router])
+  }, [status, session, router])
+  
+  const handleGoogleLogin = () => {
+    signIn('google', { callbackUrl: '/login' })
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
