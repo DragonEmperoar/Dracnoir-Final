@@ -76,6 +76,7 @@ const AdminLoginPage = () => {
                 </Label>
                 <Input
                   id="username"
+                  name="admin-username"
                   type="text"
                   placeholder="DragonEmperor07"
                   value={formData.username}
@@ -83,9 +84,13 @@ const AdminLoginPage = () => {
                     setFormData({ ...formData, username: e.target.value })
                   }
                   autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck="false"
                   required
                   className="border-slate-800 bg-slate-900 text-slate-100"
                 />
+                <p className="text-xs text-slate-500">Enter: DragonEmperor07</p>
               </div>
 
               <div className="space-y-2">
