@@ -18,10 +18,9 @@ async function connectToMongo() {
   return db
 }
 
-// List of admin emails - UPDATE THIS WITH YOUR EMAIL
+// List of admin emails
 const ADMIN_EMAILS = [
-  // Add your email here
-  'your-email@example.com', // REPLACE WITH YOUR ACTUAL EMAIL
+  'chirayu1264@gmail.com', // Your email
 ]
 
 export async function GET(request) {
