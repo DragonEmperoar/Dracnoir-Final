@@ -92,6 +92,50 @@ function ProductPage() {
     setPincodeMessage('Standard delivery: 3–7 business days • Express options coming soon.')
   }
 
+  const handleSubmitReview = async () => {
+    if (!user) {
+      alert('Please login to submit a review')
+      router.push('/login')
+      return
+    }
+    
+    if (!reviewText.trim()) {
+      alert('Please enter your review')
+      return
+    }
+    
+    setSubmittingReview(true)
+    try {
+      const res = await fetch(`/api/products/${slug}/reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          rating: reviewRating,
+          title: reviewTitle,
+          text: reviewText,
+        }),
+      })
+      
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Failed to submit review')
+      }
+      
+      const newReview = await res.json()
+      setReviews([newReview, ...reviews])
+      setReviewRating(5)
+      setReviewTitle('')
+      setReviewText('')
+      setShowReviewForm(false)
+      alert('Review submitted successfully!')
+    } catch (error) {
+      console.error('Review submission error:', error)
+      alert(error.message || 'Failed to submit review')
+    } finally {
+      setSubmittingReview(false)
+    }
+  }
+
   const handleAddToCart = async () => {
     if (!product) return
     if (!user) {
