@@ -571,10 +571,11 @@ const ProfilePage = () => {
                         onChange={(e) => setPreferences({ ...preferences, currency: e.target.value })}
                         className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-slate-100"
                       >
-                        <option value="USD">USD - US Dollar</option>
-                        <option value="EUR">EUR - Euro</option>
-                        <option value="GBP">GBP - British Pound</option>
-                        <option value="JPY">JPY - Japanese Yen</option>
+                        <option value="INR">INR ₹ - Indian Rupee</option>
+                        <option value="USD">USD $ - US Dollar</option>
+                        <option value="EUR">EUR € - Euro</option>
+                        <option value="GBP">GBP £ - British Pound</option>
+                        <option value="JPY">JPY ¥ - Japanese Yen</option>
                       </select>
                     </div>
                     <div className="space-y-2">
