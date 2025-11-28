@@ -56,11 +56,15 @@ const AdminDashboard = () => {
       const res = await fetch('/api/admin/check')
       const data = await res.json()
       
+      console.log('Admin check response:', data)
+      
       if (data.isAdmin) {
         setIsAdmin(true)
         setAdminCheckDone(true)
         loadData()
       } else {
+        console.log('Access denied. User email:', user?.email)
+        console.log('Admin check data:', data)
         setAccessDenied(true)
         setAdminCheckDone(true)
       }
