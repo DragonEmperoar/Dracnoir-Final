@@ -55,7 +55,15 @@ const LoginPage = () => {
       }
 
       setSuccess('Logged in successfully.')
-      router.push('/')
+      
+      // Check if we should redirect to admin
+      const adminRedirect = typeof window !== 'undefined' ? localStorage.getItem('admin_redirect') : null
+      if (adminRedirect === 'true') {
+        localStorage.removeItem('admin_redirect')
+        router.push('/admin')
+      } else {
+        router.push('/')
+      }
     } catch (err) {
       console.error(err)
       setError('Something went wrong. Please try again.')
