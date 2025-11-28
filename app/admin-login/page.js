@@ -78,7 +78,7 @@ const AdminLoginPage = () => {
                   id="username"
                   name="admin-username"
                   type="text"
-                  placeholder="DragonEmperor07"
+                  placeholder="DragonEmperor@07"
                   value={formData.username}
                   onChange={(e) =>
                     setFormData({ ...formData, username: e.target.value })
@@ -90,7 +90,7 @@ const AdminLoginPage = () => {
                   required
                   className="border-slate-800 bg-slate-900 text-slate-100"
                 />
-                <p className="text-xs text-slate-500">Enter: DragonEmperor07</p>
+                <p className="text-xs text-slate-500">Enter: DragonEmperor@07</p>
               </div>
 
               <div className="space-y-2">
