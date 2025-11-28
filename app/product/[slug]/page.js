@@ -541,12 +541,111 @@ function ProductPage() {
             </section>
 
             <section className="mt-4 space-y-3">
-              <h2 className="text-sm font-semibold text-slate-100">Reviews</h2>
-              {reviews.length === 0 && (
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-semibold text-slate-100">
+                  Reviews ({reviewCount || 0})
+                </h2>
+                {user && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="rounded-full border-violet-500/40 text-xs text-violet-300 hover:bg-violet-500/10"
+                    onClick={() => setShowReviewForm(!showReviewForm)}
+                  >
+                    {showReviewForm ? 'Cancel' : 'Write Review'}
+                  </Button>
+                )}
+              </div>
+              
+              {/* Review Submission Form */}
+              {showReviewForm && (
+                <Card className="border border-violet-500/30 bg-slate-950/80">
+                  <CardContent className="space-y-4 p-4">
+                    <div>
+                      <label className="mb-2 block text-xs text-slate-300">Rating</label>
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setReviewRating(star)}
+                            className="transition-colors"
+                          >
+                            <Star
+                              className={`h-5 w-5 ${
+                                star <= reviewRating
+                                  ? 'fill-amber-400 text-amber-400'
+                                  : 'text-slate-600'
+                              }`}
+                            />
+                          </button>
+                        ))}
+                        <span className="ml-2 text-xs text-slate-400">
+                          {reviewRating} star{reviewRating !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label htmlFor="reviewTitle" className="mb-1 block text-xs text-slate-300">
+                        Title (optional)
+                      </label>
+                      <input
+                        id="reviewTitle"
+                        type="text"
+                        placeholder="Sum up your experience"
+                        value={reviewTitle}
+                        onChange={(e) => setReviewTitle(e.target.value)}
+                        className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-slate-100 placeholder:text-slate-500"
+                        maxLength={100}
+                      />
+                    </div>
+                    
+                    <div>
+                      <label htmlFor="reviewText" className="mb-1 block text-xs text-slate-300">
+                        Review *
+                      </label>
+                      <textarea
+                        id="reviewText"
+                        placeholder="Share your thoughts about this product..."
+                        value={reviewText}
+                        onChange={(e) => setReviewText(e.target.value)}
+                        className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-slate-100 placeholder:text-slate-500"
+                        rows={4}
+                        maxLength={500}
+                        required
+                      />
+                      <p className="mt-1 text-xs text-slate-500">
+                        {reviewText.length}/500 characters
+                      </p>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={handleSubmitReview}
+                        disabled={submittingReview || !reviewText.trim()}
+                        className="rounded-full bg-violet-500 text-xs hover:bg-violet-400"
+                      >
+                        {submittingReview ? 'Submitting...' : 'Submit Review'}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowReviewForm(false)}
+                        className="rounded-full border-slate-700 text-xs"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+              
+              {!user && reviews.length === 0 && (
                 <p className="text-xs text-slate-400">
-                  No reviews yet. Be the first to rate this drop once auth is live.
+                  No reviews yet. <button onClick={() => router.push('/login')} className="text-violet-300 hover:text-violet-200">Login</button> to be the first to review!
                 </p>
               )}
+              
               <div className="space-y-3">
                 {reviews.map((review) => (
                   <Card
