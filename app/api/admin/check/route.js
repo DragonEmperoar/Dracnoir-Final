@@ -25,6 +25,28 @@ const ADMIN_EMAILS = [
 
 export async function GET(request) {
   try {
+    // Check for admin session cookie first (username/password login)
+    const adminSessionCookie = request.cookies.get('admin_session')
+    
+    if (adminSessionCookie) {
+      const db = await connectToMongo()
+      const adminSessionsCol = db.collection('admin_sessions')
+      
+      const adminSession = await adminSessionsCol.findOne({
+        sessionId: adminSessionCookie.value,
+        expiresAt: { $gt: new Date() }
+      })
+      
+      if (adminSession) {
+        return NextResponse.json({ 
+          isAdmin: true,
+          username: adminSession.username,
+          loginMethod: 'admin_credentials'
+        })
+      }
+    }
+    
+    // Fallback to regular user session (email-based)
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.email) {
@@ -55,7 +77,8 @@ export async function GET(request) {
     return NextResponse.json({ 
       isAdmin,
       email: session.user.email,
-      name: session.user.name 
+      name: session.user.name,
+      loginMethod: 'user_session'
     })
   } catch (error) {
     console.error('Admin check error:', error)
