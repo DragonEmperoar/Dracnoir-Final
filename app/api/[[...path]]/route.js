@@ -693,8 +693,6 @@ async function handleRoute(request, { params }) {
         )
       }
       
-      const usersCol = db.collection('users')
-      
       // Use aggregation pipeline to fetch users with order stats in a single query
       const usersWithStats = await usersCol
         .aggregate([
