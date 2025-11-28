@@ -145,7 +145,13 @@ const AdminLoginPage = () => {
             <Button
               variant="outline"
               className="w-full border-slate-700 bg-slate-900/60 text-sm text-slate-200 hover:bg-slate-800"
-              onClick={() => router.push('/login')}
+              onClick={() => {
+                // Set a flag in localStorage to redirect to admin after login
+                if (typeof window !== 'undefined') {
+                  localStorage.setItem('admin_redirect', 'true')
+                }
+                router.push('/login')
+              }}
             >
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                 <path
