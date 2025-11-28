@@ -19,7 +19,7 @@ async function connectToMongo() {
 }
 
 // Admin credentials - ONLY THIS ADMIN USER
-const ADMIN_USERNAME = 'DragonEmperor07'
+const ADMIN_USERNAME = 'DragonEmperor@07'
 const ADMIN_PASSWORD_HASH = '$2a$10$' // We'll generate this properly
 
 export async function POST(request) {
