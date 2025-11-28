@@ -217,58 +217,70 @@ const AdminDashboard = () => {
             {/* Overview Tab */}
             {activeTab === 'overview' && (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <Card className="border border-slate-800 bg-gradient-to-br from-violet-500/10 to-purple-500/10">
-                  <CardContent className="p-6">
+                <Card className="relative overflow-hidden border border-violet-500/30 bg-gradient-to-br from-violet-500/20 to-purple-500/20 backdrop-blur-xl">
+                  <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 to-transparent"></div>
+                  <CardContent className="relative p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-slate-400">Total Products</p>
-                        <p className="mt-1 text-2xl font-bold text-slate-100">
+                        <p className="text-xs text-violet-200/70">Total Products</p>
+                        <p className="mt-1 text-2xl font-bold text-violet-100">
                           {stats.totalProducts}
                         </p>
                       </div>
-                      <Package className="h-8 w-8 text-violet-400" />
+                      <div className="rounded-full bg-violet-500/20 p-3 backdrop-blur-sm">
+                        <Package className="h-8 w-8 text-violet-300" />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="border border-slate-800 bg-gradient-to-br from-emerald-500/10 to-teal-500/10">
-                  <CardContent className="p-6">
+                <Card className="relative overflow-hidden border border-emerald-500/30 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 backdrop-blur-xl">
+                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent"></div>
+                  <CardContent className="relative p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-slate-400">Total Orders</p>
-                        <p className="mt-1 text-2xl font-bold text-slate-100">
+                        <p className="text-xs text-emerald-200/70">Total Orders</p>
+                        <p className="mt-1 text-2xl font-bold text-emerald-100">
                           {stats.totalOrders}
                         </p>
                       </div>
-                      <ShoppingCart className="h-8 w-8 text-emerald-400" />
+                      <div className="rounded-full bg-emerald-500/20 p-3 backdrop-blur-sm">
+                        <ShoppingCart className="h-8 w-8 text-emerald-300" />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="border border-slate-800 bg-gradient-to-br from-amber-500/10 to-orange-500/10">
-                  <CardContent className="p-6">
+                <Card className="relative overflow-hidden border border-amber-500/30 bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-xl">
+                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent"></div>
+                  <CardContent className="relative p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-slate-400">Total Revenue</p>
-                        <p className="mt-1 text-2xl font-bold text-slate-100">
+                        <p className="text-xs text-amber-200/70">Total Revenue</p>
+                        <p className="mt-1 text-2xl font-bold text-amber-100">
                           ₹{stats.totalRevenue.toFixed(0)}
                         </p>
                       </div>
-                      <TrendingUp className="h-8 w-8 text-amber-400" />
+                      <div className="rounded-full bg-amber-500/20 p-3 backdrop-blur-sm">
+                        <TrendingUp className="h-8 w-8 text-amber-300" />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="border border-slate-800 bg-gradient-to-br from-blue-500/10 to-cyan-500/10">
-                  <CardContent className="p-6">
+                <Card className="relative overflow-hidden border border-blue-500/30 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-xl">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent"></div>
+                  <CardContent className="relative p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-slate-400">Total Users</p>
-                        <p className="mt-1 text-2xl font-bold text-slate-100">
+                        <p className="text-xs text-blue-200/70">Total Users</p>
+                        <p className="mt-1 text-2xl font-bold text-blue-100">
                           {stats.totalUsers || '0'}
                         </p>
                       </div>
-                      <Users className="h-8 w-8 text-blue-400" />
+                      <div className="rounded-full bg-blue-500/20 p-3 backdrop-blur-sm">
+                        <Users className="h-8 w-8 text-blue-300" />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
