@@ -767,6 +767,79 @@ async function handleRoute(request, { params }) {
       )
     }
 
+    // POST /api/products/[slug]/reviews
+    if (
+      segments[0] === 'products' &&
+      segments.length === 3 &&
+      segments[2] === 'reviews' &&
+      method === 'POST'
+    ) {
+      const userId = await requireUserId(request)
+      if (!userId) {
+        return handleCORS(
+          NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
+        )
+      }
+
+      const slug = segments[1]
+      const body = await request.json()
+      const { rating, title, text } = body
+
+      if (!rating || !text) {
+        return handleCORS(
+          NextResponse.json({ error: 'Rating and review text are required' }, { status: 400 }),
+        )
+      }
+
+      if (rating < 1 || rating > 5) {
+        return handleCORS(
+          NextResponse.json({ error: 'Rating must be between 1 and 5' }, { status: 400 }),
+        )
+      }
+
+      const productsCol = db.collection('products')
+      const product = await productsCol.findOne({ slug })
+      if (!product) {
+        return handleCORS(
+          NextResponse.json({ error: 'Product not found' }, { status: 404 }),
+        )
+      }
+
+      // Get user details
+      const usersCol = db.collection('users')
+      const user = await usersCol.findOne({ id: userId })
+
+      const reviewsCol = db.collection('reviews')
+      const newReview = {
+        id: uuidv4(),
+        productId: product.id,
+        userId,
+        userName: user?.name || 'Anonymous',
+        rating: Number(rating),
+        title: title || '',
+        text,
+        createdAt: new Date(),
+      }
+
+      await reviewsCol.insertOne(newReview)
+
+      // Update product review count and average rating
+      const allReviews = await reviewsCol.find({ productId: product.id }).toArray()
+      const avgRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length
+      await productsCol.updateOne(
+        { id: product.id },
+        { 
+          $set: { 
+            rating: Math.round(avgRating * 10) / 10,
+            reviewCount: allReviews.length 
+          } 
+        }
+      )
+
+      const { _id, ...reviewResponse } = newReview
+      return handleCORS(NextResponse.json(reviewResponse), { status: 201 })
+    }
+
     // GET /api/products/[slug]/reviews
     if (
       segments[0] === 'products' &&
