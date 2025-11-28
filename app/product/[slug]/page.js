@@ -32,6 +32,13 @@ function ProductPage() {
   const [pincodeMessage, setPincodeMessage] = useState('')
   const [showSizeGuide, setShowSizeGuide] = useState(false)
   const [showAdded, setShowAdded] = useState(false)
+  
+  // Review form states
+  const [showReviewForm, setShowReviewForm] = useState(false)
+  const [reviewRating, setReviewRating] = useState(5)
+  const [reviewTitle, setReviewTitle] = useState('')
+  const [reviewText, setReviewText] = useState('')
+  const [submittingReview, setSubmittingReview] = useState(false)
 
   useEffect(() => {
     if (!slug) return
