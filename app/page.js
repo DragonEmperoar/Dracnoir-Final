@@ -175,44 +175,69 @@ const HomePage = () => {
               Shop by category
             </p>
             <div className="grid gap-3">
-              {categories.map((cat) => {
+              {categories.map((cat, index) => {
                 const catMeta = {
                   plushes: {
                     desc: 'Super-soft chibi plushies from your favorite series.',
                     tags: 'Curated picks • Limited drops',
+                    color: 'violet',
+                    gradient: 'from-violet-500/20 to-purple-500/20',
+                    border: 'border-violet-500/30',
+                    textColor: 'text-violet-100',
+                    hoverBorder: 'hover:border-violet-400',
                   },
                   't-shirts': {
                     desc: 'Oversized and regular fits with bold anime prints.',
                     tags: 'Curated picks • Limited drops',
+                    color: 'emerald',
+                    gradient: 'from-emerald-500/20 to-teal-500/20',
+                    border: 'border-emerald-500/30',
+                    textColor: 'text-emerald-100',
+                    hoverBorder: 'hover:border-emerald-400',
                   },
                   'action-figures': {
                     desc: 'Dynamic premium and sustainable figures for your shelf.',
                     tags: 'Curated picks • Limited drops',
+                    color: 'amber',
+                    gradient: 'from-amber-500/20 to-orange-500/20',
+                    border: 'border-amber-500/30',
+                    textColor: 'text-amber-100',
+                    hoverBorder: 'hover:border-amber-400',
                   },
-                }[cat.slug] || { desc: '', tags: '' }
+                }[cat.slug] || { 
+                  desc: '', 
+                  tags: '',
+                  gradient: 'from-slate-500/20 to-slate-600/20',
+                  border: 'border-slate-500/30',
+                  textColor: 'text-slate-100',
+                  hoverBorder: 'hover:border-slate-400',
+                }
 
                 return (
                   <button
                     key={cat.id}
                     type="button"
                     onClick={() => router.push(`/category/${cat.slug}`)}
-                    className="group flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950/80 p-4 text-left transition-colors hover:border-violet-400 hover:bg-slate-900"
+                    className={`group relative overflow-hidden rounded-xl border ${catMeta.border} bg-gradient-to-br ${catMeta.gradient} backdrop-blur-xl p-4 text-left transition-all ${catMeta.hoverBorder} hover:shadow-lg`}
                   >
-                    <div>
-                      <p className="text-sm font-semibold text-slate-100 group-hover:text-violet-200">
-                        {cat.name}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-400">{catMeta.desc}</p>
-                      <p className="mt-2 text-[10px] text-slate-500">
-                        {catMeta.tags}
-                      </p>
+                    <div className={`absolute inset-0 bg-gradient-to-br ${catMeta.gradient.replace('/20', '/10')} to-transparent`}></div>
+                    <div className="relative flex items-center justify-between">
+                      <div>
+                        <p className={`text-sm font-semibold ${catMeta.textColor}`}>
+                          {cat.name}
+                        </p>
+                        <p className="mt-1 text-xs text-slate-300/70">{catMeta.desc}</p>
+                        <p className="mt-2 text-[10px] text-slate-400/60">
+                          {catMeta.tags}
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        className={`rounded-full ${catMeta.color === 'violet' ? 'bg-violet-500 hover:bg-violet-400' : catMeta.color === 'emerald' ? 'bg-emerald-500 hover:bg-emerald-400' : 'bg-amber-500 hover:bg-amber-400'} text-[11px] text-white`}
+                      >
+                        Explore
+                      </Button>
                     </div>
-                    <Button
-                      size="sm"
-                      className="rounded-full bg-violet-500 text-[11px] hover:bg-violet-400"
-                    >
-                      Explore
-                    </Button>
                   </button>
                 )
               })}
