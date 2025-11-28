@@ -654,10 +654,21 @@ function ProductPage() {
                   >
                     <CardContent className="space-y-2 p-4 text-xs">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1 text-amber-300">
-                          <Star className="h-3 w-3" />
-                          <span className="font-semibold">
-                            {review.rating?.toFixed?.(1) || review.rating}
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1 text-amber-300">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-3 w-3 ${
+                                  i < (review.rating || 0)
+                                    ? 'fill-amber-400 text-amber-400'
+                                    : 'text-slate-700'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-[11px] font-semibold text-slate-300">
+                            {review.userName || 'Anonymous'}
                           </span>
                         </div>
                         <span className="text-[11px] text-slate-500">
