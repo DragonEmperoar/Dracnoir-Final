@@ -1,22 +1,23 @@
-import NextAuth from 'next-auth'
-import GoogleProvider from 'next-auth/providers/google'
-import CredentialsProvider from 'next-auth/providers/credentials'
-import { MongoClient, ObjectId } from 'mongodb'
-import bcrypt from 'bcryptjs'
+import NextAuth from "next-auth"
+import GoogleProvider from "next-auth/providers/google"
+import CredentialsProvider from "next-auth/providers/credentials"
+import { MongoClient } from "mongodb"
+import { MongoDBAdapter } from "@auth/mongodb-adapter"
+import bcrypt from "bcryptjs"
 
 let client
 let clientPromise
 
-if (!global._mongoClientPromise) {
+if (!global._mongo) {
   client = new MongoClient(process.env.MONGO_URL)
-  global._mongoClientPromise = client.connect()
+  global._mongo = client.connect()
 }
-clientPromise = global._mongoClientPromise
+clientPromise = global._mongo
 
 export const authOptions = {
-  session: {
-    strategy: 'jwt',
-  },
+  adapter: MongoDBAdapter(clientPromise, {
+    databaseName: process.env.DB_NAME,
+  }),
 
   providers: [
     GoogleProvider({
@@ -25,31 +26,24 @@ export const authOptions = {
     }),
 
     CredentialsProvider({
-      name: 'Credentials',
-      credentials: {
-        email: {},
-        password: {},
-      },
-
+      name: "Credentials",
+      credentials: {},
       async authorize(credentials) {
-        const client = await clientPromise
-        const db = client.db(process.env.DB_NAME)
-        const usersCol = db.collection('users')
+        const dbClient = await clientPromise
+        const db = dbClient.db(process.env.DB_NAME)
+        const usersCol = db.collection("users")
 
         const user = await usersCol.findOne({ email: credentials.email })
+        if (!user) throw new Error("Invalid Email or Password")
 
-        if (!user) throw new Error('User not found')
-        if (!user.passwordHash) throw new Error('User has no password')
-
-        const isValid = await bcrypt.compare(
+        const valid = await bcrypt.compare(
           credentials.password,
           user.passwordHash
         )
-
-        if (!isValid) throw new Error('Invalid email or password')
+        if (!valid) throw new Error("Invalid Email or Password")
 
         return {
-          id: user._id.toString(),
+          id: user.id,
           name: user.name,
           email: user.email,
         }
@@ -57,20 +51,24 @@ export const authOptions = {
     }),
   ],
 
+  session: {
+    strategy: "jwt",
+  },
+
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
-        token.userId = user.id
-      }
+      if (user) token.userId = user.id
       return token
     },
-
     async session({ session, token }) {
-      if (token?.userId) {
-        session.user.id = token.userId
-      }
+      if (token?.userId) session.user.id = token.userId
       return session
     },
+  },
+
+  pages: {
+    signIn: "/login",
+    error: "/login",
   },
 }
 
