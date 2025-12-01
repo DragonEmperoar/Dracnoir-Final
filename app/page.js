@@ -175,6 +175,7 @@ const HomePage = () => {
               Shop by category
             </p>
             <div className="grid gap-3">
+                  {console.log(categories)}
               {categories.map((cat, index) => {
                 const catMeta = {
                   plushes: {
