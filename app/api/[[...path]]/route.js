@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
-import { MongoClient } from 'mongodb'
+import { MongoClient, ObjectId } from 'mongodb'
 import { v4 as uuidv4 } from 'uuid'
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
@@ -687,7 +687,13 @@ async function handleRoute(request, { params }) {
       
       // Admin check
       const usersCol = db.collection('users')
-      const currentUser = await usersCol.findOne({ id: userId })
+      const currentUser = await usersCol.findOne({
+        $or: [
+          { id: userId },
+          { _id: new ObjectId(userId) }
+        ]
+      })
+
       
       if (!currentUser || !currentUser.isAdmin) {
         return handleCORS(
