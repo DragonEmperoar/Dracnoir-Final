@@ -119,7 +119,7 @@ const CartPage = () => {
                     <div className="flex flex-1 flex-col justify-between gap-1 text-xs">
                       <div>
                         <p className="text-[11px] uppercase tracking-wide text-violet-300">
-                          {item.color} • {item.size}
+                          {item.variantId ? 'Variant' : 'Item'}
                         </p>
                         <p className="text-sm font-semibold text-slate-50">
                           {item.title}
