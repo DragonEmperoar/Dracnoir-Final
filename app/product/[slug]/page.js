@@ -20,7 +20,6 @@ function ProductPage() {
   const params = useParams()
   const router = useRouter()
   const { user } = useAuth()
-
   const rawSlug = params?.slug
   const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug
 
@@ -28,32 +27,27 @@ function ProductPage() {
   const [reviews, setReviews] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-
   const [activeImage, setActiveImage] = useState(0)
 
+  const [selectedVariant, setSelectedVariant] = useState(null)
+  const [adding, setAdding] = useState(false)
   const [quantity, setQuantity] = useState(1)
   const [fit, setFit] = useState('')
   const [color, setColor] = useState('')
-
   const [pincode, setPincode] = useState('')
   const [pincodeMessage, setPincodeMessage] = useState('')
   const [showSizeGuide, setShowSizeGuide] = useState(false)
   const [showAdded, setShowAdded] = useState(false)
-  const [adding, setAdding] = useState(false)
 
-  // Review form
+  // Review form states
   const [showReviewForm, setShowReviewForm] = useState(false)
   const [reviewRating, setReviewRating] = useState(5)
   const [reviewTitle, setReviewTitle] = useState('')
   const [reviewText, setReviewText] = useState('')
   const [submittingReview, setSubmittingReview] = useState(false)
 
-  // -------------------------
-  // FETCH PRODUCT + REVIEWS
-  // -------------------------
   useEffect(() => {
     if (!slug) return
-
     const fetchData = async () => {
       setLoading(true)
       setError('')
@@ -62,7 +56,6 @@ function ProductPage() {
           fetch(`/api/products/${slug}`),
           fetch(`/api/products/${slug}/reviews`),
         ])
-
         if (!pRes.ok) throw new Error('Product not found')
 
         const pData = await pRes.json()
@@ -71,8 +64,12 @@ function ProductPage() {
         setProduct(pData)
         setReviews(Array.isArray(rData) ? rData : [])
 
-        // auto select first color if exists
-        if (pData.colors?.length) {
+        if (Array.isArray(pData?.variants) && pData.variants.length > 0) {
+          setSelectedVariant(pData.variants[0])
+        }
+
+        // set default color if exists
+        if (pData?.colors?.length) {
           setColor(pData.colors[0].id)
         }
       } catch (e) {
@@ -86,17 +83,6 @@ function ProductPage() {
     fetchData()
   }, [slug])
 
-  // ---------------------------------
-  // RESET IMAGE WHEN COLOR CHANGES
-  // ---------------------------------
-  useEffect(() => {
-    if (!product || !color || !product.colors) return
-    setActiveImage(0)
-  }, [color, product])
-
-  // -------------------------
-  // HELPERS
-  // -------------------------
   const handleChangeQuantity = (delta) => {
     setQuantity((prev) => {
       const next = prev + delta
@@ -111,93 +97,20 @@ function ProductPage() {
       setPincodeMessage('Enter a valid pincode to check delivery estimate.')
       return
     }
-    setPincodeMessage('Standard delivery: 3–7 business days.')
+    setPincodeMessage(
+      'Standard delivery: 3–7 business days • Express options coming soon.',
+    )
   }
 
-  // -------------------------
-  // ADD TO CART
-  // -------------------------
-  const handleAddToCart = async () => {
-    if (!product) return
-    if (!user) {
-      alert('Please log in to add items to your cart.')
-      return
-    }
-
-    setAdding(true)
-    try {
-      const body = {
-        productId: product.id,
-        productSlug: product.slug,
-        quantity,
-        color: color || null,
-        size: fit || null,
-      }
-
-      const res = await fetch('/api/cart/items', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
-
-      if (!res.ok) {
-        alert('Failed to add to cart')
-        return
-      }
-
-      setShowAdded(true)
-      setTimeout(() => setShowAdded(false), 2000)
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setAdding(false)
-    }
-  }
-
-  const handleBuyNow = async () => {
-    if (!product) return
-    if (!user) {
-      alert('Please log in first.')
-      return
-    }
-
-    setAdding(true)
-    try {
-      const body = {
-        productId: product.id,
-        productSlug: product.slug,
-        quantity,
-        color: color || null,
-        size: fit || null,
-      }
-
-      const res = await fetch('/api/cart/items', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
-
-      if (!res.ok) return
-      router.push('/checkout')
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setAdding(false)
-    }
-  }
-
-  // -------------------------
-  // REVIEWS
-  // -------------------------
   const handleSubmitReview = async () => {
     if (!user) {
-      alert('Login to submit a review')
+      alert('Please login to submit a review')
       router.push('/login')
       return
     }
 
     if (!reviewText.trim()) {
-      alert('Enter your review')
+      alert('Please enter your review')
       return
     }
 
@@ -213,7 +126,10 @@ function ProductPage() {
         }),
       })
 
-      if (!res.ok) throw new Error('Failed to submit')
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Failed to submit review')
+      }
 
       const newReview = await res.json()
       setReviews([newReview, ...reviews])
@@ -221,16 +137,85 @@ function ProductPage() {
       setReviewTitle('')
       setReviewText('')
       setShowReviewForm(false)
-    } catch (e) {
-      alert('Failed to submit review')
+      alert('Review submitted successfully!')
+    } catch (error) {
+      console.error('Review submission error:', error)
+      alert(error.message || 'Failed to submit review')
     } finally {
       setSubmittingReview(false)
     }
   }
 
-  // -------------------------
-  // LOADING / ERROR
-  // -------------------------
+  const handleAddToCart = async () => {
+    if (!product) return
+    if (!user) {
+      alert('Please log in with Google to add items to your cart.')
+      return
+    }
+
+    setAdding(true)
+    try {
+      const body = {
+        productId: product.id,
+        productSlug: product.slug,
+        quantity: quantity || 1,
+        variantId: selectedVariant?.id || null,
+        color,
+        fit,
+      }
+
+      const res = await fetch('/api/cart/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
+      if (!res.ok) return
+
+      setShowAdded(true)
+      setTimeout(() => setShowAdded(false), 2000)
+    } catch (e) {
+      console.error('Error adding to cart', e)
+    } finally {
+      setAdding(false)
+    }
+  }
+
+  const handleBuyNow = async () => {
+    if (!product) return
+    if (!user) {
+      alert(
+        'Please log in with Google first, then tap Buy now again to jump to checkout.',
+      )
+      return
+    }
+
+    setAdding(true)
+    try {
+      const body = {
+        productId: product.id,
+        productSlug: product.slug,
+        quantity: quantity || 1,
+        variantId: selectedVariant?.id || null,
+        color,
+        fit,
+      }
+
+      const res = await fetch('/api/cart/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
+      if (!res.ok) return
+      router.push('/checkout')
+    } catch (e) {
+      console.error('Error in buy now', e)
+    } finally {
+      setAdding(false)
+    }
+  }
+
   if (loading) {
     return (
       <AppShell>
@@ -244,58 +229,64 @@ function ProductPage() {
   if (error || !product) {
     return (
       <AppShell>
-        <div className="flex min-h-[60vh] items-center justify-center text-slate-200">
-          {error || 'Product not found'}
+        <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center text-slate-200">
+          <h1 className="text-lg font-semibold">
+            This product slipped into another universe.
+          </h1>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-4"
+            onClick={() => router.push('/')}
+          >
+            <ChevronLeft className="mr-1 h-3 w-3" /> Back to home
+          </Button>
         </div>
       </AppShell>
     )
   }
 
-  // -------------------------
-  // IMAGE LOGIC (SAFE)
-  // -------------------------
-  let displayImages = product.images || []
+  // 🔥 IMAGE LOGIC (safe + color aware)
+  let images = product.images || []
 
   if (product.colors?.length && color) {
-    const found = product.colors.find((c) => c.id === color)
-    if (found?.images?.length) displayImages = found.images
+    const selectedColor = product.colors.find((c) => c.id === color)
+    if (selectedColor?.images?.length) {
+      images = selectedColor.images
+    }
   }
 
-  const mainImage = displayImages[activeImage] || displayImages[0]
+  const mainImage = images[activeImage] || images[0]
 
   const avgRating = product.rating || (reviews.length ? 4.8 : null)
   const reviewCount = product.reviewCount || reviews.length
 
-  // -------------------------
-  // RENDER
-  // -------------------------
   return (
     <AppShell>
       <div className="space-y-6">
-
-        {/* GALLERY */}
-        <div className="grid gap-10 lg:grid-cols-2">
+        <div className="grid gap-10 lg:grid-cols-[1.2fr_1.3fr]">
+          {/* Gallery */}
           <section className="space-y-4">
             <Card className="overflow-hidden border border-slate-800 bg-slate-950/80">
-              <div className="relative h-80 w-full">
+              <div className="relative h-72 w-full sm:h-96">
                 {mainImage && (
                   <Image
                     src={mainImage}
                     alt={product.title}
                     fill
-                    className="object-cover"
+                    className="object-cover object-center"
                   />
                 )}
               </div>
             </Card>
 
-            {displayImages.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto">
-                {displayImages.map((img, idx) => (
+            {images.length > 1 && (
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {images.map((img, idx) => (
                   <button
-                    key={idx}
+                    key={img + idx}
                     onClick={() => setActiveImage(idx)}
-                    className={`relative h-16 w-20 rounded border ${
+                    className={`relative h-16 w-20 overflow-hidden rounded-lg border ${
                       idx === activeImage
                         ? 'border-violet-500'
                         : 'border-slate-800'
@@ -308,30 +299,40 @@ function ProductPage() {
             )}
           </section>
 
-          {/* DETAILS */}
+          {/* Details */}
           <section className="space-y-6">
-            <h1 className="text-3xl font-semibold text-slate-50">
+            <h1 className="text-2xl font-semibold text-slate-50">
               {product.title}
             </h1>
+
             <p className="text-sm text-slate-300">{product.description}</p>
 
-            {/* PRICE */}
             <p className="text-2xl font-semibold text-slate-50">
-              ₹{product.price?.toFixed?.(0) ?? 0}
+              ₹{product.price}
             </p>
 
-            {/* COLOR SELECT */}
-            {product.colors?.length && (
-              <div className="space-y-1 text-xs">
-                <p className="text-slate-400">Color</p>
+            {product.type === 'tshirt' && (
+              <div className="space-y-3 text-xs">
+                {/* FIT */}
+                <Select value={fit} onValueChange={setFit}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select fit" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Oversized">Oversized</SelectItem>
+                    <SelectItem value="Regular">Regular</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {/* COLOR (dynamic) */}
                 <Select value={color} onValueChange={setColor}>
-                  <SelectTrigger className="h-9 border-slate-700 bg-slate-900 text-xs text-slate-200">
+                  <SelectTrigger>
                     <SelectValue placeholder="Select color" />
                   </SelectTrigger>
-                  <SelectContent className="border-slate-800 bg-slate-900 text-xs text-slate-100">
-                    {product.colors.map((c) => (
+                  <SelectContent>
+                    {product.colors?.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
-                        {c.name}
+                        {c.name || c.id}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -339,34 +340,13 @@ function ProductPage() {
               </div>
             )}
 
-            {/* SIZE / FIT */}
-            {product.sizes?.length && (
-              <div className="space-y-1 text-xs">
-                <p className="text-slate-400">Size</p>
-                <Select value={fit} onValueChange={setFit}>
-                  <SelectTrigger className="h-9 border-slate-700 bg-slate-900 text-xs text-slate-200">
-                    <SelectValue placeholder="Select size" />
-                  </SelectTrigger>
-                  <SelectContent className="border-slate-800 bg-slate-900 text-xs text-slate-100">
-                    {product.sizes.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {s}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            {/* QUANTITY */}
             <div className="flex items-center gap-3 text-xs">
               <button onClick={() => handleChangeQuantity(-1)}>-</button>
               <span>{quantity}</span>
               <button onClick={() => handleChangeQuantity(1)}>+</button>
             </div>
 
-            {/* ACTIONS */}
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <Button onClick={handleAddToCart} disabled={adding}>
                 {adding ? 'Adding...' : 'Add to cart'}
               </Button>
@@ -376,7 +356,7 @@ function ProductPage() {
             </div>
 
             {showAdded && (
-              <div className="flex items-center gap-2 text-emerald-400 text-xs">
+              <div className="text-emerald-400 text-xs flex items-center gap-1">
                 <CheckCircle2 className="h-4 w-4" /> Added to cart
               </div>
             )}
