@@ -36,6 +36,7 @@ const ProfilePage = () => {
   const [error, setError] = useState('')
   const [orders, setOrders] = useState([])
   const [wishlist, setWishlist] = useState([])
+  const [loadingWishlist, setLoadingWishlist] = useState(false)
   const [preferences, setPreferences] = useState({
     emailNotifications: true,
     orderUpdates: true,
@@ -76,6 +77,16 @@ const ProfilePage = () => {
       }
     }
     load()
+
+    const loadWishlist = async () => {
+      setLoadingWishlist(true)
+      try {
+        const res = await fetch('/api/wishlist')
+        if (res.ok) setWishlist(await res.json())
+      } catch {}
+      finally { setLoadingWishlist(false) }
+    }
+    loadWishlist()
   }, [user])
 
   const handleChange = (field, value) => {
@@ -458,7 +469,12 @@ const ProfilePage = () => {
                 <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
                   Your wishlist
                 </p>
-                {wishlist.length === 0 ? (
+                {loadingWishlist ? (
+                  <div className="flex items-center gap-2 py-6 text-xs text-slate-400">
+                    <div className="h-3 w-3 animate-spin rounded-full border-2 border-violet-500 border-t-transparent" />
+                    Loading wishlist...
+                  </div>
+                ) : wishlist.length === 0 ? (
                   <div className="space-y-2 py-8 text-center">
                     <Heart className="mx-auto h-12 w-12 text-slate-700" />
                     <p className="text-xs text-slate-400">
@@ -476,17 +492,19 @@ const ProfilePage = () => {
                   <div className="grid gap-3 md:grid-cols-2">
                     {wishlist.map((item) => (
                       <div
-                        key={item.id}
+                        key={item.productId}
                         className="flex gap-3 rounded-xl border border-slate-800 bg-slate-950/80 p-3"
                       >
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          className="h-20 w-20 rounded-lg object-cover"
-                        />
-                        <div className="flex-1">
-                          <p className="text-xs font-medium text-slate-100">{item.title}</p>
-                          <p className="mt-1 text-xs text-violet-300">₹{item.price}</p>
+                        {item.image ? (
+                          <img src={item.image} alt={item.title} className="h-20 w-20 rounded-lg object-cover" />
+                        ) : (
+                          <div className="h-20 w-20 rounded-lg bg-slate-900 flex items-center justify-center">
+                            <Heart className="h-6 w-6 text-slate-600" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-slate-100 line-clamp-2">{item.title}</p>
+                          <p className="mt-1 text-xs text-violet-300">₹{item.price?.toFixed(0)}</p>
                           <div className="mt-2 flex gap-2">
                             <Button
                               size="sm"
@@ -497,7 +515,12 @@ const ProfilePage = () => {
                             </Button>
                             <button
                               className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-red-300"
-                              onClick={() => setWishlist((prev) => prev.filter((w) => w.id !== item.id))}
+                              onClick={async () => {
+                                try {
+                                  await fetch(`/api/wishlist/${item.productId}`, { method: 'DELETE' })
+                                  setWishlist((prev) => prev.filter((w) => w.productId !== item.productId))
+                                } catch {}
+                              }}
                             >
                               <Trash2 className="h-3 w-3" />
                               Remove
