@@ -80,7 +80,7 @@ function ProductCard({ product, onClick }) {
       className="group flex cursor-pointer flex-col overflow-hidden border border-slate-800 bg-slate-950/80 transition-colors hover:border-violet-500/60"
       onClick={onClick}
     >
-      <div className="relative h-40 w-full overflow-hidden bg-slate-900">
+      <div className="relative w-full overflow-hidden bg-slate-900" style={{ aspectRatio: '4/3' }}>
         {product.images?.[0] && (
           <Image
             src={product.images[0]}
@@ -90,29 +90,24 @@ function ProductCard({ product, onClick }) {
           />
         )}
       </div>
-      <CardContent className="flex flex-1 flex-col justify-between space-y-2 p-4">
-        <div className="space-y-1">
-          <p className="text-[11px] uppercase tracking-wide text-violet-300">
-            {product.type === 'tshirt'
-              ? 'T-Shirt'
-              : product.type === 'plush'
-              ? 'Plush'
-              : 'Figure'}
+      <CardContent className="flex flex-1 flex-col justify-between space-y-1 p-3">
+        <div className="space-y-0.5">
+          <p className="text-[10px] uppercase tracking-wide text-violet-300">
+            {product.type === 'tshirt' ? 'T-Shirt' : product.type === 'plush' ? 'Plush' : 'Figure'}
           </p>
-          <h3 className="line-clamp-2 text-sm font-semibold text-slate-50">
+          {product.series && (
+            <p className="text-[10px] text-slate-400 truncate">{product.series}</p>
+          )}
+          <h3 className="line-clamp-1 text-xs font-semibold text-slate-50">
             {product.title}
           </h3>
-          <p className="line-clamp-2 text-xs text-slate-400">
-            {product.description}
-          </p>
         </div>
-        <div className="flex items-center justify-between pt-2 text-xs">
+        <div className="flex items-center justify-between pt-1 text-xs">
           <div className="flex items-center gap-1 text-amber-300">
-            <Star className="h-3 w-3" />
-            <span>{product.rating?.toFixed?.(1) || '4.8'}</span>
-            <span className="text-slate-500">({product.reviewCount || 0})</span>
+            <Star className="h-2.5 w-2.5" />
+            <span className="text-[11px]">{product.rating?.toFixed?.(1) || '4.8'}</span>
           </div>
-          <div className="text-sm font-semibold text-slate-50">
+          <div className="text-xs font-semibold text-slate-50">
             ₹{product.price?.toFixed?.(0) ?? '0'}
           </div>
         </div>
@@ -256,7 +251,7 @@ function CategoryPage() {
                     <Button
                       size="sm"
                       className="mt-1 rounded-full bg-emerald-500 text-xs font-semibold text-slate-950 hover:bg-emerald-400"
-                      onClick={() => router.push('/products?subcategory=premium')}
+                      onClick={() => router.push('/category/action-figures?subcategory=premium')}
                     >
                       Browse premium figures
                     </Button>
@@ -285,7 +280,7 @@ function CategoryPage() {
                     variant="outline"
                     size="sm"
                     className="mt-1 w-fit rounded-full border-emerald-500/60 bg-transparent text-[11px] text-emerald-200 hover:bg-emerald-500/10"
-                    onClick={() => router.push('/products?subcategory=sustainable')}
+                    onClick={() => router.push('/category/action-figures?subcategory=sustainable')}
                   >
                     View sustainable picks
                   </Button>
@@ -337,7 +332,7 @@ function CategoryPage() {
               </div>
 
               <div className="space-y-2">
-                <p className="text-xs font-medium text-slate-300">Price range ($)</p>
+                <p className="text-xs font-medium text-slate-300">Price range (₹)</p>
                 <div className="flex gap-2 text-xs">
                   <Input
                     type="number"
@@ -393,7 +388,7 @@ function CategoryPage() {
                     : 'No items match these filters yet.'}
                 </span>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-2 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 {products.map((product) => (
                   <ProductCard
                     key={product.id}
