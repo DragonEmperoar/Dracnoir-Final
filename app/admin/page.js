@@ -32,6 +32,19 @@ const emptyCoupon = {
   code: '', type: 'percentage', value: '', minOrder: '', description: '', expiryDate: '',
 }
 
+const COLOR_PRESET = [
+  { id: 'black',    name: 'Black',    hex: '#000000', images: '' },
+  { id: 'white',    name: 'White',    hex: '#FFFFFF', images: '' },
+  { id: 'peach',    name: 'Peach',    hex: '#FF9899', images: '' },
+  { id: 'mustard',  name: 'Mustard',  hex: '#90760E', images: '' },
+  { id: 'olive',    name: 'Olive',    hex: '#000D03', images: '' },
+  { id: 'wine',     name: 'Wine',     hex: '#280101', images: '' },
+  { id: 'beige',    name: 'Beige',    hex: '#9A8753', images: '' },
+  { id: 'brown',    name: 'Brown',    hex: '#251700', images: '' },
+  { id: 'lavender', name: 'Lavender', hex: '#A363DA', images: '' },
+  { id: 'blue',     name: 'Blue',     hex: '#001849', images: '' },
+]
+
 const AdminDashboard = () => {
   const { user, status } = useAuth()
   const router = useRouter()
@@ -668,13 +681,22 @@ const AdminDashboard = () => {
                     <Label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
                       Colors
                     </Label>
-                    <button
-                      type="button"
-                      onClick={() => setProductColors(prev => [...prev, { id: '', name: '', hex: '#000000', images: '' }])}
-                      className="flex items-center gap-1 rounded-full border border-violet-500/50 bg-violet-500/10 px-2.5 py-1 text-[11px] text-violet-300 hover:bg-violet-500/20"
-                    >
-                      <Plus className="h-3 w-3" /> Add Color
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setProductColors(COLOR_PRESET.map(c => ({ ...c })))}
+                        className="flex items-center gap-1 rounded-full border border-amber-500/50 bg-amber-500/10 px-2.5 py-1 text-[11px] text-amber-300 hover:bg-amber-500/20"
+                      >
+                        Load Preset Colors
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setProductColors(prev => [...prev, { id: '', name: '', hex: '#000000', images: '' }])}
+                        className="flex items-center gap-1 rounded-full border border-violet-500/50 bg-violet-500/10 px-2.5 py-1 text-[11px] text-violet-300 hover:bg-violet-500/20"
+                      >
+                        <Plus className="h-3 w-3" /> Add Color
+                      </button>
+                    </div>
                   </div>
 
                   {productColors.length === 0 && (
