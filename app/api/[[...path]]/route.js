@@ -1,6 +1,4 @@
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
-import { MongoClient, ObjectId } from 'mongodb'
+import { MongoClient } from 'mongodb'
 import { v4 as uuidv4 } from 'uuid'
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
@@ -254,6 +252,18 @@ async function ensureSeedData(db) {
       await reviewsCol.insertMany(demoReviews)
     }
   }
+
+  // Seed demo coupons if none exist
+  const couponsCount = await db.collection('coupons').countDocuments()
+  if (couponsCount === 0) {
+    const now = new Date()
+    await db.collection('coupons').insertMany([
+      { id: uuidv4(), code: 'ANIME10', type: 'percentage', value: 10, minOrder: 0, description: '10% off sitewide', isActive: true, expiryDate: null, usageCount: 0, createdAt: now },
+      { id: uuidv4(), code: 'DRACNOIR15', type: 'percentage', value: 15, minOrder: 500, description: '15% off on orders above ₹500', isActive: true, expiryDate: null, usageCount: 0, createdAt: now },
+      { id: uuidv4(), code: 'WELCOME20', type: 'percentage', value: 20, minOrder: 0, description: '20% off for new users', isActive: true, expiryDate: null, usageCount: 0, createdAt: now },
+      { id: uuidv4(), code: 'FLAT200', type: 'flat', value: 200, minOrder: 1000, description: '₹200 off on orders above ₹1000', isActive: true, expiryDate: null, usageCount: 0, createdAt: now },
+    ])
+  }
 }
 
 // Helpers for listing products with basic filters
@@ -305,6 +315,31 @@ async function requireUserId(request) {
     return null
   }
   return session.user.id
+}
+
+const ADMIN_EMAILS = ['chirayu1264@gmail.com']
+
+async function requireAdmin(request, db) {
+  // Check admin session cookie (username/password login)
+  const adminSessionCookie = request.cookies?.get?.('admin_session')
+  if (adminSessionCookie?.value) {
+    const adminSessionsCol = db.collection('admin_sessions')
+    const adminSession = await adminSessionsCol.findOne({
+      sessionId: adminSessionCookie.value,
+      expiresAt: { $gt: new Date() }
+    })
+    if (adminSession) return { isAdmin: true, userId: 'admin_credentials' }
+  }
+  // Check Google session
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.email) return null
+  const usersCol = db.collection('users')
+  const user = await usersCol.findOne({ email: session.user.email })
+  if (!user) return null
+  if (ADMIN_EMAILS.includes(session.user.email) || user.isAdmin === true) {
+    return { isAdmin: true, userId: user.id }
+  }
+  return null
 }
 
 async function handleRoute(request, { params }) {
@@ -651,29 +686,17 @@ async function handleRoute(request, { params }) {
     if (segments[0] === 'coupons' && segments[1] === 'validate' && method === 'GET') {
       const { searchParams } = new URL(request.url)
       const code = searchParams.get('code')
-      
-      if (!code) {
-        return handleCORS(
-          NextResponse.json({ error: 'Coupon code required' }, { status: 400 }),
-        )
+      if (!code) return handleCORS(NextResponse.json({ error: 'Coupon code required' }, { status: 400 }))
+      const col = db.collection('coupons')
+      const coupon = await col.findOne({ code: code.toUpperCase().trim() })
+      if (!coupon || !coupon.isActive) {
+        return handleCORS(NextResponse.json({ error: 'Invalid or inactive coupon code' }, { status: 404 }))
       }
-      
-      // Mock coupon validation - in production, this would check a coupons collection
-      const validCoupons = {
-        'ANIME10': { code: 'ANIME10', discount: 10, description: '10% off' },
-        'DRACNOIR15': { code: 'DRACNOIR15', discount: 15, description: '15% off' },
-        'WELCOME20': { code: 'WELCOME20', discount: 20, description: '20% off for new users' },
+      if (coupon.expiryDate && new Date(coupon.expiryDate) < new Date()) {
+        return handleCORS(NextResponse.json({ error: 'Coupon has expired' }, { status: 410 }))
       }
-      
-      const coupon = validCoupons[code.toUpperCase()]
-      
-      if (!coupon) {
-        return handleCORS(
-          NextResponse.json({ error: 'Invalid coupon code' }, { status: 404 }),
-        )
-      }
-      
-      return handleCORS(NextResponse.json(coupon))
+      const { _id, ...rest } = coupon
+      return handleCORS(NextResponse.json(rest))
     }
 
     // GET /api/users (admin only)
@@ -687,13 +710,7 @@ async function handleRoute(request, { params }) {
       
       // Admin check
       const usersCol = db.collection('users')
-      const currentUser = await usersCol.findOne({
-        $or: [
-          { id: userId },
-          { _id: new ObjectId(userId) }
-        ]
-      })
-
+      const currentUser = await usersCol.findOne({ id: userId })
       
       if (!currentUser || !currentUser.isAdmin) {
         return handleCORS(
@@ -884,6 +901,265 @@ async function handleRoute(request, { params }) {
       }
       const { _id, ...rest } = product
       return handleCORS(NextResponse.json(rest))
+    }
+
+    // ─── WISHLIST ENDPOINTS ───────────────────────────────────────────────────
+
+    // GET /api/wishlist
+    if (route === '/wishlist' && method === 'GET') {
+      const userId = await requireUserId(request)
+      if (!userId) return handleCORS(NextResponse.json({ error: 'Unauthorized' }, { status: 401 }))
+      const col = db.collection('wishlists')
+      const doc = await col.findOne({ userId })
+      const items = doc?.items || []
+      // Hydrate with product details
+      if (items.length > 0) {
+        const productsCol = db.collection('products')
+        const productIds = items.map(i => i.productId)
+        const products = await productsCol.find({ id: { $in: productIds } }).toArray()
+        const productMap = Object.fromEntries(products.map(p => [p.id, p]))
+        const hydrated = items
+          .filter(i => productMap[i.productId])
+          .map(i => {
+            const p = productMap[i.productId]
+            return { productId: p.id, slug: p.slug, title: p.title, price: p.price, image: p.images?.[0] || null, addedAt: i.addedAt }
+          })
+        return handleCORS(NextResponse.json(hydrated))
+      }
+      return handleCORS(NextResponse.json([]))
+    }
+
+    // POST /api/wishlist
+    if (route === '/wishlist' && method === 'POST') {
+      const userId = await requireUserId(request)
+      if (!userId) return handleCORS(NextResponse.json({ error: 'Unauthorized' }, { status: 401 }))
+      const body = await request.json()
+      const { productId } = body || {}
+      if (!productId) return handleCORS(NextResponse.json({ error: 'productId required' }, { status: 400 }))
+      const productsCol = db.collection('products')
+      const product = await productsCol.findOne({ id: productId })
+      if (!product) return handleCORS(NextResponse.json({ error: 'Product not found' }, { status: 404 }))
+      const col = db.collection('wishlists')
+      let doc = await col.findOne({ userId })
+      if (!doc) {
+        doc = { userId, items: [], updatedAt: new Date() }
+        await col.insertOne(doc)
+      }
+      const exists = (doc.items || []).some(i => i.productId === productId)
+      if (!exists) {
+        await col.updateOne({ userId }, { $push: { items: { productId, addedAt: new Date() } }, $set: { updatedAt: new Date() } })
+      }
+      return handleCORS(NextResponse.json({ success: true, added: !exists }))
+    }
+
+    // DELETE /api/wishlist/[productId]
+    if (segments[0] === 'wishlist' && segments.length === 2 && method === 'DELETE') {
+      const productId = segments[1]
+      const userId = await requireUserId(request)
+      if (!userId) return handleCORS(NextResponse.json({ error: 'Unauthorized' }, { status: 401 }))
+      const col = db.collection('wishlists')
+      await col.updateOne({ userId }, { $pull: { items: { productId } }, $set: { updatedAt: new Date() } })
+      return handleCORS(NextResponse.json({ success: true }))
+    }
+
+    // GET /api/wishlist/check/[productId] - check if product is in wishlist
+    if (segments[0] === 'wishlist' && segments[1] === 'check' && segments.length === 3 && method === 'GET') {
+      const productId = segments[2]
+      const userId = await requireUserId(request)
+      if (!userId) return handleCORS(NextResponse.json({ inWishlist: false }))
+      const col = db.collection('wishlists')
+      const doc = await col.findOne({ userId })
+      const inWishlist = (doc?.items || []).some(i => i.productId === productId)
+      return handleCORS(NextResponse.json({ inWishlist }))
+    }
+
+    // ─── ADMIN PRODUCTS CRUD ─────────────────────────────────────────────────
+
+    // POST /api/admin/products - create product
+    if (segments[0] === 'admin' && segments[1] === 'products' && segments.length === 2 && method === 'POST') {
+      const admin = await requireAdmin(request, db)
+      if (!admin) return handleCORS(NextResponse.json({ error: 'Admin access required' }, { status: 403 }))
+      const body = await request.json()
+      const { title, description, price, categorySlug, type, material, dimensions, series, images, stock, variants } = body || {}
+      if (!title || !price || !categorySlug) return handleCORS(NextResponse.json({ error: 'title, price, categorySlug required' }, { status: 400 }))
+      const categoriesCol = db.collection('categories')
+      const cat = await categoriesCol.findOne({ slug: categorySlug })
+      const productsCol = db.collection('products')
+      const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + uuidv4().slice(0, 6)
+      const now = new Date()
+      const product = {
+        id: uuidv4(), slug, title: title.trim(),
+        description: description || '',
+        price: Number(price),
+        categoryId: cat?.id || null,
+        categorySlug,
+        type: type || 'other',
+        material: material || '',
+        dimensions: dimensions || '',
+        series: series || '',
+        images: Array.isArray(images) ? images : (images ? [images] : []),
+        stock: Number(stock) || 0,
+        variants: Array.isArray(variants) ? variants : [],
+        colors: Array.isArray(body.colors) ? body.colors : [],
+        rating: 0, reviewCount: 0,
+        popularity: 50,
+        createdAt: now, updatedAt: now,
+      }
+      await productsCol.insertOne(product)
+      const { _id, ...rest } = product
+      return handleCORS(NextResponse.json(rest, { status: 201 }))
+    }
+
+    // PUT /api/admin/products/[id] - update product
+    if (segments[0] === 'admin' && segments[1] === 'products' && segments.length === 3 && method === 'PUT') {
+      const productId = segments[2]
+      const admin = await requireAdmin(request, db)
+      if (!admin) return handleCORS(NextResponse.json({ error: 'Admin access required' }, { status: 403 }))
+      const body = await request.json()
+      const productsCol = db.collection('products')
+      const existing = await productsCol.findOne({ id: productId })
+      if (!existing) return handleCORS(NextResponse.json({ error: 'Product not found' }, { status: 404 }))
+      const update = { updatedAt: new Date() }
+      if (body.title != null) update.title = body.title.trim()
+      if (body.description != null) update.description = body.description
+      if (body.price != null) update.price = Number(body.price)
+      if (body.categorySlug != null) {
+        update.categorySlug = body.categorySlug
+        const cat = await db.collection('categories').findOne({ slug: body.categorySlug })
+        if (cat) update.categoryId = cat.id
+      }
+      if (body.type != null) update.type = body.type
+      if (body.material != null) update.material = body.material
+      if (body.dimensions != null) update.dimensions = body.dimensions
+      if (body.series != null) update.series = body.series
+      if (body.images != null) update.images = Array.isArray(body.images) ? body.images : [body.images]
+      if (body.stock != null) update.stock = Number(body.stock)
+      if (body.colors != null) update.colors = Array.isArray(body.colors) ? body.colors : []
+      await productsCol.updateOne({ id: productId }, { $set: update })
+      const updated = await productsCol.findOne({ id: productId })
+      const { _id, ...rest } = updated
+      return handleCORS(NextResponse.json(rest))
+    }
+
+    // DELETE /api/admin/products/[id] - delete product
+    if (segments[0] === 'admin' && segments[1] === 'products' && segments.length === 3 && method === 'DELETE') {
+      const productId = segments[2]
+      const admin = await requireAdmin(request, db)
+      if (!admin) return handleCORS(NextResponse.json({ error: 'Admin access required' }, { status: 403 }))
+      const productsCol = db.collection('products')
+      const existing = await productsCol.findOne({ id: productId })
+      if (!existing) return handleCORS(NextResponse.json({ error: 'Product not found' }, { status: 404 }))
+      await productsCol.deleteOne({ id: productId })
+      return handleCORS(NextResponse.json({ success: true }))
+    }
+
+    // ─── ADMIN ORDERS ─────────────────────────────────────────────────────────
+
+    // GET /api/admin/orders - all orders
+    if (segments[0] === 'admin' && segments[1] === 'orders' && segments.length === 2 && method === 'GET') {
+      const admin = await requireAdmin(request, db)
+      if (!admin) return handleCORS(NextResponse.json({ error: 'Admin access required' }, { status: 403 }))
+      const { searchParams } = new URL(request.url)
+      const statusFilter = searchParams.get('status')
+      const query = statusFilter ? { status: statusFilter } : {}
+      const ordersCol = db.collection('orders')
+      const docs = await ordersCol.find(query).sort({ createdAt: -1 }).limit(200).toArray()
+      // Enrich with user info
+      const usersCol = db.collection('users')
+      const userIds = [...new Set(docs.map(o => o.userId).filter(Boolean))]
+      const users = await usersCol.find({ id: { $in: userIds } }).toArray()
+      const userMap = Object.fromEntries(users.map(u => [u.id, { name: u.name, email: u.email }]))
+      const cleaned = docs.map(({ _id, ...o }) => ({ ...o, user: userMap[o.userId] || null }))
+      return handleCORS(NextResponse.json(cleaned))
+    }
+
+    // PUT /api/admin/orders/[id] - update order status
+    if (segments[0] === 'admin' && segments[1] === 'orders' && segments.length === 3 && method === 'PUT') {
+      const orderId = segments[2]
+      const admin = await requireAdmin(request, db)
+      if (!admin) return handleCORS(NextResponse.json({ error: 'Admin access required' }, { status: 403 }))
+      const body = await request.json()
+      const { status } = body || {}
+      const validStatuses = ['placed', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled']
+      if (!status || !validStatuses.includes(status)) {
+        return handleCORS(NextResponse.json({ error: `status must be one of: ${validStatuses.join(', ')}` }, { status: 400 }))
+      }
+      const ordersCol = db.collection('orders')
+      const existing = await ordersCol.findOne({ id: orderId })
+      if (!existing) return handleCORS(NextResponse.json({ error: 'Order not found' }, { status: 404 }))
+      await ordersCol.updateOne({ id: orderId }, { $set: { status, updatedAt: new Date() } })
+      const updated = await ordersCol.findOne({ id: orderId })
+      const { _id, ...rest } = updated
+      return handleCORS(NextResponse.json(rest))
+    }
+
+    // ─── COUPON CRUD ─────────────────────────────────────────────────────────
+
+    // GET /api/coupons - list all coupons (admin)
+    if (route === '/coupons' && method === 'GET') {
+      const admin = await requireAdmin(request, db)
+      if (!admin) return handleCORS(NextResponse.json({ error: 'Admin access required' }, { status: 403 }))
+      const col = db.collection('coupons')
+      const docs = await col.find({}).sort({ createdAt: -1 }).toArray()
+      return handleCORS(NextResponse.json(docs.map(({ _id, ...rest }) => rest)))
+    }
+
+    // POST /api/coupons - create coupon (admin)
+    if (route === '/coupons' && method === 'POST') {
+      const admin = await requireAdmin(request, db)
+      if (!admin) return handleCORS(NextResponse.json({ error: 'Admin access required' }, { status: 403 }))
+      const body = await request.json()
+      const { code, type, value, minOrder, expiryDate, description } = body || {}
+      if (!code || !type || value == null) return handleCORS(NextResponse.json({ error: 'code, type, value required' }, { status: 400 }))
+      if (!['percentage', 'flat'].includes(type)) return handleCORS(NextResponse.json({ error: 'type must be percentage or flat' }, { status: 400 }))
+      const col = db.collection('coupons')
+      const existing = await col.findOne({ code: code.toUpperCase().trim() })
+      if (existing) return handleCORS(NextResponse.json({ error: 'Coupon code already exists' }, { status: 409 }))
+      const coupon = {
+        id: uuidv4(),
+        code: code.toUpperCase().trim(),
+        type,
+        value: Number(value),
+        minOrder: Number(minOrder) || 0,
+        description: description || '',
+        isActive: true,
+        expiryDate: expiryDate ? new Date(expiryDate) : null,
+        usageCount: 0,
+        createdAt: new Date(),
+      }
+      await col.insertOne(coupon)
+      const { _id, ...rest } = coupon
+      return handleCORS(NextResponse.json(rest, { status: 201 }))
+    }
+
+    // PUT /api/coupons/[id] - update/toggle coupon (admin)
+    if (segments[0] === 'coupons' && segments.length === 2 && method === 'PUT') {
+      const couponId = segments[1]
+      const admin = await requireAdmin(request, db)
+      if (!admin) return handleCORS(NextResponse.json({ error: 'Admin access required' }, { status: 403 }))
+      const body = await request.json()
+      const col = db.collection('coupons')
+      const update = { updatedAt: new Date() }
+      if (body.isActive != null) update.isActive = Boolean(body.isActive)
+      if (body.value != null) update.value = Number(body.value)
+      if (body.minOrder != null) update.minOrder = Number(body.minOrder)
+      if (body.description != null) update.description = body.description
+      if (body.expiryDate != null) update.expiryDate = body.expiryDate ? new Date(body.expiryDate) : null
+      await col.updateOne({ id: couponId }, { $set: update })
+      const updated = await col.findOne({ id: couponId })
+      if (!updated) return handleCORS(NextResponse.json({ error: 'Coupon not found' }, { status: 404 }))
+      const { _id, ...rest } = updated
+      return handleCORS(NextResponse.json(rest))
+    }
+
+    // DELETE /api/coupons/[id] - delete coupon (admin)
+    if (segments[0] === 'coupons' && segments.length === 2 && method === 'DELETE') {
+      const couponId = segments[1]
+      const admin = await requireAdmin(request, db)
+      if (!admin) return handleCORS(NextResponse.json({ error: 'Admin access required' }, { status: 403 }))
+      const col = db.collection('coupons')
+      await col.deleteOne({ id: couponId })
+      return handleCORS(NextResponse.json({ success: true }))
     }
 
     // Fallback
