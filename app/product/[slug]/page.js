@@ -62,6 +62,12 @@ function ProductPage() {
         if (Array.isArray(pData?.variants) && pData.variants.length > 0) {
           setSelectedVariant(pData.variants[0])
         }
+        // Auto-select first color and sync variant
+        if (pData.colors?.length) {
+          setColor(pData.colors[0].id)
+          const defaultVariant = pData.variants?.find(v => v.color === pData.colors[0].id)
+          if (defaultVariant) setSelectedVariant(defaultVariant)
+        }
         // Check wishlist status if logged in
         if (pData?.id) {
           try {
@@ -454,6 +460,8 @@ function ProductPage() {
                                 onClick={() => {
                                   setColor(c.id)
                                   setActiveImage(0)
+                                  const variant = product.variants?.find(v => v.color === c.id)
+                                  if (variant) setSelectedVariant(variant)
                                 }}
                                 className={`h-7 w-7 rounded-full border-2 transition-all duration-150 focus:outline-none ${
                                   isSelected
