@@ -83,7 +83,11 @@ const CheckoutPage = () => {
     0,
   )
   
-  const discount = appliedCoupon ? (subtotal * appliedCoupon.discount / 100) : 0
+  const discount = appliedCoupon
+    ? appliedCoupon.type === 'flat'
+      ? Math.min(appliedCoupon.value, subtotal)
+      : Math.round(subtotal * (appliedCoupon.value || appliedCoupon.discount || 0) / 100)
+    : 0
   const total = subtotal - discount
 
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId)
@@ -337,13 +341,28 @@ const CheckoutPage = () => {
                   {items.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between border-b border-slate-800/60 pb-2 last:border-0"
+                      className="flex items-start justify-between gap-3 border-b border-slate-800/60 pb-3 last:border-0"
                     >
-                      <div>
-                        <p className="text-slate-100">{item.title}</p>
-                        <p className="text-sm text-slate-400">Qty: {item.quantity}</p>
+                      <div className="flex items-start gap-3">
+                        {item.image && (
+                          <img
+                            src={item.image}
+                            alt={item.title}
+                            className="h-14 w-14 flex-shrink-0 rounded-lg object-cover"
+                          />
+                        )}
+                        <div className="space-y-0.5">
+                          <p className="text-sm text-slate-100">{item.title}</p>
+                          {item.color && (
+                            <p className="text-xs text-slate-400">Color: {item.color}</p>
+                          )}
+                          {item.size && (
+                            <p className="text-xs text-slate-400">Size: {item.size}</p>
+                          )}
+                          <p className="text-xs text-slate-400">Qty: {item.quantity}</p>
+                        </div>
                       </div>
-                      <p className="text-sm font-semibold text-slate-100">
+                      <p className="flex-shrink-0 text-sm font-semibold text-slate-100">
                         ₹{(item.price || 0).toFixed(0)}
                       </p>
                     </div>
@@ -559,7 +578,9 @@ const CheckoutPage = () => {
                           {appliedCoupon.code} Applied
                         </p>
                         <p className="text-[10px] text-emerald-400/80">
-                          {appliedCoupon.discount}% discount
+                        {appliedCoupon.type === 'flat'
+                          ? `₹${appliedCoupon.value} flat discount`
+                          : `${appliedCoupon.value || appliedCoupon.discount}% discount`}
                         </p>
                       </div>
                       <button
@@ -600,7 +621,9 @@ const CheckoutPage = () => {
                   </div>
                   {appliedCoupon && (
                     <div className="mt-1 flex items-center justify-between text-sm">
-                      <span className="text-emerald-300">Discount ({appliedCoupon.discount}%)</span>
+                      <span className="text-emerald-300">
+                        Discount ({appliedCoupon.type === 'flat' ? `₹${appliedCoupon.value} off` : `${appliedCoupon.value || appliedCoupon.discount}%`})
+                      </span>
                       <span className="text-emerald-300">-₹{discount.toFixed(0)}</span>
                     </div>
                   )}
