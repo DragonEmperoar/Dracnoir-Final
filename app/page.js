@@ -175,7 +175,6 @@ const HomePage = () => {
               Shop by category
             </p>
             <div className="grid gap-3">
-                  {console.log(categories)}
               {categories.map((cat, index) => {
                 const catMeta = {
                   plushes: {
@@ -263,27 +262,27 @@ const HomePage = () => {
               View all
             </button>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {trendingProducts.map((product) => (
               <button
                 key={product.id}
                 type="button"
                 onClick={() => router.push(`/product/${product.slug}`)}
-                className="group overflow-hidden rounded-xl border border-slate-800 bg-slate-950/80 text-left transition-colors hover:border-violet-400 hover:bg-slate-900"
+                className="group overflow-hidden rounded-lg border border-slate-800 bg-slate-950/80 text-left transition-colors hover:border-violet-400 hover:bg-slate-900"
               >
-                <div className="relative aspect-square overflow-hidden bg-slate-900">
+                <div className="relative overflow-hidden bg-slate-900" style={{ aspectRatio: '4/3' }}>
                   <img
                     src={product.images?.[0] || ''}
                     alt={product.title}
                     className="h-full w-full object-cover transition-transform group-hover:scale-105"
                   />
                 </div>
-                <div className="p-3">
-                  <p className="text-xs text-slate-400">{product.series}</p>
-                  <p className="mt-1 text-sm font-medium text-slate-100 group-hover:text-violet-200">
+                <div className="p-2">
+                  <p className="text-[10px] text-slate-400 truncate">{product.series}</p>
+                  <p className="mt-0.5 text-[11px] font-medium text-slate-100 truncate group-hover:text-violet-200">
                     {product.title}
                   </p>
-                  <p className="mt-1 text-sm font-semibold text-violet-300">
+                  <p className="mt-0.5 text-[11px] font-semibold text-violet-300">
                     ₹{product.price?.toFixed?.(0) ?? '0'}
                   </p>
                 </div>
