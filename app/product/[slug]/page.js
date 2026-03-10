@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Star, ChevronLeft, CheckCircle2 } from 'lucide-react'
+import { Star, ChevronLeft, CheckCircle2, Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -32,6 +32,8 @@ function ProductPage() {
   const [pincodeMessage, setPincodeMessage] = useState('')
   const [showSizeGuide, setShowSizeGuide] = useState(false)
   const [showAdded, setShowAdded] = useState(false)
+  const [inWishlist, setInWishlist] = useState(false)
+  const [wishlistLoading, setWishlistLoading] = useState(false)
   
   // Review form states
   const [showReviewForm, setShowReviewForm] = useState(false)
@@ -59,6 +61,16 @@ function ProductPage() {
         setReviews(Array.isArray(rData) ? rData : [])
         if (Array.isArray(pData?.variants) && pData.variants.length > 0) {
           setSelectedVariant(pData.variants[0])
+        }
+        // Check wishlist status if logged in
+        if (pData?.id) {
+          try {
+            const wRes = await fetch(`/api/wishlist/check/${pData.id}`)
+            if (wRes.ok) {
+              const wData = await wRes.json()
+              setInWishlist(wData.inWishlist)
+            }
+          } catch {}
         }
       } catch (e) {
         console.error(e)
@@ -172,8 +184,30 @@ function ProductPage() {
     }
   }
 
-  const handleBuyNow = async () => {
-    if (!product) return
+  const handleToggleWishlist = async () => {
+    if (!user) {
+      router.push('/login')
+      return
+    }
+    if (!product?.id) return
+    setWishlistLoading(true)
+    try {
+      if (inWishlist) {
+        await fetch(`/api/wishlist/${product.id}`, { method: 'DELETE' })
+        setInWishlist(false)
+      } else {
+        await fetch('/api/wishlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId: product.id }),
+        })
+        setInWishlist(true)
+      }
+    } catch (e) { console.error('Wishlist error', e) }
+    finally { setWishlistLoading(false) }
+  }
+
+  const handleBuyNow = async () => {    if (!product) return
     if (!user) {
       alert('Please log in with Google first, then tap Buy now again to jump to checkout.')
       return
@@ -237,7 +271,8 @@ function ProductPage() {
     )
   }
 
-  const images = product.images || []
+  const selectedColor = product.colors?.find(c => c.id === color)
+  const images = (selectedColor?.images?.length ? selectedColor.images : product.images) || []
   const mainImage = images[activeImage] || images[0]
 
   const avgRating = product.rating || (reviews.length ? 4.8 : null)
@@ -292,7 +327,7 @@ function ProductPage() {
           {/* Gallery */}
           <section className="space-y-4">
             <Card className="overflow-hidden border border-slate-800 bg-slate-950/80">
-              <div className="relative h-72 w-full sm:h-96">
+              <div className="relative w-full" style={{ aspectRatio: '4/3' }}>
                 {mainImage && (
                   <Image
                     src={mainImage}
@@ -403,26 +438,36 @@ function ProductPage() {
                       </Select>
                     </div>
 
-                    <div className="space-y-1">
-                      <p className="text-[11px] text-slate-400">Color</p>
-                      <Select
-                        value={color || ''}
-                        onValueChange={(value) => setColor(value)}
-                      >
-                        <SelectTrigger className="h-9 border-slate-700 bg-slate-900/80 text-xs text-slate-200">
-                          <SelectValue placeholder="Select color" />
-                        </SelectTrigger>
-                        <SelectContent className="border-slate-800 bg-slate-900 text-xs text-slate-100">
-                          <SelectItem value="Black">Black</SelectItem>
-                          <SelectItem value="Blue">Blue</SelectItem>
-                          <SelectItem value="Brown">Brown</SelectItem>
-                          <SelectItem value="Peach">Peach</SelectItem>
-                          <SelectItem value="Olive">Olive</SelectItem>
-                          <SelectItem value="Mustard">Mustard</SelectItem>
-                          <SelectItem value="Beige">Beige</SelectItem>
-                          <SelectItem value="Wine">Wine</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <div className="space-y-2">
+                      <p className="text-[11px] text-slate-400">
+                        Color{color ? <span className="ml-1 text-slate-200">— {selectedColor?.name || color}</span> : ''}
+                      </p>
+                      {product.colors && product.colors.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {product.colors.map((c) => {
+                            const isSelected = color === c.id
+                            return (
+                              <button
+                                key={c.id}
+                                type="button"
+                                title={c.name}
+                                onClick={() => {
+                                  setColor(c.id)
+                                  setActiveImage(0)
+                                }}
+                                className={`h-7 w-7 rounded-full border-2 transition-all duration-150 focus:outline-none ${
+                                  isSelected
+                                    ? 'border-violet-400 ring-2 ring-violet-400/60 scale-110'
+                                    : 'border-slate-600 hover:border-slate-300 hover:scale-105'
+                                }`}
+                                style={{ backgroundColor: c.hex || '#888888' }}
+                              />
+                            )
+                          })}
+                        </div>
+                      ) : (
+                        <p className="text-[11px] text-slate-500">No colors available</p>
+                      )}
                     </div>
                   </div>
 
@@ -478,6 +523,19 @@ function ProductPage() {
                 >
                   Buy now
                 </Button>
+                <button
+                  type="button"
+                  onClick={handleToggleWishlist}
+                  disabled={wishlistLoading}
+                  title={user ? (inWishlist ? 'Remove from wishlist' : 'Add to wishlist') : 'Login to save to wishlist'}
+                  className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border transition-colors ${
+                    inWishlist
+                      ? 'border-pink-500/70 bg-pink-500/15 text-pink-400 hover:bg-pink-500/25'
+                      : 'border-slate-700 bg-slate-950 text-slate-400 hover:border-pink-500/50 hover:text-pink-400'
+                  }`}
+                >
+                  <Heart className={`h-4 w-4 ${inWishlist ? 'fill-pink-400' : ''}`} />
+                </button>
               </div>
 
               {showAdded && (
