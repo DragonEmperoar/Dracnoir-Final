@@ -286,6 +286,38 @@ function ProductPage() {
 
   return (
     <AppShell>
+      {/* Step 4: JSON-LD structured data for Google rich results */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: product.title,
+            image: product.images?.[0] || '',
+            description: product.description || '',
+            brand: { '@type': 'Brand', name: 'Dracnoir' },
+            offers: {
+              '@type': 'Offer',
+              priceCurrency: 'INR',
+              price: product.price,
+              availability:
+                product.stock > 0
+                  ? 'https://schema.org/InStock'
+                  : 'https://schema.org/OutOfStock',
+              url: `https://dracnoir.com/product/${product.slug}`,
+            },
+            aggregateRating:
+              product.reviewCount > 0
+                ? {
+                    '@type': 'AggregateRating',
+                    ratingValue: product.rating,
+                    reviewCount: product.reviewCount,
+                  }
+                : undefined,
+          }),
+        }}
+      />
       <div className="space-y-6">
         <div className="mb-3 text-[11px] text-slate-500 flex items-center gap-1">
           <button
@@ -337,8 +369,7 @@ function ProductPage() {
                 {mainImage && (
                   <Image
                     src={mainImage}
-                    alt={product.title}
-                    fill
+                    alt={`${product.title} anime merchandise`}                    fill
                     className="object-cover object-center"
                   />
                 )}
