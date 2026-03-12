@@ -42,23 +42,23 @@ const COLLECTOR_SETUPS = [
 // ── Skeleton Components ────────────────────────────────────────────────────
 
 const ProductCardSkeleton = () => (
-  <div className="overflow-hidden rounded-lg border border-slate-800 bg-slate-950/80">
-    <div className="animate-pulse bg-slate-800" style={{ aspectRatio: '4/3' }} />
+  <div className="overflow-hidden rounded-lg border border-border bg-card/80">
+    <div className="animate-pulse bg-muted" style={{ aspectRatio: '4/3' }} />
     <div className="p-2 space-y-1.5">
-      <div className="h-2 w-2/3 rounded bg-slate-800 animate-pulse" />
-      <div className="h-2.5 w-full rounded bg-slate-800 animate-pulse" />
-      <div className="h-2.5 w-1/3 rounded bg-slate-700 animate-pulse" />
+      <div className="h-2 w-2/3 rounded bg-muted animate-pulse" />
+      <div className="h-2.5 w-full rounded bg-muted animate-pulse" />
+      <div className="h-2.5 w-1/3 rounded bg-muted/70 animate-pulse" />
     </div>
   </div>
 )
 
 const LimitedDropSkeleton = () => (
-  <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-950/80">
-    <div className="animate-pulse bg-slate-800" style={{ aspectRatio: '4/3' }} />
+  <div className="overflow-hidden rounded-xl border border-border bg-card/80">
+    <div className="animate-pulse bg-muted" style={{ aspectRatio: '4/3' }} />
     <div className="space-y-1.5 p-2.5">
-      <div className="h-2.5 w-full rounded bg-slate-800 animate-pulse" />
-      <div className="h-2.5 w-1/3 rounded bg-slate-700 animate-pulse" />
-      <div className="h-1.5 w-full rounded-full bg-slate-800 animate-pulse mt-1" />
+      <div className="h-2.5 w-full rounded bg-muted animate-pulse" />
+      <div className="h-2.5 w-1/3 rounded bg-muted/70 animate-pulse" />
+      <div className="h-1.5 w-full rounded-full bg-muted animate-pulse mt-1" />
     </div>
   </div>
 )
@@ -139,7 +139,7 @@ const HomepageClient = () => {
         {/* ── HERO + CATEGORIES ─────────────────────────────────────────── */}
         <div className="grid gap-6 md:grid-cols-2">
           {/* Hero card with Next.js Image for LCP optimisation */}
-          <div className="group relative overflow-hidden rounded-2xl border border-slate-800">
+          <div className="group relative overflow-hidden rounded-2xl border border-border">
             {/* Background image – priority ensures LCP preload */}
             <Image
               key={slide.image}
@@ -150,18 +150,18 @@ const HomepageClient = () => {
               className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
               sizes="(max-width: 768px) 100vw, 50vw"
             />
-            {/* Dark gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-900/90 to-slate-950/90" />
+            {/* Dark gradient overlay — always dark so text is readable on any image */}
+            <div className="absolute inset-0 bg-gradient-to-br from-black/85 to-black/75" />
 
             <div className="relative z-10 flex min-h-[400px] flex-col justify-between p-6">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-violet-300/80">
+                <p className="text-xs uppercase tracking-[0.2em] text-violet-300/90">
                   {slide.subtitle}
                 </p>
-                <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight md:text-4xl">
+                <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight text-white md:text-4xl">
                   {slide.title}
                 </h1>
-                <p className="mt-4 text-sm leading-relaxed text-slate-300">
+                <p className="mt-4 text-sm leading-relaxed text-white/80">
                   {slide.description}
                 </p>
               </div>
@@ -178,7 +178,7 @@ const HomepageClient = () => {
                   <Button
                     variant="outline"
                     size="lg"
-                    className="rounded-full border-slate-700 bg-slate-900/60 text-sm text-slate-200 hover:bg-slate-800"
+                    className="rounded-full border-white/30 bg-white/10 text-sm text-white hover:bg-white/20 backdrop-blur"
                     onClick={() => router.push('/category/plushes')}
                   >
                     {slide.cta2}
@@ -186,7 +186,7 @@ const HomepageClient = () => {
                 )}
               </div>
 
-              <div className="mt-4 flex items-center gap-3 text-[11px] text-slate-400">
+              <div className="mt-4 flex items-center gap-3 text-[11px] text-white/60">
                 <span className="flex items-center gap-1">
                   <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                   4.9 / 5.0 • 2K+ reviews
@@ -206,7 +206,7 @@ const HomepageClient = () => {
                         (prev - 1 + heroSlides.length) % heroSlides.length,
                     )
                   }
-                  className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full border border-slate-700 bg-slate-900/80 p-2 text-slate-300 hover:bg-slate-800"
+                  className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/20 bg-black/40 p-2 text-white hover:bg-black/60 backdrop-blur"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
@@ -215,7 +215,7 @@ const HomepageClient = () => {
                   onClick={() =>
                     setCurrentSlide((prev) => (prev + 1) % heroSlides.length)
                   }
-                  className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full border border-slate-700 bg-slate-900/80 p-2 text-slate-300 hover:bg-slate-800"
+                  className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/20 bg-black/40 p-2 text-white hover:bg-black/60 backdrop-blur"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
@@ -226,8 +226,8 @@ const HomepageClient = () => {
                       onClick={() => setCurrentSlide(idx)}
                       className={`h-1.5 w-6 rounded-full transition-colors ${
                         currentSlide === idx
-                          ? 'bg-violet-500'
-                          : 'bg-slate-700 hover:bg-slate-600'
+                          ? 'bg-violet-400'
+                          : 'bg-white/30 hover:bg-white/50'
                       }`}
                     />
                   ))}
@@ -238,11 +238,11 @@ const HomepageClient = () => {
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-xs uppercase tracking-[0.2em] text-violet-300/80">
+              <p className="text-xs uppercase tracking-[0.2em] text-violet-500/80">
                 Categories
               </p>
               <button
-                className="text-[11px] text-violet-300 hover:text-violet-200"
+                className="text-[11px] text-violet-500 hover:text-violet-400"
                 onClick={() => router.push('/products')}
               >
                 Tap a tile to dive in
@@ -260,7 +260,7 @@ const HomepageClient = () => {
                     color: 'violet',
                     gradient: 'from-violet-500/20 to-purple-500/20',
                     border: 'border-violet-500/30',
-                    textColor: 'text-violet-100',
+                    textColor: 'text-violet-700 dark:text-violet-100',
                     hoverBorder: 'hover:border-violet-400',
                   },
                   't-shirts': {
@@ -269,7 +269,7 @@ const HomepageClient = () => {
                     color: 'emerald',
                     gradient: 'from-emerald-500/20 to-teal-500/20',
                     border: 'border-emerald-500/30',
-                    textColor: 'text-emerald-100',
+                    textColor: 'text-emerald-700 dark:text-emerald-100',
                     hoverBorder: 'hover:border-emerald-400',
                   },
                   'action-figures': {
@@ -278,16 +278,16 @@ const HomepageClient = () => {
                     color: 'amber',
                     gradient: 'from-amber-500/20 to-orange-500/20',
                     border: 'border-amber-500/30',
-                    textColor: 'text-amber-100',
+                    textColor: 'text-amber-700 dark:text-amber-100',
                     hoverBorder: 'hover:border-amber-400',
                   },
                 }[cat.slug] || {
                   desc: '',
                   tags: '',
-                  gradient: 'from-slate-500/20 to-slate-600/20',
-                  border: 'border-slate-500/30',
-                  textColor: 'text-slate-100',
-                  hoverBorder: 'hover:border-slate-400',
+                  gradient: 'from-muted to-muted/60',
+                  border: 'border-border',
+                  textColor: 'text-foreground',
+                  hoverBorder: 'hover:border-border/80',
                 }
 
                 return (
@@ -297,14 +297,13 @@ const HomepageClient = () => {
                     onClick={() => router.push(`/category/${cat.slug}`)}
                     className={`group relative overflow-hidden rounded-xl border ${catMeta.border} bg-gradient-to-br ${catMeta.gradient} backdrop-blur-xl p-4 text-left transition-all ${catMeta.hoverBorder} hover:shadow-lg`}
                   >
-                    <div className={`absolute inset-0 bg-gradient-to-br ${catMeta.gradient.replace('/20', '/10')} to-transparent`}></div>
                     <div className="relative flex items-center justify-between">
                       <div>
                         <p className={`text-sm font-semibold ${catMeta.textColor}`}>
                           {cat.name}
                         </p>
-                        <p className="mt-1 text-xs text-slate-300/70">{catMeta.desc}</p>
-                        <p className="mt-2 text-[10px] text-slate-400/60">
+                        <p className="mt-1 text-xs text-muted-foreground">{catMeta.desc}</p>
+                        <p className="mt-2 text-[10px] text-muted-foreground/60">
                           {catMeta.tags}
                         </p>
                       </div>
@@ -325,7 +324,7 @@ const HomepageClient = () => {
         {/* ── SHOP BY UNIVERSE ──────────────────────────────────────────── */}
         <div className="space-y-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-violet-300/80">Explore</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-violet-500/80">Explore</p>
             <p className="text-xl font-semibold tracking-tight md:text-2xl">Shop by Universe</p>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
@@ -334,7 +333,7 @@ const HomepageClient = () => {
                 key={u.id}
                 type="button"
                 onClick={() => router.push(`/anime/${u.slug}`)}
-                className="group relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900"
+                className="group relative overflow-hidden rounded-xl border border-border bg-card"
                 style={{ aspectRatio: '3/4' }}
               >
                 <Image
@@ -359,11 +358,11 @@ const HomepageClient = () => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-violet-300/80">Featured</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-violet-500/80">Featured</p>
               <p className="text-xl font-semibold tracking-tight md:text-2xl">Trending right now</p>
             </div>
             <button
-              className="text-xs text-violet-300 hover:text-violet-200"
+              className="text-xs text-violet-500 hover:text-violet-400"
               onClick={() => router.push('/products')}
             >
               View all
@@ -377,9 +376,9 @@ const HomepageClient = () => {
                     key={product.id}
                     type="button"
                     onClick={() => router.push(`/product/${product.slug}`)}
-                    className="group overflow-hidden rounded-lg border border-slate-800 bg-slate-950/80 text-left transition-colors hover:border-violet-400 hover:bg-slate-900"
+                    className="group overflow-hidden rounded-lg border border-border bg-card/80 text-left transition-colors hover:border-violet-400 hover:bg-card"
                   >
-                    <div className="relative overflow-hidden bg-slate-900" style={{ aspectRatio: '4/3' }}>
+                    <div className="relative overflow-hidden bg-muted" style={{ aspectRatio: '4/3' }}>
                       {product.images?.[0] ? (
                         <Image
                           src={product.images[0]}
@@ -389,15 +388,15 @@ const HomepageClient = () => {
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                         />
                       ) : (
-                        <div className="absolute inset-0 bg-slate-800" />
+                        <div className="absolute inset-0 bg-muted" />
                       )}
                     </div>
                     <div className="p-2">
-                      <p className="text-[10px] text-slate-400 truncate">{product.series}</p>
-                      <p className="mt-0.5 text-[11px] font-medium text-slate-100 truncate group-hover:text-violet-200">
+                      <p className="text-[10px] text-muted-foreground truncate">{product.series}</p>
+                      <p className="mt-0.5 text-[11px] font-medium text-foreground truncate group-hover:text-violet-500">
                         {product.title}
                       </p>
-                      <p className="mt-0.5 text-[11px] font-semibold text-violet-300">
+                      <p className="mt-0.5 text-[11px] font-semibold text-violet-500">
                         ₹{product.price?.toFixed?.(0) ?? '0'}
                       </p>
                     </div>
@@ -410,11 +409,11 @@ const HomepageClient = () => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-red-400/80">Scarcity</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-red-500/80">Scarcity</p>
               <p className="text-xl font-semibold tracking-tight md:text-2xl">🔥 Limited Drops</p>
             </div>
             <button
-              className="text-xs text-violet-300 hover:text-violet-200"
+              className="text-xs text-violet-500 hover:text-violet-400"
               onClick={() => router.push('/products')}
             >
               View all
@@ -431,9 +430,9 @@ const HomepageClient = () => {
                       key={product.id}
                       type="button"
                       onClick={() => router.push(`/product/${product.slug}`)}
-                      className="group overflow-hidden rounded-xl border border-slate-800 bg-slate-950/80 text-left transition-colors hover:border-red-500/50 hover:bg-slate-900"
+                      className="group overflow-hidden rounded-xl border border-border bg-card/80 text-left transition-colors hover:border-red-500/50 hover:bg-card"
                     >
-                      <div className="relative overflow-hidden bg-slate-900" style={{ aspectRatio: '4/3' }}>
+                      <div className="relative overflow-hidden bg-muted" style={{ aspectRatio: '4/3' }}>
                         {product.images?.[0] ? (
                           <Image
                             src={product.images[0]}
@@ -443,27 +442,27 @@ const HomepageClient = () => {
                             sizes="(max-width: 768px) 50vw, 25vw"
                           />
                         ) : (
-                          <div className="absolute inset-0 bg-slate-800" />
+                          <div className="absolute inset-0 bg-muted" />
                         )}
                         <span className="absolute left-2 top-2 rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow">
                           LIMITED
                         </span>
                       </div>
                       <div className="space-y-1.5 p-2.5">
-                        <p className="truncate text-[11px] font-medium text-slate-100 group-hover:text-red-300">
+                        <p className="truncate text-[11px] font-medium text-foreground group-hover:text-red-500">
                           {product.title}
                         </p>
-                        <p className="text-[11px] font-semibold text-violet-300">
+                        <p className="text-[11px] font-semibold text-violet-500">
                           ₹{product.price?.toFixed?.(0) ?? '0'}
                         </p>
                         <div className="space-y-0.5">
-                          <div className="h-1 w-full overflow-hidden rounded-full bg-slate-800">
+                          <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
                             <div
                               className="h-full rounded-full bg-gradient-to-r from-red-500 to-amber-400"
                               style={{ width: `${stockPct}%` }}
                             />
                           </div>
-                          <p className="text-[10px] text-slate-500">Only {stockLeft} left</p>
+                          <p className="text-[10px] text-muted-foreground">Only {stockLeft} left</p>
                         </div>
                       </div>
                     </button>
@@ -475,7 +474,7 @@ const HomepageClient = () => {
         {/* ── COLLECTOR SETUP INSPIRATION ───────────────────────────────── */}
         <div className="space-y-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-violet-300/80">Inspiration</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-violet-500/80">Inspiration</p>
             <p className="text-xl font-semibold tracking-tight md:text-2xl">Build Your Otaku Setup</p>
           </div>
           <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
@@ -484,7 +483,7 @@ const HomepageClient = () => {
                 key={setup.id}
                 type="button"
                 onClick={() => router.push('/products')}
-                className="group relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 text-left"
+                className="group relative overflow-hidden rounded-2xl border border-border bg-card text-left"
                 style={{ aspectRatio: '4/3' }}
               >
                 <Image
@@ -497,7 +496,7 @@ const HomepageClient = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-4">
                   <p className="text-sm font-bold text-white">{setup.title}</p>
-                  <p className="mt-0.5 text-xs text-slate-300">{setup.desc}</p>
+                  <p className="mt-0.5 text-xs text-white/70">{setup.desc}</p>
                   <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-violet-500/80 px-3 py-1 text-[11px] font-medium text-white backdrop-blur-sm group-hover:bg-violet-500">
                     Shop the setup <ChevronRight className="h-3 w-3" />
                   </span>
