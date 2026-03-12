@@ -275,7 +275,7 @@ const AdminDashboard = () => {
         <div className="flex min-h-[60vh] items-center justify-center">
           <div className="text-center">
             <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-violet-500 border-t-transparent"></div>
-            <p className="text-slate-300">Verifying admin access...</p>
+            <p className="text-foreground/70">Verifying admin access...</p>
           </div>
         </div>
       </AppShell>
@@ -289,7 +289,7 @@ const AdminDashboard = () => {
           <Card className="border-red-800/50 bg-red-950/20 p-8 text-center">
             <CardContent>
               <h2 className="mb-2 text-xl font-bold text-red-300">Access Denied</h2>
-              <p className="mb-4 text-sm text-slate-300">You don't have permission to access the admin dashboard.</p>
+              <p className="mb-4 text-sm text-foreground/70">You don't have permission to access the admin dashboard.</p>
               <Button className="bg-violet-500 hover:bg-violet-400" onClick={() => router.push('/')}>Go to Homepage</Button>
             </CardContent>
           </Card>
@@ -303,9 +303,9 @@ const AdminDashboard = () => {
       <div className="space-y-8">
         {/* Header */}
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-violet-300/80">Admin</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-violet-500/80">Admin</p>
           <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">Dashboard</h1>
-          <p className="mt-1 text-sm text-slate-300">Manage your Dracnoir store</p>
+          <p className="mt-1 text-sm text-muted-foreground">Manage your Dracnoir store</p>
         </div>
 
         {/* Tab Navigation */}
@@ -313,7 +313,7 @@ const AdminDashboard = () => {
           {tabs.map(({ id, label, icon: Icon }) => (
             <button key={id} onClick={() => setActiveTab(id)}
               className={`flex items-center gap-1 sm:gap-2 rounded-full px-3 sm:px-4 py-2 text-xs font-medium transition-colors whitespace-nowrap ${
-                activeTab === id ? 'bg-violet-500 text-white' : 'border border-slate-800 bg-slate-950/80 text-slate-300 hover:border-violet-500/50 hover:bg-slate-900'
+                activeTab === id ? 'bg-violet-500 text-white' : 'border border-border bg-card/80 text-foreground/70 hover:border-violet-500/50 hover:bg-muted'
               }`}
             >
               <Icon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
@@ -323,7 +323,7 @@ const AdminDashboard = () => {
         </div>
 
         {loading ? (
-          <div className="flex items-center gap-2 text-sm text-slate-400">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <div className="h-4 w-4 animate-spin rounded-full border-2 border-violet-500 border-t-transparent" />
             Loading...
           </div>
@@ -338,34 +338,34 @@ const AdminDashboard = () => {
                   { label: 'Total Revenue', value: `₹${stats.totalRevenue.toFixed(0)}`, icon: TrendingUp, color: 'amber' },
                   { label: 'Total Users', value: stats.totalUsers, icon: Users, color: 'blue' },
                 ].map(({ label, value, icon: Icon, color }) => (
-                  <Card key={label} className={`relative overflow-hidden border border-${color}-500/30 bg-gradient-to-br from-${color}-500/20 to-${color === 'violet' ? 'purple' : color === 'emerald' ? 'teal' : color === 'amber' ? 'orange' : 'cyan'}-500/20 backdrop-blur-xl`}>
+                <Card key={label} className={`relative overflow-hidden border border-${color}-500/30 bg-gradient-to-br from-${color}-500/20 to-${color === 'violet' ? 'purple' : color === 'emerald' ? 'teal' : color === 'amber' ? 'orange' : 'cyan'}-500/20 backdrop-blur-xl`}>
                     <CardContent className="relative p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className={`text-xs text-${color}-200/70`}>{label}</p>
-                          <p className={`mt-1 text-2xl font-bold text-${color}-100`}>{value}</p>
+                          <p className={`text-xs text-${color}-400/70`}>{label}</p>
+                          <p className={`mt-1 text-2xl font-bold text-${color}-400`}>{value}</p>
                         </div>
                         <div className={`rounded-full bg-${color}-500/20 p-3`}>
-                          <Icon className={`h-8 w-8 text-${color}-300`} />
+                          <Icon className={`h-8 w-8 text-${color}-400`} />
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                 ))}
 
-                <Card className="border border-slate-800 bg-slate-950/80 sm:col-span-2 lg:col-span-4">
+                <Card className="border border-border bg-card sm:col-span-2 lg:col-span-4">
                   <CardContent className="p-6">
-                    <h3 className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Recent Orders</h3>
+                    <h3 className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">Recent Orders</h3>
                     <div className="space-y-2">
                       {orders.slice(0, 5).map(order => (
-                        <div key={order.id} className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-900/50 p-3">
+                        <div key={order.id} className="flex items-center justify-between rounded-lg border border-border bg-muted/50 p-3">
                           <div>
-                            <p className="text-xs font-medium text-slate-100">Order #{order.id?.slice(-6)}</p>
-                            <p className="text-xs text-slate-400">{new Date(order.createdAt).toLocaleDateString()} • {order.user?.name || order.user?.email || 'User'}</p>
+                            <p className="text-xs font-medium text-foreground">Order #{order.id?.slice(-6)}</p>
+                            <p className="text-xs text-muted-foreground">{new Date(order.createdAt).toLocaleDateString()} • {order.user?.name || order.user?.email || 'User'}</p>
                           </div>
                           <div className="flex items-center gap-3">
-                            <p className="text-sm font-semibold text-violet-300">₹{order.subtotal?.toFixed(0)}</p>
-                            <span className={`rounded-full border px-2 py-0.5 text-xs ${STATUS_COLORS[order.status] || 'bg-slate-500/10 text-slate-300 border-slate-500/30'}`}>{order.status}</span>
+                            <p className="text-sm font-semibold text-violet-500">₹{order.subtotal?.toFixed(0)}</p>
+                            <span className={`rounded-full border px-2 py-0.5 text-xs ${STATUS_COLORS[order.status] || 'bg-muted text-muted-foreground border-border'}`}>{order.status}</span>
                           </div>
                         </div>
                       ))}
@@ -383,9 +383,9 @@ const AdminDashboard = () => {
                     placeholder="Search products..."
                     value={productSearch}
                     onChange={e => setProductSearch(e.target.value)}
-                    className="h-8 max-w-xs border-slate-700 bg-slate-900/80 text-xs text-slate-100"
+                    className="h-8 max-w-xs border-border bg-card/80 text-xs text-foreground"
                   />
-                  <p className="text-sm text-slate-400">{filteredProducts.length} products</p>
+                  <p className="text-sm text-muted-foreground">{filteredProducts.length} products</p>
                   <Button size="sm" onClick={openAddProduct}
                     className="ml-auto gap-2 rounded-full bg-violet-500 text-xs hover:bg-violet-400">
                     <Plus className="h-3 w-3" /> Add Product
@@ -394,28 +394,28 @@ const AdminDashboard = () => {
 
                 <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                   {filteredProducts.map(product => (
-                    <Card key={product.id} className="border border-slate-800 bg-slate-950/80">
+                    <Card key={product.id} className="border border-border bg-card">
                       <CardContent className="p-3">
-                        <div className="overflow-hidden rounded-lg bg-slate-900" style={{ aspectRatio: '4/3' }}>
+                        <div className="overflow-hidden rounded-lg bg-muted" style={{ aspectRatio: '4/3' }}>
                           {product.images?.[0] ? (
                             <img src={product.images[0]} alt={product.title} className="h-full w-full object-cover" />
                           ) : (
-                            <div className="flex h-full items-center justify-center text-slate-600 text-xs">No image</div>
+                            <div className="flex h-full items-center justify-center text-muted-foreground text-xs">No image</div>
                           )}
                         </div>
                         <div className="mt-2 space-y-1">
-                          <p className="text-xs font-medium text-slate-100 line-clamp-1">{product.title}</p>
-                          <p className="text-[10px] text-slate-500">{product.series || product.categorySlug}</p>
+                          <p className="text-xs font-medium text-foreground line-clamp-1">{product.title}</p>
+                          <p className="text-[10px] text-muted-foreground">{product.series || product.categorySlug}</p>
                           <div className="flex items-center justify-between pt-1">
-                            <p className="text-xs font-semibold text-violet-300">₹{product.price?.toFixed(0)}</p>
+                            <p className="text-xs font-semibold text-violet-500">₹{product.price?.toFixed(0)}</p>
                             <div className="flex gap-1">
                               <button onClick={() => openEditProduct(product)}
-                                className="rounded border border-slate-700 bg-slate-900 p-1 hover:bg-slate-800">
-                                <Edit className="h-2.5 w-2.5 text-slate-400" />
+                                className="rounded border border-border bg-muted p-1 hover:bg-muted/80">
+                                <Edit className="h-2.5 w-2.5 text-muted-foreground" />
                               </button>
                               <button onClick={() => handleDeleteProduct(product.id)} disabled={deletingProductId === product.id}
-                                className="rounded border border-slate-700 bg-slate-900 p-1 hover:bg-red-950">
-                                <Trash2 className={`h-2.5 w-2.5 ${deletingProductId === product.id ? 'text-slate-600' : 'text-red-400'}`} />
+                                className="rounded border border-border bg-muted p-1 hover:bg-red-950/40">
+                                <Trash2 className={`h-2.5 w-2.5 ${deletingProductId === product.id ? 'text-muted-foreground' : 'text-red-400'}`} />
                               </button>
                             </div>
                           </div>
@@ -431,12 +431,12 @@ const AdminDashboard = () => {
             {activeTab === 'orders' && (
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center gap-3">
-                  <p className="text-sm text-slate-400">{orders.length} orders</p>
+                  <p className="text-sm text-muted-foreground">{orders.length} orders</p>
                   <div className="flex flex-wrap gap-2 ml-auto">
                     {['', ...ORDER_STATUSES].map(s => (
                       <button key={s || 'all'} onClick={() => { setOrderStatusFilter(s); loadOrders(s) }}
                         className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                          orderStatusFilter === s ? 'bg-violet-500 text-white' : 'border border-slate-700 text-slate-400 hover:border-violet-500/50'
+                          orderStatusFilter === s ? 'bg-violet-500 text-white' : 'border border-border text-muted-foreground hover:border-violet-500/50'
                         }`}
                       >
                         {s || 'All'}
@@ -447,51 +447,51 @@ const AdminDashboard = () => {
 
                 <div className="space-y-2">
                   {orders.map(order => (
-                    <Card key={order.id} className="border border-slate-800 bg-slate-950/80">
+                    <Card key={order.id} className="border border-border bg-card">
                       <CardContent className="p-4">
                         <div className="flex flex-wrap items-start gap-4">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <p className="text-xs font-mono text-slate-300">#{order.id?.slice(-8)}</p>
-                              <span className={`rounded-full border px-2 py-0.5 text-[11px] ${STATUS_COLORS[order.status] || 'bg-slate-500/10 text-slate-300 border-slate-500/30'}`}>{order.status}</span>
+                              <p className="text-xs font-mono text-foreground/80">#{order.id?.slice(-8)}</p>
+                              <span className={`rounded-full border px-2 py-0.5 text-[11px] ${STATUS_COLORS[order.status] || 'bg-muted text-muted-foreground border-border'}`}>{order.status}</span>
                             </div>
-                            <p className="mt-1 text-xs text-slate-400">
+                            <p className="mt-1 text-xs text-muted-foreground">
                               {new Date(order.createdAt).toLocaleString()} • {order.user?.name || order.user?.email || 'Unknown user'}
                             </p>
-                            <p className="text-xs text-slate-500">{order.items?.length || 0} item(s)</p>
+                            <p className="text-xs text-muted-foreground/70">{order.items?.length || 0} item(s)</p>
                           </div>
 
                           <div className="flex items-center gap-3 flex-shrink-0">
-                            <p className="text-sm font-semibold text-slate-100">₹{order.subtotal?.toFixed(0)}</p>
+                            <p className="text-sm font-semibold text-foreground">₹{order.subtotal?.toFixed(0)}</p>
                             <select
                               value={order.status}
                               onChange={e => handleUpdateOrderStatus(order.id, e.target.value)}
                               disabled={updatingOrderId === order.id}
-                              className="h-7 rounded-lg border border-slate-700 bg-slate-900 px-2 text-xs text-slate-200 focus:border-violet-500 focus:outline-none"
+                              className="h-7 rounded-lg border border-border bg-card px-2 text-xs text-foreground focus:border-violet-500 focus:outline-none"
                             >
                               {ORDER_STATUSES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
                             </select>
                             <button onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
-                              className="rounded-lg border border-slate-700 bg-slate-900 p-1.5 hover:bg-slate-800">
-                              <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform ${expandedOrderId === order.id ? 'rotate-180' : ''}`} />
+                              className="rounded-lg border border-border bg-muted p-1.5 hover:bg-muted/80">
+                              <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expandedOrderId === order.id ? 'rotate-180' : ''}`} />
                             </button>
                           </div>
                         </div>
 
                         {expandedOrderId === order.id && (
-                          <div className="mt-3 border-t border-slate-800 pt-3 space-y-2">
-                            <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Items</p>
+                          <div className="mt-3 border-t border-border pt-3 space-y-2">
+                            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Items</p>
                             {(order.items || []).map(item => (
-                              <div key={item.id} className="flex items-center gap-2 text-xs text-slate-300">
+                              <div key={item.id} className="flex items-center gap-2 text-xs text-foreground/80">
                                 {item.image && <img src={item.image} alt={item.title} className="h-8 w-8 rounded object-cover" />}
                                 <span className="flex-1 truncate">{item.title}</span>
-                                <span className="text-slate-500">×{item.quantity}</span>
-                                <span className="text-violet-300">₹{item.price?.toFixed(0)}</span>
+                                <span className="text-muted-foreground">×{item.quantity}</span>
+                                <span className="text-violet-500">₹{item.price?.toFixed(0)}</span>
                               </div>
                             ))}
                             {order.addressSnapshot && (
-                              <div className="mt-2 text-[11px] text-slate-400">
-                                <p className="font-medium text-slate-300">Shipping to: {order.addressSnapshot.name}</p>
+                              <div className="mt-2 text-[11px] text-muted-foreground">
+                                <p className="font-medium text-foreground/80">Shipping to: {order.addressSnapshot.name}</p>
                                 <p>{order.addressSnapshot.line1}{order.addressSnapshot.line2 ? `, ${order.addressSnapshot.line2}` : ''}</p>
                                 <p>{order.addressSnapshot.city}, {order.addressSnapshot.state} {order.addressSnapshot.postalCode}</p>
                               </div>
@@ -501,7 +501,7 @@ const AdminDashboard = () => {
                       </CardContent>
                     </Card>
                   ))}
-                  {orders.length === 0 && <p className="text-sm text-slate-400">No orders found.</p>}
+                  {orders.length === 0 && <p className="text-sm text-muted-foreground">No orders found.</p>}
                 </div>
               </div>
             )}
@@ -510,7 +510,7 @@ const AdminDashboard = () => {
             {activeTab === 'coupons' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-slate-400">{coupons.length} coupons</p>
+                  <p className="text-sm text-muted-foreground">{coupons.length} coupons</p>
                   <Button size="sm" onClick={() => setShowCouponModal(true)}
                     className="gap-2 rounded-full bg-violet-500 text-xs hover:bg-violet-400">
                     <Plus className="h-3 w-3" /> New Coupon
@@ -519,21 +519,21 @@ const AdminDashboard = () => {
 
                 <div className="space-y-2">
                   {coupons.map(coupon => (
-                    <Card key={coupon.id} className="border border-slate-800 bg-slate-950/80">
+                    <Card key={coupon.id} className="border border-border bg-card">
                       <CardContent className="p-4">
                         <div className="flex flex-wrap items-center gap-3">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-mono text-sm font-bold text-slate-50">{coupon.code}</span>
-                              <span className={`rounded-full border px-2 py-0.5 text-[11px] ${coupon.isActive ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30' : 'bg-slate-700/40 text-slate-500 border-slate-700'}`}>
+                              <span className="font-mono text-sm font-bold text-foreground">{coupon.code}</span>
+                              <span className={`rounded-full border px-2 py-0.5 text-[11px] ${coupon.isActive ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-muted text-muted-foreground border-border'}`}>
                                 {coupon.isActive ? 'Active' : 'Inactive'}
                               </span>
-                              <span className="rounded-full bg-violet-500/10 px-2 py-0.5 text-[11px] text-violet-300 border border-violet-500/20">
+                              <span className="rounded-full bg-violet-500/10 px-2 py-0.5 text-[11px] text-violet-500 border border-violet-500/20">
                                 {coupon.type === 'percentage' ? `${coupon.value}% off` : `₹${coupon.value} off`}
                               </span>
                             </div>
-                            <p className="mt-1 text-xs text-slate-400">{coupon.description}</p>
-                            <div className="mt-1 flex flex-wrap gap-3 text-[11px] text-slate-500">
+                            <p className="mt-1 text-xs text-muted-foreground">{coupon.description}</p>
+                            <div className="mt-1 flex flex-wrap gap-3 text-[11px] text-muted-foreground/70">
                               {coupon.minOrder > 0 && <span>Min order: ₹{coupon.minOrder}</span>}
                               {coupon.expiryDate && <span>Expires: {new Date(coupon.expiryDate).toLocaleDateString()}</span>}
                               <span>Used {coupon.usageCount || 0} times</span>
@@ -541,23 +541,23 @@ const AdminDashboard = () => {
                           </div>
                           <div className="flex gap-2 flex-shrink-0">
                             <button onClick={() => handleToggleCoupon(coupon)}
-                              className="rounded-lg border border-slate-700 bg-slate-900 p-1.5 hover:bg-slate-800"
+                              className="rounded-lg border border-border bg-muted p-1.5 hover:bg-muted/80"
                               title={coupon.isActive ? 'Deactivate' : 'Activate'}>
                               {coupon.isActive
                                 ? <ToggleRight className="h-4 w-4 text-emerald-400" />
-                                : <ToggleLeft className="h-4 w-4 text-slate-500" />
+                                : <ToggleLeft className="h-4 w-4 text-muted-foreground" />
                               }
                             </button>
                             <button onClick={() => handleDeleteCoupon(coupon.id)} disabled={deletingCouponId === coupon.id}
-                              className="rounded-lg border border-slate-700 bg-slate-900 p-1.5 hover:bg-red-950">
-                              <Trash2 className={`h-3.5 w-3.5 ${deletingCouponId === coupon.id ? 'text-slate-600' : 'text-red-400'}`} />
+                              className="rounded-lg border border-border bg-muted p-1.5 hover:bg-red-950/40">
+                              <Trash2 className={`h-3.5 w-3.5 ${deletingCouponId === coupon.id ? 'text-muted-foreground' : 'text-red-400'}`} />
                             </button>
                           </div>
                         </div>
                       </CardContent>
                     </Card>
                   ))}
-                  {coupons.length === 0 && <p className="text-sm text-slate-400">No coupons yet. Create one!</p>}
+                  {coupons.length === 0 && <p className="text-sm text-muted-foreground">No coupons yet. Create one!</p>}
                 </div>
               </div>
             )}
@@ -565,27 +565,27 @@ const AdminDashboard = () => {
             {/* ── USERS ───────────────────────────────────────────────── */}
             {activeTab === 'users' && (
               <div className="space-y-4">
-                <p className="text-sm text-slate-400">{users.length} registered users</p>
+                <p className="text-sm text-muted-foreground">{users.length} registered users</p>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {users.map(u => (
-                    <Card key={u.id || u.email} className="border border-slate-800 bg-slate-950/80">
+                    <Card key={u.id || u.email} className="border border-border bg-card">
                       <CardContent className="p-4">
                         <div className="flex items-start gap-3">
                           {u.image ? (
-                            <img src={u.image} alt={u.name} className="h-12 w-12 rounded-full border border-slate-700" />
+                            <img src={u.image} alt={u.name} className="h-12 w-12 rounded-full border border-border" />
                           ) : (
-                            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-sm font-semibold text-slate-400">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-border bg-muted text-sm font-semibold text-muted-foreground">
                               {u.name?.charAt(0)?.toUpperCase() || 'U'}
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-slate-100 truncate">{u.name || 'Anonymous'}</p>
-                            <p className="text-xs text-slate-400 truncate">{u.email}</p>
+                            <p className="text-sm font-medium text-foreground truncate">{u.name || 'Anonymous'}</p>
+                            <p className="text-xs text-muted-foreground truncate">{u.email}</p>
                             <div className="mt-2 flex flex-wrap gap-2 text-xs">
-                              <span className="rounded-full bg-violet-500/10 px-2 py-0.5 text-violet-300">{u.orderCount || 0} orders</span>
-                              {u.totalSpent > 0 && <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-emerald-300">₹{u.totalSpent.toFixed(0)}</span>}
+                              <span className="rounded-full bg-violet-500/10 px-2 py-0.5 text-violet-500">{u.orderCount || 0} orders</span>
+                              {u.totalSpent > 0 && <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-emerald-400">₹{u.totalSpent.toFixed(0)}</span>}
                             </div>
-                            <p className="mt-2 text-[11px] text-slate-500">Joined {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</p>
+                            <p className="mt-2 text-[11px] text-muted-foreground/70">Joined {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</p>
                           </div>
                         </div>
                       </CardContent>
@@ -601,49 +601,49 @@ const AdminDashboard = () => {
       {/* ── PRODUCT MODAL ───────────────────────────────────────────────────── */}
       {showProductModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4">
-              <h2 className="text-sm font-semibold text-slate-100">{editingProduct ? 'Edit Product' : 'Add New Product'}</h2>
-              <button onClick={() => setShowProductModal(false)} className="text-slate-400 hover:text-slate-200">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-background shadow-2xl">
+            <div className="flex items-center justify-between border-b border-border px-6 py-4">
+              <h2 className="text-sm font-semibold text-foreground">{editingProduct ? 'Edit Product' : 'Add New Product'}</h2>
+              <button onClick={() => setShowProductModal(false)} className="text-muted-foreground hover:text-foreground">
                 <X className="h-4 w-4" />
               </button>
             </div>
             <div className="space-y-4 p-6">
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="sm:col-span-2">
-                  <Label className="text-xs text-slate-400">Title *</Label>
+                  <Label className="text-xs text-muted-foreground">Title *</Label>
                   <Input value={productForm.title} onChange={e => setProductForm(p => ({ ...p, title: e.target.value }))}
-                    placeholder="e.g. Dragon Ball Goku Figure" className="mt-1 h-9 border-slate-700 bg-slate-900 text-xs text-slate-100" />
+                    placeholder="e.g. Dragon Ball Goku Figure" className="mt-1 h-9 border-border bg-card text-xs text-foreground" />
                 </div>
                 <div className="sm:col-span-2">
-                  <Label className="text-xs text-slate-400">Description</Label>
+                  <Label className="text-xs text-muted-foreground">Description</Label>
                   <textarea value={productForm.description} onChange={e => setProductForm(p => ({ ...p, description: e.target.value }))}
                     placeholder="Product description..." rows={3}
-                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus:border-violet-500 focus:outline-none" />
+                    className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-violet-500 focus:outline-none" />
                 </div>
                 <div>
-                  <Label className="text-xs text-slate-400">Price (₹) *</Label>
+                  <Label className="text-xs text-muted-foreground">Price (₹) *</Label>
                   <Input type="number" value={productForm.price} onChange={e => setProductForm(p => ({ ...p, price: e.target.value }))}
-                    placeholder="2999" className="mt-1 h-9 border-slate-700 bg-slate-900 text-xs text-slate-100" />
+                    placeholder="2999" className="mt-1 h-9 border-border bg-card text-xs text-foreground" />
                 </div>
                 <div>
-                  <Label className="text-xs text-slate-400">Stock</Label>
+                  <Label className="text-xs text-muted-foreground">Stock</Label>
                   <Input type="number" value={productForm.stock} onChange={e => setProductForm(p => ({ ...p, stock: e.target.value }))}
-                    placeholder="50" className="mt-1 h-9 border-slate-700 bg-slate-900 text-xs text-slate-100" />
+                    placeholder="50" className="mt-1 h-9 border-border bg-card text-xs text-foreground" />
                 </div>
                 <div>
-                  <Label className="text-xs text-slate-400">Category *</Label>
+                  <Label className="text-xs text-muted-foreground">Category *</Label>
                   <select value={productForm.categorySlug} onChange={e => setProductForm(p => ({ ...p, categorySlug: e.target.value }))}
-                    className="mt-1 w-full h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 text-xs text-slate-100 focus:border-violet-500 focus:outline-none">
+                    className="mt-1 w-full h-9 rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:border-violet-500 focus:outline-none">
                     <option value="t-shirts">T-Shirts</option>
                     <option value="plushes">Plushes</option>
                     <option value="action-figures">Action Figures</option>
                   </select>
                 </div>
                 <div>
-                  <Label className="text-xs text-slate-400">Type</Label>
+                  <Label className="text-xs text-muted-foreground">Type</Label>
                   <select value={productForm.type} onChange={e => setProductForm(p => ({ ...p, type: e.target.value }))}
-                    className="mt-1 w-full h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 text-xs text-slate-100 focus:border-violet-500 focus:outline-none">
+                    className="mt-1 w-full h-9 rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:border-violet-500 focus:outline-none">
                     <option value="tshirt">T-Shirt</option>
                     <option value="plush">Plush</option>
                     <option value="action-figure">Action Figure</option>
@@ -651,48 +651,48 @@ const AdminDashboard = () => {
                   </select>
                 </div>
                 <div>
-                  <Label className="text-xs text-slate-400">Series / Anime</Label>
+                  <Label className="text-xs text-muted-foreground">Series / Anime</Label>
                   <Input value={productForm.series} onChange={e => setProductForm(p => ({ ...p, series: e.target.value }))}
-                    placeholder="e.g. Dragon Ball Z" className="mt-1 h-9 border-slate-700 bg-slate-900 text-xs text-slate-100" />
+                    placeholder="e.g. Dragon Ball Z" className="mt-1 h-9 border-border bg-card text-xs text-foreground" />
                 </div>
                 <div>
-                  <Label className="text-xs text-slate-400">Material</Label>
+                  <Label className="text-xs text-muted-foreground">Material</Label>
                   <Input value={productForm.material} onChange={e => setProductForm(p => ({ ...p, material: e.target.value }))}
-                    placeholder="e.g. 100% Cotton" className="mt-1 h-9 border-slate-700 bg-slate-900 text-xs text-slate-100" />
+                    placeholder="e.g. 100% Cotton" className="mt-1 h-9 border-border bg-card text-xs text-foreground" />
                 </div>
                 <div className="sm:col-span-2">
-                  <Label className="text-xs text-slate-400">Image URLs (comma-separated)</Label>
+                  <Label className="text-xs text-muted-foreground">Image URLs (comma-separated)</Label>
                   <Input value={productForm.images} onChange={e => setProductForm(p => ({ ...p, images: e.target.value }))}
                     placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg"
-                    className="mt-1 h-9 border-slate-700 bg-slate-900 text-xs text-slate-100" />
-                  <p className="mt-1 text-[11px] text-slate-500">Paste image URLs. Multiple URLs separated by commas.</p>
+                    className="mt-1 h-9 border-border bg-card text-xs text-foreground" />
+                  <p className="mt-1 text-[11px] text-muted-foreground">Paste image URLs. Multiple URLs separated by commas.</p>
                 </div>
                 <div>
-                  <Label className="text-xs text-slate-400">Dimensions</Label>
+                  <Label className="text-xs text-muted-foreground">Dimensions</Label>
                   <Input value={productForm.dimensions} onChange={e => setProductForm(p => ({ ...p, dimensions: e.target.value }))}
-                    placeholder="e.g. 25cm x 15cm" className="mt-1 h-9 border-slate-700 bg-slate-900 text-xs text-slate-100" />
+                    placeholder="e.g. 25cm x 15cm" className="mt-1 h-9 border-border bg-card text-xs text-foreground" />
                 </div>
               </div>
 
               {/* ── COLORS SECTION (T-Shirts only) ─────────────────────── */}
               {productForm.type === 'tshirt' && (
-                <div className="space-y-3 rounded-xl border border-slate-800 bg-slate-900/50 p-4">
+                <div className="space-y-3 rounded-xl border border-border bg-muted/40 p-4">
                   <div className="flex items-center justify-between">
-                    <Label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                    <Label className="text-xs font-semibold uppercase tracking-wider text-foreground/80">
                       Colors
                     </Label>
                     <div className="flex gap-2">
                       <button
                         type="button"
                         onClick={() => setProductColors(COLOR_PRESET.map(c => ({ ...c })))}
-                        className="flex items-center gap-1 rounded-full border border-amber-500/50 bg-amber-500/10 px-2.5 py-1 text-[11px] text-amber-300 hover:bg-amber-500/20"
+                        className="flex items-center gap-1 rounded-full border border-amber-500/50 bg-amber-500/10 px-2.5 py-1 text-[11px] text-amber-400 hover:bg-amber-500/20"
                       >
                         Load Preset Colors
                       </button>
                       <button
                         type="button"
                         onClick={() => setProductColors(prev => [...prev, { id: '', name: '', hex: '#000000', images: '' }])}
-                        className="flex items-center gap-1 rounded-full border border-violet-500/50 bg-violet-500/10 px-2.5 py-1 text-[11px] text-violet-300 hover:bg-violet-500/20"
+                        className="flex items-center gap-1 rounded-full border border-violet-500/50 bg-violet-500/10 px-2.5 py-1 text-[11px] text-violet-500 hover:bg-violet-500/20"
                       >
                         <Plus className="h-3 w-3" /> Add Color
                       </button>
@@ -700,23 +700,23 @@ const AdminDashboard = () => {
                   </div>
 
                   {productColors.length === 0 && (
-                    <p className="text-[11px] text-slate-500">No colors added. Click "Add Color" to define colors for this T-shirt.</p>
+                    <p className="text-[11px] text-muted-foreground">No colors added. Click "Add Color" to define colors for this T-shirt.</p>
                   )}
 
                   <div className="space-y-3">
                     {productColors.map((c, idx) => (
-                      <div key={idx} className="relative rounded-lg border border-slate-700 bg-slate-900 p-3">
+                      <div key={idx} className="relative rounded-lg border border-border bg-card p-3">
                         <button
                           type="button"
                           onClick={() => setProductColors(prev => prev.filter((_, i) => i !== idx))}
-                          className="absolute right-2 top-2 text-slate-500 hover:text-red-400"
+                          className="absolute right-2 top-2 text-muted-foreground hover:text-red-400"
                         >
                           <X className="h-3.5 w-3.5" />
                         </button>
 
                         <div className="grid gap-2 sm:grid-cols-3 pr-5">
                           <div>
-                            <Label className="text-[10px] text-slate-500">Color Name *</Label>
+                            <Label className="text-[10px] text-muted-foreground">Color Name *</Label>
                             <Input
                               value={c.name}
                               onChange={e => {
@@ -728,42 +728,42 @@ const AdminDashboard = () => {
                                 } : item))
                               }}
                               placeholder="e.g. Black"
-                              className="mt-1 h-8 border-slate-700 bg-slate-950 text-xs text-slate-100"
+                              className="mt-1 h-8 border-border bg-background text-xs text-foreground"
                             />
                           </div>
                           <div>
-                            <Label className="text-[10px] text-slate-500">Hex Color</Label>
+                            <Label className="text-[10px] text-muted-foreground">Hex Color</Label>
                             <div className="mt-1 flex gap-1.5">
                               <input
                                 type="color"
                                 value={c.hex || '#000000'}
                                 onChange={e => setProductColors(prev => prev.map((item, i) => i === idx ? { ...item, hex: e.target.value } : item))}
-                                className="h-8 w-8 cursor-pointer rounded border border-slate-700 bg-slate-950 p-0.5"
+                                className="h-8 w-8 cursor-pointer rounded border border-border bg-background p-0.5"
                               />
                               <Input
                                 value={c.hex || '#000000'}
                                 onChange={e => setProductColors(prev => prev.map((item, i) => i === idx ? { ...item, hex: e.target.value } : item))}
                                 placeholder="#000000"
-                                className="h-8 flex-1 border-slate-700 bg-slate-950 font-mono text-[11px] text-slate-100"
+                                className="h-8 flex-1 border-border bg-background font-mono text-[11px] text-foreground"
                               />
                             </div>
                           </div>
                           <div>
-                            <Label className="text-[10px] text-slate-500">ID (auto)</Label>
+                            <Label className="text-[10px] text-muted-foreground">ID (auto)</Label>
                             <Input
                               value={c.id}
                               onChange={e => setProductColors(prev => prev.map((item, i) => i === idx ? { ...item, id: e.target.value } : item))}
                               placeholder="e.g. black"
-                              className="mt-1 h-8 border-slate-700 bg-slate-950 font-mono text-[11px] text-slate-500"
+                              className="mt-1 h-8 border-border bg-background font-mono text-[11px] text-muted-foreground"
                             />
                           </div>
                           <div className="sm:col-span-3">
-                            <Label className="text-[10px] text-slate-500">Image URLs for this color (comma-separated)</Label>
+                            <Label className="text-[10px] text-muted-foreground">Image URLs for this color (comma-separated)</Label>
                             <Input
                               value={c.images}
                               onChange={e => setProductColors(prev => prev.map((item, i) => i === idx ? { ...item, images: e.target.value } : item))}
                               placeholder="https://res.cloudinary.com/.../black-front.jpg, https://..."
-                              className="mt-1 h-8 border-slate-700 bg-slate-950 text-[11px] text-slate-100"
+                              className="mt-1 h-8 border-border bg-background text-[11px] text-foreground"
                             />
                           </div>
                         </div>
@@ -773,13 +773,13 @@ const AdminDashboard = () => {
                 </div>
               )}
             </div>
-            <div className="flex gap-2 border-t border-slate-800 px-6 py-4">
+            <div className="flex gap-2 border-t border-border px-6 py-4">
               <Button onClick={handleSaveProduct} disabled={savingProduct}
                 className="flex-1 rounded-full bg-violet-500 text-xs hover:bg-violet-400">
                 {savingProduct ? 'Saving...' : editingProduct ? 'Update Product' : 'Add Product'}
               </Button>
               <Button variant="outline" onClick={() => setShowProductModal(false)}
-                className="rounded-full border-slate-700 text-xs text-slate-300">
+                className="rounded-full border-border text-xs text-foreground/80">
                 Cancel
               </Button>
             </div>
@@ -790,58 +790,58 @@ const AdminDashboard = () => {
       {/* ── COUPON MODAL ────────────────────────────────────────────────────── */}
       {showCouponModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4">
-              <h2 className="text-sm font-semibold text-slate-100">Create Coupon</h2>
-              <button onClick={() => setShowCouponModal(false)} className="text-slate-400 hover:text-slate-200">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-background shadow-2xl">
+            <div className="flex items-center justify-between border-b border-border px-6 py-4">
+              <h2 className="text-sm font-semibold text-foreground">Create Coupon</h2>
+              <button onClick={() => setShowCouponModal(false)} className="text-muted-foreground hover:text-foreground">
                 <X className="h-4 w-4" />
               </button>
             </div>
             <div className="space-y-4 p-6">
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="sm:col-span-2">
-                  <Label className="text-xs text-slate-400">Coupon Code *</Label>
+                  <Label className="text-xs text-muted-foreground">Coupon Code *</Label>
                   <Input value={couponForm.code} onChange={e => setCouponForm(p => ({ ...p, code: e.target.value.toUpperCase() }))}
-                    placeholder="e.g. SAVE100" className="mt-1 h-9 border-slate-700 bg-slate-900 font-mono text-xs uppercase text-slate-100" />
+                    placeholder="e.g. SAVE100" className="mt-1 h-9 border-border bg-card font-mono text-xs uppercase text-foreground" />
                 </div>
                 <div>
-                  <Label className="text-xs text-slate-400">Discount Type *</Label>
+                  <Label className="text-xs text-muted-foreground">Discount Type *</Label>
                   <select value={couponForm.type} onChange={e => setCouponForm(p => ({ ...p, type: e.target.value }))}
-                    className="mt-1 w-full h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 text-xs text-slate-100 focus:border-violet-500 focus:outline-none">
+                    className="mt-1 w-full h-9 rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:border-violet-500 focus:outline-none">
                     <option value="percentage">Percentage (% off)</option>
                     <option value="flat">Flat Amount (₹ off)</option>
                   </select>
                 </div>
                 <div>
-                  <Label className="text-xs text-slate-400">{couponForm.type === 'percentage' ? 'Percentage (%)' : 'Amount (₹)'} *</Label>
+                  <Label className="text-xs text-muted-foreground">{couponForm.type === 'percentage' ? 'Percentage (%)' : 'Amount (₹)'} *</Label>
                   <Input type="number" value={couponForm.value} onChange={e => setCouponForm(p => ({ ...p, value: e.target.value }))}
                     placeholder={couponForm.type === 'percentage' ? '10' : '200'}
-                    className="mt-1 h-9 border-slate-700 bg-slate-900 text-xs text-slate-100" />
+                    className="mt-1 h-9 border-border bg-card text-xs text-foreground" />
                 </div>
                 <div>
-                  <Label className="text-xs text-slate-400">Min Order Amount (₹)</Label>
+                  <Label className="text-xs text-muted-foreground">Min Order Amount (₹)</Label>
                   <Input type="number" value={couponForm.minOrder} onChange={e => setCouponForm(p => ({ ...p, minOrder: e.target.value }))}
-                    placeholder="0" className="mt-1 h-9 border-slate-700 bg-slate-900 text-xs text-slate-100" />
+                    placeholder="0" className="mt-1 h-9 border-border bg-card text-xs text-foreground" />
                 </div>
                 <div>
-                  <Label className="text-xs text-slate-400">Expiry Date (optional)</Label>
+                  <Label className="text-xs text-muted-foreground">Expiry Date (optional)</Label>
                   <Input type="date" value={couponForm.expiryDate} onChange={e => setCouponForm(p => ({ ...p, expiryDate: e.target.value }))}
-                    className="mt-1 h-9 border-slate-700 bg-slate-900 text-xs text-slate-100" />
+                    className="mt-1 h-9 border-border bg-card text-xs text-foreground" />
                 </div>
                 <div className="sm:col-span-2">
-                  <Label className="text-xs text-slate-400">Description</Label>
+                  <Label className="text-xs text-muted-foreground">Description</Label>
                   <Input value={couponForm.description} onChange={e => setCouponForm(p => ({ ...p, description: e.target.value }))}
-                    placeholder="e.g. 10% off sitewide" className="mt-1 h-9 border-slate-700 bg-slate-900 text-xs text-slate-100" />
+                    placeholder="e.g. 10% off sitewide" className="mt-1 h-9 border-border bg-card text-xs text-foreground" />
                 </div>
               </div>
             </div>
-            <div className="flex gap-2 border-t border-slate-800 px-6 py-4">
+            <div className="flex gap-2 border-t border-border px-6 py-4">
               <Button onClick={handleSaveCoupon} disabled={savingCoupon}
                 className="flex-1 rounded-full bg-violet-500 text-xs hover:bg-violet-400">
                 {savingCoupon ? 'Creating...' : 'Create Coupon'}
               </Button>
               <Button variant="outline" onClick={() => setShowCouponModal(false)}
-                className="rounded-full border-slate-700 text-xs text-slate-300">
+                className="rounded-full border-border text-xs text-foreground/80">
                 Cancel
               </Button>
             </div>
