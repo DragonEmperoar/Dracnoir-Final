@@ -2,12 +2,20 @@
 
 import { SessionProvider } from 'next-auth/react'
 import { AuthProvider } from './context/AuthContext'
+import { ThemeProvider } from 'next-themes'
 
 const Providers = ({ children }) => {
   return (
-    <SessionProvider>
-      <AuthProvider>{children}</AuthProvider>
-    </SessionProvider>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <SessionProvider>
+        <AuthProvider>{children}</AuthProvider>
+      </SessionProvider>
+    </ThemeProvider>
   )
 }
 
