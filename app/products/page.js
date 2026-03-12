@@ -17,15 +17,8 @@ import {
 import AppShell from '../AppShell'
 
 const ANIME_SERIES = [
-  'Naruto',
-  'One Piece',
-  'Jujutsu Kaisen',
-  'Chainsaw Man',
-  'My Hero Academia',
-  'Attack on Titan',
-  'Demon Slayer',
-  'Fullmetal Alchemist',
-  'Spy x Family',
+  'Naruto', 'One Piece', 'Jujutsu Kaisen', 'Chainsaw Man', 'My Hero Academia',
+  'Attack on Titan', 'Demon Slayer', 'Fullmetal Alchemist', 'Spy x Family',
 ]
 
 const sortOptions = [
@@ -50,10 +43,10 @@ function buildQueryString(filters, page) {
 function ProductCard({ product, onClick }) {
   return (
     <Card
-      className="group flex cursor-pointer flex-col overflow-hidden border border-slate-800 bg-slate-950/80 transition-colors hover:border-violet-500/60"
+      className="group flex cursor-pointer flex-col overflow-hidden border border-border bg-card transition-colors hover:border-violet-500/60"
       onClick={onClick}
     >
-      <div className="relative w-full overflow-hidden bg-slate-900" style={{ aspectRatio: '4/3' }}>
+      <div className="relative w-full overflow-hidden bg-muted" style={{ aspectRatio: '4/3' }}>
         {product.images?.[0] && (
           <Image
             src={product.images[0]}
@@ -65,22 +58,22 @@ function ProductCard({ product, onClick }) {
       </div>
       <CardContent className="flex flex-1 flex-col justify-between space-y-1 p-3">
         <div className="space-y-0.5">
-          <p className="text-[10px] uppercase tracking-wide text-violet-300">
+          <p className="text-[10px] uppercase tracking-wide text-violet-500">
             {product.type === 'tshirt' ? 'T-Shirt' : product.type === 'plush' ? 'Plush' : 'Figure'}
           </p>
           {product.series && (
-            <p className="text-[10px] text-slate-400 truncate">{product.series}</p>
+            <p className="text-[10px] text-muted-foreground truncate">{product.series}</p>
           )}
-          <h3 className="line-clamp-1 text-xs font-semibold text-slate-50">
+          <h3 className="line-clamp-1 text-xs font-semibold text-foreground">
             {product.title}
           </h3>
         </div>
         <div className="flex items-center justify-between pt-1 text-xs">
-          <div className="flex items-center gap-1 text-amber-300">
+          <div className="flex items-center gap-1 text-amber-500">
             <Star className="h-2.5 w-2.5" />
             <span className="text-[11px]">{product.rating?.toFixed?.(1) || '4.8'}</span>
           </div>
-          <div className="text-xs font-semibold text-slate-50">
+          <div className="text-xs font-semibold text-foreground">
             ₹{product.price?.toFixed?.(0) ?? '0'}
           </div>
         </div>
@@ -140,7 +133,6 @@ const ProductsContent = () => {
     if (nextFilters.maxPrice) params.set('maxPrice', String(nextFilters.maxPrice))
     if (nextFilters.sort && nextFilters.sort !== 'popularity')
       params.set('sort', nextFilters.sort)
-
     const qs = params.toString()
     router.replace(qs ? `/products?${qs}` : '/products')
   }
@@ -158,164 +150,148 @@ const ProductsContent = () => {
     fetchPage(page + 1, { append: true })
   }
 
-  const handleProductClick = (product) => {
-    router.push(`/product/${product.slug}`)
-  }
-
   return (
     <div className="space-y-10">
-        <section className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.2em] text-violet-300/80">Dracnoir</p>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-50 md:text-3xl">
-            All products
-          </h1>
-          <p className="max-w-xl text-sm text-slate-300">
-            Browse the entire hoard of plushes, tees, and figures. Filter by series, price, and more.
-          </p>
-        </section>
+      <section className="space-y-3">
+        <p className="text-xs uppercase tracking-[0.2em] text-violet-500/80">Dracnoir</p>
+        <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
+          All products
+        </h1>
+        <p className="max-w-xl text-sm text-muted-foreground">
+          Browse the entire hoard of plushes, tees, and figures. Filter by series, price, and more.
+        </p>
+      </section>
 
-        <section className="grid gap-8 md:grid-cols-[minmax(0,_1.1fr)_minmax(0,_2.2fr)]">
-          {/* Filters */}
-          <aside className="space-y-5 rounded-2xl border border-slate-800/80 bg-slate-950/80 p-4">
-            <div className="space-y-2">
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-400">
-                Filters
-              </p>
+      <section className="grid gap-8 md:grid-cols-[minmax(0,_1.1fr)_minmax(0,_2.2fr)]">
+        {/* Filters */}
+        <aside className="space-y-5 rounded-2xl border border-border bg-card/80 p-4">
+          <div className="space-y-2">
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+              Filters
+            </p>
+            <Input
+              placeholder="Search by name or series"
+              value={filters.search}
+              onChange={(e) => handleFilterChange({ search: e.target.value })}
+              className="h-9 border-border bg-background text-sm placeholder:text-muted-foreground"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-foreground/80">Product type</p>
+            <Select
+              value={filters.type || 'all'}
+              onValueChange={(value) =>
+                handleFilterChange({ type: value === 'all' ? '' : value })
+              }
+            >
+              <SelectTrigger className="h-9 border-border bg-background text-xs">
+                <SelectValue placeholder="All types" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="tshirt">T-Shirts</SelectItem>
+                <SelectItem value="plush">Plushes</SelectItem>
+                <SelectItem value="figure">Figures</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-foreground/80">Anime series</p>
+            <Select
+              value={filters.series || 'all'}
+              onValueChange={(value) =>
+                handleFilterChange({ series: value === 'all' ? '' : value })
+              }
+            >
+              <SelectTrigger className="h-9 border-border bg-background text-xs">
+                <SelectValue placeholder="All series" />
+              </SelectTrigger>
+              <SelectContent className="max-h-64">
+                <SelectItem value="all">All series</SelectItem>
+                {selectedSeriesOptions.map((name) => (
+                  <SelectItem key={name} value={name}>{name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-foreground/80">Price range (₹)</p>
+            <div className="flex gap-2 text-xs">
               <Input
-                placeholder="Search by name or series"
-                value={filters.search}
-                onChange={(e) => handleFilterChange({ search: e.target.value })}
-                className="h-9 border-slate-700 bg-slate-900/80 text-sm placeholder:text-slate-500"
+                type="number" inputMode="decimal" placeholder="Min"
+                value={filters.minPrice}
+                onChange={(e) => handleFilterChange({ minPrice: e.target.value })}
+                className="h-9 w-full border-border bg-background text-xs"
+              />
+              <Input
+                type="number" inputMode="decimal" placeholder="Max"
+                value={filters.maxPrice}
+                onChange={(e) => handleFilterChange({ maxPrice: e.target.value })}
+                className="h-9 w-full border-border bg-background text-xs"
               />
             </div>
-
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-slate-300">Product type</p>
-              <Select
-                value={filters.type || 'all'}
-                onValueChange={(value) =>
-                  handleFilterChange({ type: value === 'all' ? '' : value })
-                }
-              >
-                <SelectTrigger className="h-9 border-slate-700 bg-slate-900/80 text-xs text-slate-200">
-                  <SelectValue placeholder="All types" />
-                </SelectTrigger>
-                <SelectContent className="border-slate-800 bg-slate-900 text-xs text-slate-100">
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="tshirt">T-Shirts</SelectItem>
-                  <SelectItem value="plush">Plushes</SelectItem>
-                  <SelectItem value="figure">Figures</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-slate-300">Anime series</p>
-              <Select
-                value={filters.series || 'all'}
-                onValueChange={(value) =>
-                  handleFilterChange({ series: value === 'all' ? '' : value })
-                }
-              >
-                <SelectTrigger className="h-9 border-slate-700 bg-slate-900/80 text-xs text-slate-200">
-                  <SelectValue placeholder="All series" />
-                </SelectTrigger>
-                <SelectContent className="max-h-64 border-slate-800 bg-slate-900 text-xs text-slate-100">
-                  <SelectItem value="all">All series</SelectItem>
-                  {selectedSeriesOptions.map((name) => (
-                    <SelectItem key={name} value={name}>
-                      {name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-slate-300">Price range (₹)</p>
-              <div className="flex gap-2 text-xs">
-                <Input
-                  type="number"
-                  inputMode="decimal"
-                  placeholder="Min"
-                  value={filters.minPrice}
-                  onChange={(e) => handleFilterChange({ minPrice: e.target.value })}
-                  className="h-9 w-full border-slate-700 bg-slate-900/80 text-xs"
-                />
-                <Input
-                  type="number"
-                  inputMode="decimal"
-                  placeholder="Max"
-                  value={filters.maxPrice}
-                  onChange={(e) => handleFilterChange({ maxPrice: e.target.value })}
-                  className="h-9 w-full border-slate-700 bg-slate-900/80 text-xs"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-slate-300">Sort by</p>
-              <Select
-                value={filters.sort}
-                onValueChange={(value) => handleFilterChange({ sort: value })}
-              >
-                <SelectTrigger className="h-9 border-slate-700 bg-slate-900/80 text-xs text-slate-200">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="border-slate-800 bg-slate-900 text-xs text-slate-100">
-                  {sortOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </aside>
-
-          {/* Products grid */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between text-xs text-slate-400">
-              <span>
-                {products.length > 0
-                  ? `Showing ${products.length} item${products.length !== 1 ? 's' : ''}`
-                  : loading
-                  ? 'Loading drops...'
-                  : 'No items match these filters yet.'}
-              </span>
-            </div>
-            <div className="grid gap-2 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onClick={() => handleProductClick(product)}
-                />
-              ))}
-            </div>
-            {hasMore && (
-              <div className="mt-4 flex justify-center">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={loading}
-                  onClick={handleLoadMore}
-                  className="rounded-full border-slate-700 bg-slate-900/80 text-xs text-slate-100 hover:bg-slate-800"
-                >
-                  {loading ? 'Loading more...' : 'Load more'}
-                </Button>
-              </div>
-            )}
           </div>
-        </section>
-      </div>
+
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-foreground/80">Sort by</p>
+            <Select
+              value={filters.sort}
+              onValueChange={(value) => handleFilterChange({ sort: value })}
+            >
+              <SelectTrigger className="h-9 border-border bg-background text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {sortOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </aside>
+
+        {/* Products grid */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>
+              {products.length > 0
+                ? `Showing ${products.length} item${products.length !== 1 ? 's' : ''}`
+                : loading ? 'Loading drops...' : 'No items match these filters yet.'}
+            </span>
+          </div>
+          <div className="grid gap-2 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onClick={() => router.push(`/product/${product.slug}`)}
+              />
+            ))}
+          </div>
+          {hasMore && (
+            <div className="mt-4 flex justify-center">
+              <Button
+                variant="outline" size="sm" disabled={loading}
+                onClick={handleLoadMore}
+                className="rounded-full border-border text-xs hover:bg-muted"
+              >
+                {loading ? 'Loading more...' : 'Load more'}
+              </Button>
+            </div>
+          )}
+        </div>
+      </section>
+    </div>
   )
 }
 
 export default function AllProductsPage() {
   return (
     <AppShell>
-      <Suspense fallback={<div className="p-6 text-slate-400">Loading...</div>}>
+      <Suspense fallback={<div className="p-6 text-muted-foreground">Loading...</div>}>
         <ProductsContent />
       </Suspense>
     </AppShell>
