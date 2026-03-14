@@ -701,24 +701,15 @@ async function handleRoute(request, { params }) {
 
     // GET /api/users (admin only)
     if (route === '/users' && method === 'GET') {
-      const userId = await requireUserId(request)
-      if (!userId) {
-        return handleCORS(
-          NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
-        )
-      }
-      
-      // Admin check
-      const usersCol = db.collection('users')
-      const currentUser = await usersCol.findOne({ id: userId })
-      
-      if (!currentUser || !currentUser.isAdmin) {
+      const admin = await requireAdmin(request, db)
+      if (!admin) {
         return handleCORS(
           NextResponse.json({ error: 'Admin access required' }, { status: 403 }),
         )
       }
-      
+
       // Use aggregation pipeline to fetch users with order stats in a single query
+      const usersCol = db.collection('users')
       const usersWithStats = await usersCol
         .aggregate([
           {
