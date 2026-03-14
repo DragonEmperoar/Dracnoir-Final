@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { ChevronLeft, ShoppingCart, Search, X, Menu, Home, Package, Tag, User, LogIn } from 'lucide-react'
+import { ChevronLeft, ShoppingCart, Search, X, Menu, Home, Package, Tag, User, LogIn, Users } from 'lucide-react'
 import { useAuth } from './context/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -130,6 +130,17 @@ const AppShell = ({ children }) => {
           >
             <Tag className="h-4 w-4" />
             View All Products
+          </button>
+
+          {/* Divider */}
+          <div className="my-2 h-px bg-border" />
+
+          <button
+            onClick={() => navTo('/community')}
+            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-foreground/80 hover:bg-muted hover:text-foreground transition-colors text-left"
+          >
+            <Users className="h-4 w-4 text-violet-500" />
+            Community
           </button>
 
           {/* Divider */}
@@ -300,10 +311,11 @@ const AppShell = ({ children }) => {
               </button>
             </div>
             <button
-              className="text-[10px] sm:text-[11px] text-violet-500 hover:text-violet-400 whitespace-nowrap"
-              onClick={() => router.push('/products')}
+              className="flex items-center gap-1 text-[10px] sm:text-[11px] font-medium text-foreground/70 hover:text-violet-500 whitespace-nowrap transition-colors"
+              onClick={() => router.push('/community')}
             >
-              View all
+              <Users className="h-3 w-3" />
+              Community
             </button>
           </div>
         </div>
