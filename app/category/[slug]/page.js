@@ -175,7 +175,7 @@ function CategoryPage() {
                     <Button
                       size="sm"
                       className="mt-1 rounded-full bg-emerald-500 text-xs font-semibold text-slate-950 hover:bg-emerald-400"
-                      onClick={() => router.push('/category/action-figures?subcategory=premium')}
+                      onClick={() => handleFilterChange({ subcategory: 'premium' })}
                     >
                       Browse premium figures
                     </Button>
@@ -197,7 +197,7 @@ function CategoryPage() {
                   <Button
                     variant="outline" size="sm"
                     className="mt-1 w-fit rounded-full border-emerald-500/60 text-[11px] text-emerald-600 dark:text-emerald-200 hover:bg-emerald-500/10"
-                    onClick={() => router.push('/category/action-figures?subcategory=sustainable')}
+                    onClick={() => handleFilterChange({ subcategory: 'sustainable' })}
                   >
                     View sustainable picks
                   </Button>
@@ -207,7 +207,7 @@ function CategoryPage() {
           )}
         </section>
 
-        {slug !== 'action-figures' && (
+        {(slug !== 'action-figures' || filters.subcategory) && (
           <section className="grid gap-8 md:grid-cols-[minmax(0,_1.1fr)_minmax(0,_2.2fr)]">
             {/* Filters */}
             <aside className="space-y-5 rounded-2xl border border-border bg-card/80 p-4">
