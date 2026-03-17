@@ -138,28 +138,30 @@ const HomepageClient = () => {
 
         {/* ── HERO + CATEGORIES ─────────────────────────────────────────── */}
         <div className="grid gap-6 md:grid-cols-2">
-          {/* Hero card - NO OVERLAY */}
-          <div className="group relative overflow-hidden rounded-2xl border border-border bg-muted">
+          {/* Hero card - Bright and Vibrant */}
+          <div className="group relative overflow-hidden rounded-2xl border border-border bg-black">
             <Image
               key={slide.image}
               src={slide.image}
               alt="Dracnoir anime merch hero"
               fill
               priority
-              className="object-cover object-center transition-transform duration-700 group-hover:scale-105 saturate-[1.1]"
+              className="object-cover object-center transition-transform duration-700 group-hover:scale-105 saturate-[1.1] contrast-[1.05]"
               sizes="(max-width: 768px) 100vw, 50vw"
             />
             
-            {/* Overlay removed. Content is styled to be readable over the image */}
+            {/* Minimal Scrim: Only darkens slightly where text sits to maintain vibrancy */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+            
             <div className="relative z-10 flex min-h-[400px] flex-col justify-between p-6">
-              <div className="drop-shadow-sm">
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">
+              <div className="drop-shadow-md">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-violet-300">
                   {slide.subtitle}
                 </p>
-                <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight text-foreground md:text-4xl">
+                <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight text-white md:text-4xl">
                   {slide.title}
                 </h1>
-                <p className="mt-4 max-w-[90%] text-sm font-medium leading-relaxed text-foreground/90">
+                <p className="mt-4 max-w-[90%] text-sm font-medium leading-relaxed text-white/90">
                   {slide.description}
                 </p>
               </div>
@@ -167,7 +169,7 @@ const HomepageClient = () => {
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <Button
                   size="lg"
-                  className="rounded-full bg-violet-600 px-6 text-sm font-semibold text-white shadow-lg hover:bg-violet-500"
+                  className="rounded-full bg-violet-600 px-6 text-sm font-semibold text-white shadow-xl hover:bg-violet-500"
                   onClick={() => router.push('/products')}
                 >
                   {slide.cta} <ChevronRight className="ml-1 h-4 w-4" />
@@ -176,7 +178,7 @@ const HomepageClient = () => {
                   <Button
                     variant="outline"
                     size="lg"
-                    className="rounded-full border-black/10 bg-white/40 text-sm font-semibold text-black backdrop-blur-md hover:bg-white/60"
+                    className="rounded-full border-white/20 bg-white/10 text-sm font-semibold text-white backdrop-blur-md hover:bg-white/20"
                     onClick={() => router.push('/category/plushes')}
                   >
                     {slide.cta2}
@@ -184,16 +186,17 @@ const HomepageClient = () => {
                 )}
               </div>
 
-              <div className="mt-4 flex items-center gap-3 text-[11px] font-bold text-foreground/70">
-                <span className="flex items-center gap-1 bg-white/30 px-2 py-1 rounded-full backdrop-blur-sm">
-                  <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+              <div className="mt-4 flex items-center gap-3 text-[11px] font-bold text-white/80">
+                <span className="flex items-center gap-1 drop-shadow-sm">
+                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                   4.9 / 5.0 • 2K+ reviews
                 </span>
-                <span className="bg-white/30 px-2 py-1 rounded-full backdrop-blur-sm">Free shipping over ₹80</span>
+                <span>•</span>
+                <span className="drop-shadow-sm">Free shipping over ₹80</span>
               </div>
             </div>
 
-            {/* Navigation Arrows - styled for visibility without background */}
+            {/* Navigation Arrows */}
             {heroSlides.length > 1 && (
               <>
                 <button
@@ -201,14 +204,14 @@ const HomepageClient = () => {
                   onClick={() =>
                     setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length)
                   }
-                  className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full border border-black/10 bg-white/30 p-2 text-black hover:bg-white/80 backdrop-blur-md transition-all"
+                  className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/10 bg-black/20 p-2 text-white hover:bg-black/40 backdrop-blur-sm transition-all"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
                 <button
                   type="button"
                   onClick={() => setCurrentSlide((prev) => (prev + 1) % heroSlides.length)}
-                  className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full border border-black/10 bg-white/30 p-2 text-black hover:bg-white/80 backdrop-blur-md transition-all"
+                  className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/10 bg-black/20 p-2 text-white hover:bg-black/40 backdrop-blur-sm transition-all"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
@@ -218,7 +221,7 @@ const HomepageClient = () => {
                       key={idx}
                       onClick={() => setCurrentSlide(idx)}
                       className={`h-1.5 w-6 rounded-full transition-all ${
-                        currentSlide === idx ? 'bg-violet-600' : 'bg-black/20 hover:bg-black/40'
+                        currentSlide === idx ? 'bg-violet-400' : 'bg-white/20 hover:bg-white/40'
                       }`}
                     />
                   ))}
@@ -227,6 +230,7 @@ const HomepageClient = () => {
             )}
           </div>
 
+          {/* Categories Section */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-xs uppercase tracking-[0.2em] text-violet-500/80">Categories</p>
