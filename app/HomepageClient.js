@@ -23,19 +23,19 @@ const COLLECTOR_SETUPS = [
     id: 'figure-shelf',
     title: 'Anime Figure Shelf',
     desc: 'Curate your ultimate collector display',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',
+    image: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1773779819/IMG_0253_zuyxao.webp',
   },
   {
     id: 'manga-corner',
     title: 'Cozy Manga Corner',
     desc: 'The perfect reading nook aesthetic',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80',
+    image: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1773779817/20260109_222013_th2vit.webp',
   },
   {
     id: 'gaming-setup',
     title: 'Ultimate Gaming Setup',
     desc: 'RGB meets anime culture',
-    image: 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=800&q=80',
+    image: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1773779817/IMG_0322_sxcr9k.webp',
   },
 ]
 
