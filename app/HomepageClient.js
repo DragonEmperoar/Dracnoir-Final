@@ -151,7 +151,7 @@ const HomepageClient = () => {
               sizes="(max-width: 768px) 100vw, 50vw"
             />
             {/* Dark gradient overlay — always dark so text is readable on any image */}
-            <div className="absolute inset-0 bg-gradient-to-br from-black/85 to-black/75" />
+            <div className="absolute inset-0 bg-gradient-to-br from-black/45 to-black/65" />
 
             <div className="relative z-10 flex min-h-[400px] flex-col justify-between p-6">
               <div>
