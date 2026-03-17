@@ -79,7 +79,7 @@ const HomepageClient = () => {
       subtitle: '🎊 New drop: Spring 2025 Collection',
       description:
         'Plushes, tees, and figures from iconic series—curated for otaku shelves, gaming setups, and cozy midnight binges.',
-      image: 'https://images.unsplash.com/photo-1607452386484-84a759ab2c01?w=1200&q=80',
+      image: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1773777239/20260109_030452_c7k9vc.webp',
       cta: 'Shop all products',
       cta2: 'Browse all categories',
     },
