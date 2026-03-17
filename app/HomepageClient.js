@@ -10,12 +10,12 @@ import AppShell from './AppShell'
 // ── Static data ────────────────────────────────────────────────────────────
 
 const UNIVERSES = [
-  { id: 'naruto',          name: 'Naruto',          slug: 'naruto',          image: 'https://images.unsplash.com/photo-1601850494422-3cf14624b0b3?w=400&q=80' },
-  { id: 'jujutsu-kaisen',  name: 'Jujutsu Kaisen',  slug: 'jujutsu-kaisen',  image: 'https://images.unsplash.com/photo-1518671645473-e16c96bfae2e?w=400&q=80' },
-  { id: 'attack-on-titan', name: 'Attack on Titan', slug: 'attack-on-titan', image: 'https://images.unsplash.com/photo-1533073526757-2c8ca1df9f1c?w=400&q=80' },
-  { id: 'demon-slayer',    name: 'Demon Slayer',    slug: 'demon-slayer',    image: 'https://images.unsplash.com/photo-1542645901-27e5e44b77ad?w=400&q=80' },
-  { id: 'dragon-ball',     name: 'Dragon Ball',     slug: 'dragon-ball',     image: 'https://images.unsplash.com/photo-1607462109225-6b64ae2dd3cb?w=400&q=80' },
-  { id: 'one-piece',       name: 'One Piece',       slug: 'one-piece',       image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&q=80' },
+  { id: 'naruto',          name: 'Naruto',          slug: 'naruto',          image: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1773779314/download_5_qchk4o.webp' },
+  { id: 'jujutsu-kaisen',  name: 'Jujutsu Kaisen',  slug: 'jujutsu-kaisen',  image: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1773779309/SATORU_GOJO_%EF%B8%8F_%EF%B8%8F_cvjgsp.webp' },
+  { id: 'attack-on-titan', name: 'Attack on Titan', slug: 'attack-on-titan', image: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1773779309/download_4_cuu1u7.webp' },
+  { id: 'demon-slayer',    name: 'Demon Slayer',    slug: 'demon-slayer',    image: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1773779311/download_3_bn0rhn.webp' },
+  { id: 'dragon-ball',     name: 'Dragon Ball',     slug: 'dragon-ball',     image: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1773779310/download_1_jjffyo.webp' },
+  { id: 'one-piece',       name: 'One Piece',       slug: 'one-piece',       image: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1773779313/download_uqkxoy.webp' },
 ]
 
 const COLLECTOR_SETUPS = [
