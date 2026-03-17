@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { signIn, useSession } from 'next-auth/react'
+import { signIn, useSession, signOut } from 'next-auth/react'
 import AppShell from '../AppShell'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -20,6 +20,7 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
+  // ✅ ADMIN REDIRECT (UNCHANGED)
   useEffect(() => {
     if (status === 'authenticated') {
       const adminRedirect =
@@ -27,7 +28,8 @@ export default function LoginPage() {
           ? localStorage.getItem('admin_redirect')
           : null
 
-      const isAdminEmail = session?.user?.email === 'chirayu1264@gmail.com'
+      const isAdminEmail =
+        session?.user?.email === 'chirayu1264@gmail.com'
 
       if (adminRedirect === 'true' || isAdminEmail) {
         if (typeof window !== 'undefined') {
@@ -75,6 +77,8 @@ export default function LoginPage() {
         setError(res.error)
         return
       }
+
+      setSuccess('Logged in successfully.')
 
       const adminRedirect =
         typeof window !== 'undefined'
@@ -189,6 +193,7 @@ export default function LoginPage() {
 
             </form>
 
+            {/* Divider */}
             <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-border"></div>
@@ -201,12 +206,14 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {/* ✅ GOOGLE LOGIN FIXED */}
             <Button
               variant="outline"
               className="w-full"
-              onClick={() =>
-                signIn('google', { callbackUrl: '/' })
-              }
+              onClick={async () => {
+                await signOut({ redirect: false }) // clears previous session
+                signIn('google')
+              }}
             >
               Login with Google
             </Button>
