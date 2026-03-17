@@ -13,9 +13,9 @@ const UNIVERSES = [
   { id: 'naruto',          name: 'Naruto',          slug: 'naruto',          image: 'https://images.unsplash.com/photo-1601850494422-3cf14624b0b3?w=400&q=80' },
   { id: 'jujutsu-kaisen',  name: 'Jujutsu Kaisen',  slug: 'jujutsu-kaisen',  image: 'https://images.unsplash.com/photo-1518671645473-e16c96bfae2e?w=400&q=80' },
   { id: 'attack-on-titan', name: 'Attack on Titan', slug: 'attack-on-titan', image: 'https://images.unsplash.com/photo-1533073526757-2c8ca1df9f1c?w=400&q=80' },
-  { id: 'demon-slayer',    name: 'Demon Slayer',     slug: 'demon-slayer',    image: 'https://images.unsplash.com/photo-1542645901-27e5e44b77ad?w=400&q=80' },
-  { id: 'dragon-ball',     name: 'Dragon Ball',      slug: 'dragon-ball',     image: 'https://images.unsplash.com/photo-1607462109225-6b64ae2dd3cb?w=400&q=80' },
-  { id: 'one-piece',       name: 'One Piece',        slug: 'one-piece',       image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&q=80' },
+  { id: 'demon-slayer',    name: 'Demon Slayer',    slug: 'demon-slayer',    image: 'https://images.unsplash.com/photo-1542645901-27e5e44b77ad?w=400&q=80' },
+  { id: 'dragon-ball',     name: 'Dragon Ball',     slug: 'dragon-ball',     image: 'https://images.unsplash.com/photo-1607462109225-6b64ae2dd3cb?w=400&q=80' },
+  { id: 'one-piece',       name: 'One Piece',       slug: 'one-piece',       image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&q=80' },
 ]
 
 const COLLECTOR_SETUPS = [
@@ -128,7 +128,7 @@ const HomepageClient = () => {
       setCurrentSlide((prev) => (prev + 1) % heroSlides.length)
     }, 6000)
     return () => clearInterval(timer)
-  }, [])
+  }, [heroSlides.length])
 
   const slide = heroSlides[currentSlide]
 
@@ -138,30 +138,28 @@ const HomepageClient = () => {
 
         {/* ── HERO + CATEGORIES ─────────────────────────────────────────── */}
         <div className="grid gap-6 md:grid-cols-2">
-          {/* Hero card with Next.js Image for LCP optimisation */}
-          <div className="group relative overflow-hidden rounded-2xl border border-border">
-            {/* Background image – priority ensures LCP preload */}
+          {/* Hero card - NO OVERLAY */}
+          <div className="group relative overflow-hidden rounded-2xl border border-border bg-muted">
             <Image
               key={slide.image}
               src={slide.image}
               alt="Dracnoir anime merch hero"
               fill
               priority
-              className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+              className="object-cover object-center transition-transform duration-700 group-hover:scale-105 saturate-[1.1]"
               sizes="(max-width: 768px) 100vw, 50vw"
             />
-            {/* Dark gradient overlay — always dark so text is readable on any image */}
-            <div className="absolute inset-0 bg-gradient-to-br from-black/45 to-black/65" />
-
+            
+            {/* Overlay removed. Content is styled to be readable over the image */}
             <div className="relative z-10 flex min-h-[400px] flex-col justify-between p-6">
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-violet-300/90">
+              <div className="drop-shadow-sm">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">
                   {slide.subtitle}
                 </p>
-                <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight text-white md:text-4xl">
+                <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight text-foreground md:text-4xl">
                   {slide.title}
                 </h1>
-                <p className="mt-4 text-sm leading-relaxed text-white/80">
+                <p className="mt-4 max-w-[90%] text-sm font-medium leading-relaxed text-foreground/90">
                   {slide.description}
                 </p>
               </div>
@@ -169,7 +167,7 @@ const HomepageClient = () => {
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <Button
                   size="lg"
-                  className="rounded-full bg-violet-500 px-6 text-sm font-semibold text-white hover:bg-violet-400"
+                  className="rounded-full bg-violet-600 px-6 text-sm font-semibold text-white shadow-lg hover:bg-violet-500"
                   onClick={() => router.push('/products')}
                 >
                   {slide.cta} <ChevronRight className="ml-1 h-4 w-4" />
@@ -178,7 +176,7 @@ const HomepageClient = () => {
                   <Button
                     variant="outline"
                     size="lg"
-                    className="rounded-full border-white/30 bg-white/10 text-sm text-white hover:bg-white/20 backdrop-blur"
+                    className="rounded-full border-black/10 bg-white/40 text-sm font-semibold text-black backdrop-blur-md hover:bg-white/60"
                     onClick={() => router.push('/category/plushes')}
                   >
                     {slide.cta2}
@@ -186,36 +184,31 @@ const HomepageClient = () => {
                 )}
               </div>
 
-              <div className="mt-4 flex items-center gap-3 text-[11px] text-white/60">
-                <span className="flex items-center gap-1">
-                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+              <div className="mt-4 flex items-center gap-3 text-[11px] font-bold text-foreground/70">
+                <span className="flex items-center gap-1 bg-white/30 px-2 py-1 rounded-full backdrop-blur-sm">
+                  <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
                   4.9 / 5.0 • 2K+ reviews
                 </span>
-                <span>•</span>
-                <span>Free shipping over ₹80</span>
+                <span className="bg-white/30 px-2 py-1 rounded-full backdrop-blur-sm">Free shipping over ₹80</span>
               </div>
             </div>
 
+            {/* Navigation Arrows - styled for visibility without background */}
             {heroSlides.length > 1 && (
               <>
                 <button
                   type="button"
                   onClick={() =>
-                    setCurrentSlide(
-                      (prev) =>
-                        (prev - 1 + heroSlides.length) % heroSlides.length,
-                    )
+                    setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length)
                   }
-                  className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/20 bg-black/40 p-2 text-white hover:bg-black/60 backdrop-blur"
+                  className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full border border-black/10 bg-white/30 p-2 text-black hover:bg-white/80 backdrop-blur-md transition-all"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
                 <button
                   type="button"
-                  onClick={() =>
-                    setCurrentSlide((prev) => (prev + 1) % heroSlides.length)
-                  }
-                  className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/20 bg-black/40 p-2 text-white hover:bg-black/60 backdrop-blur"
+                  onClick={() => setCurrentSlide((prev) => (prev + 1) % heroSlides.length)}
+                  className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full border border-black/10 bg-white/30 p-2 text-black hover:bg-white/80 backdrop-blur-md transition-all"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
@@ -224,10 +217,8 @@ const HomepageClient = () => {
                     <button
                       key={idx}
                       onClick={() => setCurrentSlide(idx)}
-                      className={`h-1.5 w-6 rounded-full transition-colors ${
-                        currentSlide === idx
-                          ? 'bg-violet-400'
-                          : 'bg-white/30 hover:bg-white/50'
+                      className={`h-1.5 w-6 rounded-full transition-all ${
+                        currentSlide === idx ? 'bg-violet-600' : 'bg-black/20 hover:bg-black/40'
                       }`}
                     />
                   ))}
@@ -238,9 +229,7 @@ const HomepageClient = () => {
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-xs uppercase tracking-[0.2em] text-violet-500/80">
-                Categories
-              </p>
+              <p className="text-xs uppercase tracking-[0.2em] text-violet-500/80">Categories</p>
               <button
                 className="text-[11px] text-violet-500 hover:text-violet-400"
                 onClick={() => router.push('/products')}
@@ -248,9 +237,7 @@ const HomepageClient = () => {
                 Tap a tile to dive in
               </button>
             </div>
-            <p className="text-xl font-semibold tracking-tight md:text-2xl">
-              Shop by category
-            </p>
+            <p className="text-xl font-semibold tracking-tight md:text-2xl">Shop by category</p>
             <div className="grid gap-3">
               {categories.map((cat) => {
                 const catMeta = {
@@ -299,17 +286,19 @@ const HomepageClient = () => {
                   >
                     <div className="relative flex items-center justify-between">
                       <div>
-                        <p className={`text-sm font-semibold ${catMeta.textColor}`}>
-                          {cat.name}
-                        </p>
+                        <p className={`text-sm font-semibold ${catMeta.textColor}`}>{cat.name}</p>
                         <p className="mt-1 text-xs text-muted-foreground">{catMeta.desc}</p>
-                        <p className="mt-2 text-[10px] text-muted-foreground/60">
-                          {catMeta.tags}
-                        </p>
+                        <p className="mt-2 text-[10px] text-muted-foreground/60">{catMeta.tags}</p>
                       </div>
                       <Button
                         size="sm"
-                        className={`rounded-full ${catMeta.color === 'violet' ? 'bg-violet-500 hover:bg-violet-400' : catMeta.color === 'emerald' ? 'bg-emerald-500 hover:bg-emerald-400' : 'bg-amber-500 hover:bg-amber-400'} text-[11px] text-white`}
+                        className={`rounded-full ${
+                          catMeta.color === 'violet'
+                            ? 'bg-violet-500 hover:bg-violet-400'
+                            : catMeta.color === 'emerald'
+                            ? 'bg-emerald-500 hover:bg-emerald-400'
+                            : 'bg-amber-500 hover:bg-amber-400'
+                        } text-[11px] text-white`}
                       >
                         Explore
                       </Button>
