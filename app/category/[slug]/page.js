@@ -35,6 +35,7 @@ const sortOptions = [
 function buildQueryString(base, filters, page) {
   const params = new URLSearchParams()
   if (base) params.set('categorySlug', base)
+  params.set('limit', '200')
   if (filters.search) params.set('search', filters.search)
   if (filters.series) params.set('series', filters.series)
   if (filters.minPrice) params.set('minPrice', String(filters.minPrice))
@@ -57,7 +58,7 @@ function ProductCard({ product, onClick }) {
             src={product.images[0]}
             alt={product.title}
             fill
-            className="scale-95 object-cover object-center transition-transform duration-300 group-hover:scale-100"
+            className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
           />
         )}
       </div>
