@@ -57,7 +57,7 @@ function ProductCard({ product, onClick }) {
             src={product.images[0]}
             alt={product.title}
             fill
-            className="object-contain transition-transform duration-300 group-hover:scale-105"
+            className="scale-95 object-cover object-center transition-transform duration-300 group-hover:scale-100"
           />
         )}
       </div>
