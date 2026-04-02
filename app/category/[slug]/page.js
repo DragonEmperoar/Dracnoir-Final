@@ -57,7 +57,7 @@ function ProductCard({ product, onClick }) {
             src={product.images[0]}
             alt={product.title}
             fill
-            className="scale-95 object-cover object-center transition-transform duration-300 group-hover:scale-100"
+            className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
           />
         )}
       </div>
@@ -118,15 +118,7 @@ function CategoryPage() {
       const data = await res.json()
       setHasMore(targetPage < (data?.totalPages || 1))
       setPage(targetPage)
-      setProducts((prev) => {
-        if (opts.append && targetPage > 1) {
-          // Deduplicate by ID to prevent same product appearing twice if sort order shifts between pages
-          const existingIds = new Set(prev.map(p => p.id))
-          const fresh = (data?.items || []).filter(p => !existingIds.has(p.id))
-          return [...prev, ...fresh]
-        }
-        return data?.items || []
-      })
+      setProducts((prev) => opts.append && targetPage > 1 ? [...prev, ...(data?.items || [])] : data?.items || [])
     } catch (e) { console.error('Failed to load products', e) }
     finally { setLoading(false) }
   }
