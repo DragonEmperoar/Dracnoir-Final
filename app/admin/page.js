@@ -24,8 +24,15 @@ const STATUS_COLORS = {
 }
 
 const emptyProduct = {
-  title: '', description: '', price: '', categorySlug: 't-shirts',
-  type: 'tshirt', material: '', dimensions: '', series: '', images: '', stock: '',
+  title: '', description: '', price: '799', categorySlug: 't-shirts',
+  type: 'tshirt', material: '240 GSM French Terry Cotton', dimensions: '', series: '', images: '', stock: '', subcategory: '',
+}
+
+// Smart defaults per category
+const CATEGORY_DEFAULTS = {
+  't-shirts':       { type: 'tshirt',        material: '240 GSM French Terry Cotton', price: '799', dimensions: '' },
+  'plushes':        { type: 'plush',          material: 'Cotton',                      price: '',    dimensions: '' },
+  'action-figures': { type: 'action-figure',  material: '',                            price: '',    dimensions: '' },
 }
 
 const emptyCoupon = {
@@ -68,6 +75,8 @@ const AdminDashboard = () => {
   const [savingProduct, setSavingProduct] = useState(false)
   const [productSearch, setProductSearch] = useState('')
   const [deletingProductId, setDeletingProductId] = useState(null)
+  const [deduplicating, setDeduplicating] = useState(false)
+  const [productCategoryFilter, setProductCategoryFilter] = useState('')
 
   // Orders state
   const [orderStatusFilter, setOrderStatusFilter] = useState('')
@@ -100,7 +109,7 @@ const AdminDashboard = () => {
     setLoading(true)
     try {
       const [productsRes, ordersRes, usersRes, couponsRes] = await Promise.all([
-        fetch('/api/products?limit=200'),
+        fetch('/api/products?limit=500'),
         fetch('/api/admin/orders'),
         fetch('/api/users'),
         fetch('/api/coupons'),
@@ -136,7 +145,13 @@ const AdminDashboard = () => {
   }
 
   // ── Product CRUD ──────────────────────────────────────────────────────────
-  const openAddProduct = () => { setProductForm(emptyProduct); setProductColors([]); setEditingProduct(null); setShowProductModal(true) }
+  const openAddProduct = () => {
+    setProductForm(emptyProduct)
+    // Auto-load color preset for t-shirts (default category)
+    setProductColors(COLOR_PRESET.map(c => ({ ...c })))
+    setEditingProduct(null)
+    setShowProductModal(true)
+  }
   const openEditProduct = (p) => {
     setProductForm({
       title: p.title || '', description: p.description || '',
@@ -144,6 +159,7 @@ const AdminDashboard = () => {
       type: p.type || 'tshirt', material: p.material || '',
       dimensions: p.dimensions || '', series: p.series || '',
       images: (p.images || []).join(', '), stock: p.stock || '',
+      subcategory: p.subcategory || '',
     })
     setProductColors(Array.isArray(p.colors) ? p.colors.map(c => ({
       id: c.id || '',
@@ -153,6 +169,26 @@ const AdminDashboard = () => {
     })) : [])
     setEditingProduct(p)
     setShowProductModal(true)
+  }
+
+  // When category changes, auto-apply smart defaults for material, type, price
+  const handleCategoryChange = (newCategorySlug) => {
+    const defaults = CATEGORY_DEFAULTS[newCategorySlug] || {}
+    setProductForm(prev => ({
+      ...prev,
+      categorySlug: newCategorySlug,
+      type: defaults.type || prev.type,
+      material: defaults.material !== undefined ? defaults.material : prev.material,
+      price: 'price' in defaults ? defaults.price : prev.price,
+      dimensions: defaults.dimensions !== undefined ? defaults.dimensions : prev.dimensions,
+      subcategory: '',
+    }))
+    // Auto-load preset colors only for t-shirts
+    if (newCategorySlug === 't-shirts' && productColors.length === 0) {
+      setProductColors(COLOR_PRESET.map(c => ({ ...c })))
+    } else if (newCategorySlug !== 't-shirts') {
+      setProductColors([])
+    }
   }
 
   const handleSaveProduct = async () => {
@@ -201,6 +237,25 @@ const AdminDashboard = () => {
       setStats(p => ({ ...p, totalProducts: p.totalProducts - 1 }))
     } catch (e) { alert('Failed to delete product') }
     finally { setDeletingProductId(null) }
+  }
+
+  const handleDeduplicateProducts = async () => {
+    if (!confirm('This will remove duplicate products (same name + category), keeping the oldest entry. Continue?')) return
+    setDeduplicating(true)
+    try {
+      const res = await fetch('/api/admin/products/deduplicate', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed')
+      alert(data.message || `Removed ${data.removed} duplicate products`)
+      // Reload products after dedup
+      const productsRes = await fetch('/api/products?limit=500')
+      if (productsRes.ok) {
+        const d = await productsRes.json()
+        setProducts(d.items || [])
+        setStats(p => ({ ...p, totalProducts: d.total || 0 }))
+      }
+    } catch (e) { alert(e.message || 'Deduplication failed') }
+    finally { setDeduplicating(false) }
   }
 
   // ── Order management ──────────────────────────────────────────────────────
@@ -263,10 +318,12 @@ const AdminDashboard = () => {
     { id: 'users', label: 'Users', icon: Users },
   ]
 
-  const filteredProducts = products.filter(p =>
-    !productSearch || p.title?.toLowerCase().includes(productSearch.toLowerCase()) ||
-    p.series?.toLowerCase().includes(productSearch.toLowerCase())
-  )
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = !productSearch || p.title?.toLowerCase().includes(productSearch.toLowerCase()) ||
+      p.series?.toLowerCase().includes(productSearch.toLowerCase())
+    const matchesCategory = !productCategoryFilter || p.categorySlug === productCategoryFilter
+    return matchesSearch && matchesCategory
+  })
 
   // ── Guard states ──────────────────────────────────────────────────────────
   if (!adminCheckDone || (status === 'authenticated' && !isAdmin && !accessDenied)) {
@@ -385,7 +442,26 @@ const AdminDashboard = () => {
                     onChange={e => setProductSearch(e.target.value)}
                     className="h-8 max-w-xs border-border bg-card/80 text-xs text-foreground"
                   />
-                  <p className="text-sm text-muted-foreground">{filteredProducts.length} products</p>
+                  <select
+                    value={productCategoryFilter}
+                    onChange={e => setProductCategoryFilter(e.target.value)}
+                    className="h-8 rounded-md border border-border bg-card/80 px-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-violet-500"
+                  >
+                    <option value="">All categories</option>
+                    <option value="plushes">Plushes</option>
+                    <option value="t-shirts">T-Shirts</option>
+                    <option value="action-figures">Action Figures</option>
+                  </select>
+                  <p className="text-sm text-muted-foreground">{filteredProducts.length} / {products.length} products</p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleDeduplicateProducts}
+                    disabled={deduplicating}
+                    className="gap-2 rounded-full border-amber-500/50 text-xs text-amber-500 hover:bg-amber-500/10"
+                  >
+                    {deduplicating ? 'Removing...' : 'Remove Duplicates'}
+                  </Button>
                   <Button size="sm" onClick={openAddProduct}
                     className="ml-auto gap-2 rounded-full bg-violet-500 text-xs hover:bg-violet-400">
                     <Plus className="h-3 w-3" /> Add Product
@@ -633,7 +709,8 @@ const AdminDashboard = () => {
                 </div>
                 <div>
                   <Label className="text-xs text-muted-foreground">Category *</Label>
-                  <select value={productForm.categorySlug} onChange={e => setProductForm(p => ({ ...p, categorySlug: e.target.value }))}
+                  <select value={productForm.categorySlug}
+                    onChange={e => handleCategoryChange(e.target.value)}
                     className="mt-1 w-full h-9 rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:border-violet-500 focus:outline-none">
                     <option value="t-shirts">T-Shirts</option>
                     <option value="plushes">Plushes</option>
@@ -650,6 +727,18 @@ const AdminDashboard = () => {
                     <option value="other">Other</option>
                   </select>
                 </div>
+                {/* Subcategory — only for Action Figures */}
+                {productForm.categorySlug === 'action-figures' && (
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Subcategory</Label>
+                    <select value={productForm.subcategory} onChange={e => setProductForm(p => ({ ...p, subcategory: e.target.value }))}
+                      className="mt-1 w-full h-9 rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:border-violet-500 focus:outline-none">
+                      <option value="">Select subcategory</option>
+                      <option value="premium">Premium</option>
+                      <option value="sustainable">Sustainable</option>
+                    </select>
+                  </div>
+                )}
                 <div>
                   <Label className="text-xs text-muted-foreground">Series / Anime</Label>
                   <Input value={productForm.series} onChange={e => setProductForm(p => ({ ...p, series: e.target.value }))}
@@ -658,7 +747,11 @@ const AdminDashboard = () => {
                 <div>
                   <Label className="text-xs text-muted-foreground">Material</Label>
                   <Input value={productForm.material} onChange={e => setProductForm(p => ({ ...p, material: e.target.value }))}
-                    placeholder="e.g. 100% Cotton" className="mt-1 h-9 border-border bg-card text-xs text-foreground" />
+                    placeholder={
+                      productForm.categorySlug === 't-shirts' ? '240 GSM French Terry Cotton' :
+                      productForm.categorySlug === 'plushes' ? 'Cotton' : 'e.g. PVC'
+                    }
+                    className="mt-1 h-9 border-border bg-card text-xs text-foreground" />
                 </div>
                 <div className="sm:col-span-2">
                   <Label className="text-xs text-muted-foreground">Image URLs (comma-separated)</Label>
@@ -667,11 +760,14 @@ const AdminDashboard = () => {
                     className="mt-1 h-9 border-border bg-card text-xs text-foreground" />
                   <p className="mt-1 text-[11px] text-muted-foreground">Paste image URLs. Multiple URLs separated by commas.</p>
                 </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground">Dimensions</Label>
-                  <Input value={productForm.dimensions} onChange={e => setProductForm(p => ({ ...p, dimensions: e.target.value }))}
-                    placeholder="e.g. 25cm x 15cm" className="mt-1 h-9 border-border bg-card text-xs text-foreground" />
-                </div>
+                {/* Dimensions — hidden for T-Shirts */}
+                {productForm.categorySlug !== 't-shirts' && (
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Dimensions</Label>
+                    <Input value={productForm.dimensions} onChange={e => setProductForm(p => ({ ...p, dimensions: e.target.value }))}
+                      placeholder="e.g. 25cm x 15cm" className="mt-1 h-9 border-border bg-card text-xs text-foreground" />
+                  </div>
+                )}
               </div>
 
               {/* ── COLORS SECTION (T-Shirts only) ─────────────────────── */}
