@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Star, ChevronRight } from 'lucide-react'
@@ -57,7 +57,7 @@ function ProductCard({ product, onClick }) {
             src={product.images[0]}
             alt={product.title}
             fill
-            className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
+            className="scale-95 object-cover object-center transition-transform duration-300 group-hover:scale-100"
           />
         )}
       </div>
@@ -103,30 +103,68 @@ function CategoryPage() {
   const [hasMore, setHasMore] = useState(true)
   const [loading, setLoading] = useState(false)
 
+  // Sentinel ref for infinite scroll
+  const sentinelRef = useRef(null)
+  const loadingRef = useRef(false)
+  const pageRef = useRef(1)
+  const hasMoreRef = useRef(true)
+
   const isFigures = slug === 'action-figures'
   const selectedSeriesOptions = useMemo(() => ANIME_SERIES, [])
 
-  const fetchPage = async (targetPage, opts = { append: false }) => {
+  const fetchPage = useCallback(async (targetPage, opts = { append: false }) => {
     if (!slug) return
     if (slug === 'action-figures' && !filters.subcategory) {
-      setProducts([]); setHasMore(false); setPage(1); return
+      setProducts([]); setHasMore(false); hasMoreRef.current = false; setPage(1); pageRef.current = 1; return
     }
+    if (loadingRef.current && opts.append) return
+    loadingRef.current = true
     setLoading(true)
     try {
       const qs = buildQueryString(slug, filters, targetPage)
       const res = await fetch(`/api/products?${qs}`)
       const data = await res.json()
-      setHasMore(targetPage < (data?.totalPages || 1))
+      const more = targetPage < (data?.totalPages || 1)
+      setHasMore(more)
+      hasMoreRef.current = more
       setPage(targetPage)
-      setProducts((prev) => opts.append && targetPage > 1 ? [...prev, ...(data?.items || [])] : data?.items || [])
+      pageRef.current = targetPage
+      setProducts((prev) => {
+        if (opts.append && targetPage > 1) {
+          const existingIds = new Set(prev.map(p => p.id))
+          const fresh = (data?.items || []).filter(p => !existingIds.has(p.id))
+          return [...prev, ...fresh]
+        }
+        return data?.items || []
+      })
     } catch (e) { console.error('Failed to load products', e) }
-    finally { setLoading(false) }
-  }
+    finally { loadingRef.current = false; setLoading(false) }
+  }, [slug, filters])
 
+  // Reset and reload when filters change
   useEffect(() => {
+    pageRef.current = 1
+    hasMoreRef.current = true
+    loadingRef.current = false
     fetchPage(1, { append: false })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, filters.search, filters.series, filters.sort, filters.minPrice, filters.maxPrice, filters.subcategory])
+
+  // Infinite scroll via IntersectionObserver
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMoreRef.current && !loadingRef.current) {
+          fetchPage(pageRef.current + 1, { append: true })
+        }
+      },
+      { rootMargin: '300px' }
+    )
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [fetchPage])
 
   const handleFilterChange = (patch) => {
     setFilters((prev) => {
@@ -251,24 +289,35 @@ function CategoryPage() {
               </div>
             </aside>
 
-            {/* Products grid */}
+            {/* Products grid + infinite scroll */}
             <div className="space-y-4">
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>
-                  {products.length > 0 ? `Showing ${products.length} item${products.length !== 1 ? 's' : ''}` : loading ? 'Loading drops...' : 'No items match these filters yet.'}
+                  {products.length > 0
+                    ? `Showing ${products.length} item${products.length !== 1 ? 's' : ''}`
+                    : loading ? 'Loading drops...' : 'No items match these filters yet.'}
                 </span>
               </div>
+
               <div className="grid gap-2 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 {products.map((product) => (
                   <ProductCard key={product.id} product={product} onClick={() => router.push(`/product/${product.slug}`)} />
                 ))}
               </div>
-              {hasMore && (
-                <div className="mt-4 flex justify-center">
-                  <Button variant="outline" size="sm" disabled={loading} onClick={() => !loading && fetchPage(page + 1, { append: true })} className="rounded-full border-border text-xs hover:bg-muted">
-                    {loading ? 'Loading more...' : 'Load more'}
-                  </Button>
+
+              {/* Sentinel element — IntersectionObserver watches this */}
+              <div ref={sentinelRef} className="h-4 w-full" />
+
+              {/* Loading indicator */}
+              {loading && (
+                <div className="flex justify-center py-4">
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-violet-500 border-t-transparent" />
                 </div>
+              )}
+
+              {/* End of results */}
+              {!hasMore && products.length > 0 && (
+                <p className="text-center text-xs text-muted-foreground py-2">All {products.length} items loaded</p>
               )}
             </div>
           </section>
