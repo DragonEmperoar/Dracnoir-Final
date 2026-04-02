@@ -756,7 +756,7 @@ async function handleRoute(request, { params }) {
     if (route === '/products' && method === 'GET') {
       const { searchParams } = new URL(request.url)
       const page = Number(searchParams.get('page') || '1')
-      const limit = Math.min(Number(searchParams.get('limit') || '12'), 50)
+      const limit = Math.min(Number(searchParams.get('limit') || '12'), 500)
 
       const query = buildProductQuery(searchParams)
       const sort = buildProductSort(searchParams)
@@ -971,7 +971,7 @@ async function handleRoute(request, { params }) {
       const admin = await requireAdmin(request, db)
       if (!admin) return handleCORS(NextResponse.json({ error: 'Admin access required' }, { status: 403 }))
       const body = await request.json()
-      const { title, description, price, categorySlug, type, material, dimensions, series, images, stock, variants } = body || {}
+      const { title, description, price, categorySlug, type, material, dimensions, series, images, stock, variants, subcategory } = body || {}
       if (!title || !price || !categorySlug) return handleCORS(NextResponse.json({ error: 'title, price, categorySlug required' }, { status: 400 }))
       const categoriesCol = db.collection('categories')
       const cat = await categoriesCol.findOne({ slug: categorySlug })
@@ -988,6 +988,7 @@ async function handleRoute(request, { params }) {
         material: material || '',
         dimensions: dimensions || '',
         series: series || '',
+        subcategory: subcategory || '',
         images: Array.isArray(images) ? images : (images ? [images] : []),
         stock: Number(stock) || 0,
         variants: Array.isArray(variants) ? variants : [],
@@ -1023,6 +1024,7 @@ async function handleRoute(request, { params }) {
       if (body.material != null) update.material = body.material
       if (body.dimensions != null) update.dimensions = body.dimensions
       if (body.series != null) update.series = body.series
+      if (body.subcategory != null) update.subcategory = body.subcategory
       if (body.images != null) update.images = Array.isArray(body.images) ? body.images : [body.images]
       if (body.stock != null) update.stock = Number(body.stock)
       if (body.colors != null) update.colors = Array.isArray(body.colors) ? body.colors : []
@@ -1042,6 +1044,29 @@ async function handleRoute(request, { params }) {
       if (!existing) return handleCORS(NextResponse.json({ error: 'Product not found' }, { status: 404 }))
       await productsCol.deleteOne({ id: productId })
       return handleCORS(NextResponse.json({ success: true }))
+    }
+
+    // POST /api/admin/products/deduplicate - remove duplicate products (same title+category, keep oldest)
+    if (segments[0] === 'admin' && segments[1] === 'products' && segments[2] === 'deduplicate' && method === 'POST') {
+      const admin = await requireAdmin(request, db)
+      if (!admin) return handleCORS(NextResponse.json({ error: 'Admin access required' }, { status: 403 }))
+      const productsCol = db.collection('products')
+      // Group by title+categorySlug (case-insensitive)
+      const allProducts = await productsCol.find({}).sort({ createdAt: 1 }).toArray()
+      const seen = new Map()
+      const toDelete = []
+      for (const product of allProducts) {
+        const key = `${(product.title || '').toLowerCase().trim()}||${product.categorySlug || ''}`
+        if (seen.has(key)) {
+          toDelete.push(product.id)
+        } else {
+          seen.set(key, product.id)
+        }
+      }
+      if (toDelete.length > 0) {
+        await productsCol.deleteMany({ id: { $in: toDelete } })
+      }
+      return handleCORS(NextResponse.json({ success: true, removed: toDelete.length, message: `Removed ${toDelete.length} duplicate product${toDelete.length !== 1 ? 's' : ''}` }))
     }
 
     // ─── ADMIN ORDERS ─────────────────────────────────────────────────────────
