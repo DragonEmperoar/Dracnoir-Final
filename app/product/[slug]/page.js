@@ -25,7 +25,7 @@ function ProductPage() {
   const [selectedVariant, setSelectedVariant] = useState(null)
   const [adding, setAdding] = useState(false)
   const [quantity, setQuantity] = useState(1)
-  const [fit, setFit] = useState('')
+  const [size, setSize] = useState('')
   const [color, setColor] = useState('')
   const [pincode, setPincode] = useState('')
   const [pincodeMessage, setPincodeMessage] = useState('')
@@ -116,12 +116,13 @@ function ProductPage() {
   const handleAddToCart = async () => {
     if (!product) return
     if (!user) { alert('Please log in with Google to add items to your cart.'); return }
+    if (product.type === 'tshirt' && !size) { alert('Please select a size before adding to cart.'); return }
     setAdding(true)
     try {
       const res = await fetch('/api/cart/items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId: product.id, productSlug: product.slug, quantity: quantity || 1, variantId: selectedVariant?.id || null }),
+        body: JSON.stringify({ productId: product.id, productSlug: product.slug, quantity: quantity || 1, variantId: selectedVariant?.id || null, size: size || null }),
       })
       if (res.status === 401) { alert('Session expired. Please log in again.'); return }
       if (!res.ok) { console.error('Failed to add to cart'); return }
@@ -150,12 +151,13 @@ function ProductPage() {
   const handleBuyNow = async () => {
     if (!product) return
     if (!user) { alert('Please log in with Google first, then tap Buy now again.'); return }
+    if (product.type === 'tshirt' && !size) { alert('Please select a size first.'); return }
     setAdding(true)
     try {
       const res = await fetch('/api/cart/items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId: product.id, productSlug: product.slug, quantity: quantity || 1, variantId: selectedVariant?.id || null }),
+        body: JSON.stringify({ productId: product.id, productSlug: product.slug, quantity: quantity || 1, variantId: selectedVariant?.id || null, size: size || null }),
       })
       if (!res.ok) { console.error('Failed to prepare cart'); return }
       router.push('/checkout')
@@ -265,13 +267,13 @@ function ProductPage() {
           {/* Gallery */}
           <section className="space-y-4">
             <Card className="overflow-hidden border border-border bg-card">
-              <div className="relative w-full" style={{ aspectRatio: '4/3' }}>
+              <div className="relative w-full overflow-hidden bg-muted" style={{ aspectRatio: '4/3' }}>
                 {mainImage && (
                   <Image
                     src={mainImage}
                     alt={`${product.title} anime merchandise`}
                     fill
-                    className="object-cover object-center"
+                    className="scale-95 object-cover object-center"
                   />
                 )}
               </div>
@@ -286,7 +288,7 @@ function ProductPage() {
                       idx === activeImage ? 'border-violet-500' : 'border-border'
                     }`}
                   >
-                    <Image src={img} alt={`${product.title} view ${idx + 1}`} fill className="object-cover object-center" />
+                    <Image src={img} alt={`${product.title} view ${idx + 1}`} fill className="object-contain" />
                   </button>
                 ))}
               </div>
@@ -332,7 +334,7 @@ function ProductPage() {
               {product.type === 'tshirt' && (
                 <div className="space-y-3 border-t border-border pt-3 text-xs">
                   <div className="flex items-center justify-between">
-                    <p className="font-medium">Select fit & color</p>
+                    <p className="font-medium">Select size & color</p>
                     <button
                       type="button"
                       onClick={() => setShowSizeGuide((v) => !v)}
@@ -343,19 +345,28 @@ function ProductPage() {
                   </div>
 
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="space-y-1">
-                      <p className="text-[11px] text-muted-foreground">Fit</p>
-                      <Select value={fit || ''} onValueChange={(value) => setFit(value)}>
-                        <SelectTrigger className="h-9 border-border bg-background text-xs">
-                          <SelectValue placeholder="Select fit" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Oversized">Oversized fit</SelectItem>
-                          <SelectItem value="Regular">Regular fit</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    {/* Size buttons */}
+                    <div className="space-y-1.5">
+                      <p className="text-[11px] text-muted-foreground">Size{size ? <span className="ml-1 font-medium text-foreground/80">— {size}</span> : <span className="ml-1 text-red-400">*required</span>}</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {['S', 'M', 'L', 'XL', 'XXL', 'XXXL'].map((s) => (
+                          <button
+                            key={s}
+                            type="button"
+                            onClick={() => setSize(s)}
+                            className={`min-w-[2.5rem] rounded-md border px-2 py-1 text-[11px] font-semibold transition-all duration-150 ${
+                              size === s
+                                ? 'border-violet-500 bg-violet-500 text-white'
+                                : 'border-border bg-card text-foreground hover:border-violet-400 hover:bg-violet-500/10'
+                            }`}
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
                     </div>
 
+                    {/* Color swatches */}
                     <div className="space-y-2">
                       <p className="text-[11px] text-muted-foreground">
                         Color{color ? <span className="ml-1 text-foreground/80">— {selectedColor?.name || color}</span> : ''}
@@ -393,8 +404,13 @@ function ProductPage() {
 
                   {showSizeGuide && (
                     <div className="mt-2 rounded-xl border border-border bg-card/80 p-3 text-[11px] text-muted-foreground">
-                      <p className="mb-1 font-medium text-foreground">Size guide</p>
-                      <p>Oversized fits are relaxed with dropped shoulders. If you prefer a standard fit, choose Regular in your usual size.</p>
+                      <p className="mb-2 font-medium text-foreground">Size guide (chest width)</p>
+                      <div className="grid grid-cols-3 gap-x-4 gap-y-1">
+                        {[['S','36–38"'],['M','38–40"'],['L','40–42"'],['XL','42–44"'],['XXL','44–46"'],['XXXL','46–48"']].map(([s, m]) => (
+                          <div key={s} className="flex gap-1.5"><span className="font-semibold text-foreground">{s}</span><span>{m}</span></div>
+                        ))}
+                      </div>
+                      <p className="mt-2">All sizes are in inches. Material: 240 GSM French Terry Cotton. Washes well, minimal shrink.</p>
                     </div>
                   )}
                 </div>
