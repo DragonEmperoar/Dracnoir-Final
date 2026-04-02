@@ -976,6 +976,15 @@ async function handleRoute(request, { params }) {
       const categoriesCol = db.collection('categories')
       const cat = await categoriesCol.findOne({ slug: categorySlug })
       const productsCol = db.collection('products')
+      // Uniqueness check: block duplicate product (same title + category)
+      const normalizedTitle = title.trim().toLowerCase()
+      const duplicate = await productsCol.findOne({
+        categorySlug,
+        $expr: { $eq: [{ $toLower: { $trim: { input: '$title' } } }, normalizedTitle] }
+      })
+      if (duplicate) {
+        return handleCORS(NextResponse.json({ error: `A product named "${title.trim()}" already exists in ${categorySlug}. Use Edit to update it.` }, { status: 409 }))
+      }
       const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + uuidv4().slice(0, 6)
       const now = new Date()
       const product = {
