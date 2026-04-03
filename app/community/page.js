@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import AppShell from '../AppShell'
-import { Plus, Flame, Clock, ChevronRight, ThumbsUp, MessageCircle, X, ImageIcon, Loader2, Users, TrendingUp } from 'lucide-react'
+import { Plus, Flame, Clock, ChevronRight, ThumbsUp, MessageCircle, X, ImageIcon, Loader2, Users, TrendingUp, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -42,55 +42,67 @@ function Avatar({ name, image, size = 'sm' }) {
   )
 }
 
-function PostCard({ post, onClick }) {
+function PostCard({ post, onClick, isAdmin, onDelete }) {
   return (
-    <button
-      onClick={onClick}
-      className="w-full text-left rounded-xl border border-border bg-card hover:border-violet-500/50 transition-all duration-200 group overflow-hidden"
-    >
-      {post.image && (
-        <div className="h-44 overflow-hidden">
-          <img src={post.image} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-        </div>
+    <div className="relative rounded-xl border border-border bg-card hover:border-violet-500/50 transition-all duration-200 group overflow-hidden">
+      {isAdmin && (
+        <button
+          type="button"
+          title="Delete post (admin)"
+          onClick={(e) => { e.stopPropagation(); onDelete(post.id) }}
+          className="absolute right-2 top-2 z-10 rounded-full bg-red-500/90 p-1.5 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
       )}
-      <div className="p-4">
-        <div className="flex items-start gap-3">
-          <Avatar name={post.userName} image={post.userImage} />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap mb-1.5">
-              <span className="text-xs font-medium text-foreground/80">{post.userName}</span>
-              <span className="text-[10px] text-muted-foreground">{timeAgo(post.createdAt)}</span>
-              {post.category && (
-                <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${CATEGORY_STYLES[post.category] || 'bg-muted text-muted-foreground border-border'}`}>
-                  {post.category}
-                </span>
+      <button
+        onClick={onClick}
+        className="w-full text-left"
+      >
+        {post.image && (
+          <div className="h-44 overflow-hidden">
+            <img src={post.image} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          </div>
+        )}
+        <div className="p-4">
+          <div className="flex items-start gap-3">
+            <Avatar name={post.userName} image={post.userImage} />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap mb-1.5">
+                <span className="text-xs font-medium text-foreground/80">{post.userName}</span>
+                <span className="text-[10px] text-muted-foreground">{timeAgo(post.createdAt)}</span>
+                {post.category && (
+                  <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${CATEGORY_STYLES[post.category] || 'bg-muted text-muted-foreground border-border'}`}>
+                    {post.category}
+                  </span>
+                )}
+              </div>
+              <h3 className="font-semibold text-foreground text-sm leading-snug group-hover:text-violet-400 transition-colors line-clamp-2">
+                {post.title}
+              </h3>
+              {post.content && (
+                <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                  {post.content}
+                </p>
               )}
             </div>
-            <h3 className="font-semibold text-foreground text-sm leading-snug group-hover:text-violet-400 transition-colors line-clamp-2">
-              {post.title}
-            </h3>
-            {post.content && (
-              <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                {post.content}
-              </p>
-            )}
+          </div>
+          <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground border-t border-border/60 pt-3">
+            <span className={`flex items-center gap-1.5 ${post.userUpvoted ? 'text-violet-400' : ''}`}>
+              <ThumbsUp className="h-3.5 w-3.5" />
+              {post.upvoteCount || 0}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <MessageCircle className="h-3.5 w-3.5" />
+              {post.commentCount || 0}
+            </span>
+            <span className="ml-auto flex items-center gap-0.5 text-violet-500 text-[11px] opacity-0 group-hover:opacity-100 transition-opacity">
+              Read more <ChevronRight className="h-3 w-3" />
+            </span>
           </div>
         </div>
-        <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground border-t border-border/60 pt-3">
-          <span className={`flex items-center gap-1.5 ${post.userUpvoted ? 'text-violet-400' : ''}`}>
-            <ThumbsUp className="h-3.5 w-3.5" />
-            {post.upvoteCount || 0}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <MessageCircle className="h-3.5 w-3.5" />
-            {post.commentCount || 0}
-          </span>
-          <span className="ml-auto flex items-center gap-0.5 text-violet-500 text-[11px] opacity-0 group-hover:opacity-100 transition-opacity">
-            Read more <ChevronRight className="h-3 w-3" />
-          </span>
-        </div>
-      </div>
-    </button>
+      </button>
+    </div>
   )
 }
 
@@ -232,6 +244,12 @@ export default function CommunityPage() {
   const [activeSort, setActiveSort] = useState('latest')
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [total, setTotal] = useState(0)
+  const [isAdmin, setIsAdmin] = useState(false)
+
+  // Check if logged-in user is also the admin
+  useEffect(() => {
+    fetch('/api/admin/check').then(r => { if (r.ok) setIsAdmin(true) }).catch(() => {})
+  }, [])
 
   useEffect(() => {
     const load = async () => {
@@ -256,6 +274,16 @@ export default function CommunityPage() {
     setPosts(prev => [newPost, ...prev])
     setTotal(t => t + 1)
     setShowCreateModal(false)
+  }
+
+  const handleDeletePost = async (postId) => {
+    if (!confirm('Delete this post and all its comments? This cannot be undone.')) return
+    try {
+      const res = await fetch(`/api/community/posts/${postId}`, { method: 'DELETE' })
+      if (!res.ok) { const d = await res.json(); alert(d.error || 'Failed to delete'); return }
+      setPosts(prev => prev.filter(p => p.id !== postId))
+      setTotal(t => Math.max(0, t - 1))
+    } catch { alert('Something went wrong.') }
   }
 
   return (
@@ -379,6 +407,8 @@ export default function CommunityPage() {
               <PostCard
                 key={post.id}
                 post={post}
+                isAdmin={isAdmin}
+                onDelete={handleDeletePost}
                 onClick={() => router.push(`/community/post/${post.id}`)}
               />
             ))}
