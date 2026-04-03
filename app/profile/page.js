@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { User, MapPin, Package, Heart, Settings, Trash2 } from 'lucide-react'
+import { User, MapPin, Package, Heart, Settings, Trash2, XCircle } from 'lucide-react'
 import AppShell from '../AppShell'
 
 const emptyForm = {
@@ -27,6 +27,7 @@ const ProfilePage = () => {
   const [editingId, setEditingId] = useState(null)
   const [error, setError] = useState('')
   const [orders, setOrders] = useState([])
+  const [cancellingOrderId, setCancellingOrderId] = useState(null)
   const [wishlist, setWishlist] = useState([])
   const [loadingWishlist, setLoadingWishlist] = useState(false)
   const [preferences, setPreferences] = useState({
@@ -60,7 +61,17 @@ const ProfilePage = () => {
   }, [user])
 
   const handleChange = (field, value) => setForm((prev) => ({ ...prev, [field]: value }))
-  const handleToggleDefault = () => setForm((prev) => ({ ...prev, isDefault: !prev.isDefault }))
+  const handleCancelOrder = async (orderId) => {
+    if (!confirm('Cancel this order? This cannot be undone.')) return
+    setCancellingOrderId(orderId)
+    try {
+      const res = await fetch(`/api/orders/${orderId}/cancel`, { method: 'PATCH' })
+      const data = await res.json()
+      if (!res.ok) { alert(data.error || 'Could not cancel order'); return }
+      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'cancelled' } : o))
+    } catch { alert('Something went wrong. Please try again.') }
+    finally { setCancellingOrderId(null) }
+  }
   const resetForm = () => { setForm(emptyForm); setEditingId(null) }
 
   const handleEdit = (addr) => {
@@ -249,19 +260,39 @@ const ProfilePage = () => {
                   <p className="text-xs text-muted-foreground">No orders yet. They will show up here after you place one.</p>
                 ) : (
                   <div className="space-y-2 text-xs">
-                    {orders.map((order) => (
-                      <button
-                        key={order.id} type="button"
-                        className="flex w-full items-center justify-between rounded-xl border border-border bg-card/80 px-3 py-2 text-left hover:border-violet-500/70"
-                        onClick={() => router.push(`/orders/${order.id}`)}
-                      >
-                        <div>
-                          <p className="font-medium">#{order.id?.slice?.(-6) || order.id}</p>
-                          <p className="text-muted-foreground">{new Date(order.createdAt).toLocaleString()} • {order.items?.length || 0} item{order.items?.length === 1 ? '' : 's'}</p>
+                    {orders.map((order) => {
+                      const cancellable = !['delivered', 'cancelled', 'shipped'].includes(order.status?.toLowerCase())
+                      return (
+                        <div key={order.id} className="rounded-xl border border-border bg-card/80 px-3 py-2">
+                          <div className="flex w-full items-center justify-between">
+                            <button
+                              type="button"
+                              className="flex flex-1 items-center justify-between text-left hover:text-violet-400 transition-colors"
+                              onClick={() => router.push(`/orders/${order.id}`)}
+                            >
+                              <div>
+                                <p className="font-medium">#{order.id?.slice?.(-6) || order.id}</p>
+                                <p className="text-muted-foreground">{new Date(order.createdAt).toLocaleString()} • {order.items?.length || 0} item{order.items?.length === 1 ? '' : 's'}</p>
+                              </div>
+                              <p className={`ml-3 font-medium ${order.status === 'cancelled' ? 'text-red-400' : 'text-emerald-500'}`}>
+                                {order.status}
+                              </p>
+                            </button>
+                            {cancellable && (
+                              <button
+                                type="button"
+                                disabled={cancellingOrderId === order.id}
+                                onClick={() => handleCancelOrder(order.id)}
+                                className="ml-3 flex items-center gap-1 rounded-full border border-red-500/40 px-2.5 py-1 text-[10px] font-medium text-red-400 hover:bg-red-500/10 disabled:opacity-50 transition-colors flex-shrink-0"
+                              >
+                                <XCircle className="h-3 w-3" />
+                                {cancellingOrderId === order.id ? 'Cancelling...' : 'Cancel'}
+                              </button>
+                            )}
+                          </div>
                         </div>
-                        <p className="text-emerald-500">{order.status}</p>
-                      </button>
-                    ))}
+                      )
+                    })}
                   </div>
                 )}
               </CardContent>
