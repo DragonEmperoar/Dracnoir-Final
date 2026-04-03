@@ -682,6 +682,22 @@ async function handleRoute(request, { params }) {
       return handleCORS(NextResponse.json(rest))
     }
 
+    // PATCH /api/orders/[id]/cancel - user cancels their own order
+    if (segments[0] === 'orders' && segments[2] === 'cancel' && segments.length === 3 && method === 'PATCH') {
+      const orderId = segments[1]
+      const userId = await requireUserId(request)
+      if (!userId) return handleCORS(NextResponse.json({ error: 'Unauthorized' }, { status: 401 }))
+      const ordersCol = db.collection('orders')
+      const order = await ordersCol.findOne({ id: orderId, userId })
+      if (!order) return handleCORS(NextResponse.json({ error: 'Order not found' }, { status: 404 }))
+      const nonCancellable = ['delivered', 'cancelled', 'shipped']
+      if (nonCancellable.includes(order.status?.toLowerCase())) {
+        return handleCORS(NextResponse.json({ error: `Order cannot be cancelled — it is already ${order.status}` }, { status: 400 }))
+      }
+      await ordersCol.updateOne({ id: orderId }, { $set: { status: 'cancelled', updatedAt: new Date() } })
+      return handleCORS(NextResponse.json({ success: true, status: 'cancelled' }))
+    }
+
     // GET /api/coupons/validate?code=XXXX
     if (segments[0] === 'coupons' && segments[1] === 'validate' && method === 'GET') {
       const { searchParams } = new URL(request.url)
