@@ -45,8 +45,9 @@ const ProfilePage = () => {
       setLoadingAddresses(true); setError('')
       try {
         const [addrRes, ordersRes] = await Promise.all([fetch('/api/addresses'), fetch('/api/orders')])
-        if (addrRes.ok) setAddresses(Array.isArray(await addrRes.json()) ? await addrRes.json() : [])
-        if (ordersRes.ok) setOrders(Array.isArray(await ordersRes.json()) ? await ordersRes.json() : [])
+        const [addrData, ordersData] = await Promise.all([addrRes.json(), ordersRes.json()])
+        if (addrRes.ok) setAddresses(Array.isArray(addrData) ? addrData : [])
+        if (ordersRes.ok) setOrders(Array.isArray(ordersData) ? ordersData : [])
       } catch (e) {
         console.error(e); setError('Unable to load profile data right now.')
       } finally { setLoadingAddresses(false) }
