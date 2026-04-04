@@ -592,7 +592,7 @@ async function handleRoute(request, { params }) {
       const docs = await col
         .find({ userId })
         .sort({ createdAt: -1 })
-        .limit(20)
+        .limit(100)
         .toArray()
       const cleaned = docs.map(({ _id, ...rest }) => rest)
       return handleCORS(NextResponse.json(cleaned))
