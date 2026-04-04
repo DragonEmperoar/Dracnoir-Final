@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { ChevronLeft, ShoppingCart, Search, X, Menu, Home, Package, Tag, User, LogIn, Users } from 'lucide-react'
 import { useAuth } from './context/AuthContext'
@@ -346,9 +347,9 @@ const AppShell = ({ children }) => {
         <div className="container mx-auto flex flex-col items-center justify-between gap-3 px-4 py-4 sm:flex-row">
           <span>© {new Date().getFullYear()} Dracnoir. All rights reserved.</span>
           <div className="flex flex-wrap items-center gap-3">
-            <button className="hover:text-foreground" type="button">Terms</button>
+            <Link href="/terms" className="hover:text-foreground transition-colors">Terms &amp; Conditions</Link>
             <span className="h-3 w-px bg-border" />
-            <button className="hover:text-foreground" type="button">Privacy</button>
+            <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
             <span className="h-3 w-px bg-border" />
             <span className="text-muted-foreground/60">Built for anime collectors.</span>
           </div>
