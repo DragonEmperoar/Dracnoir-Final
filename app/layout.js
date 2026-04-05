@@ -13,6 +13,11 @@ export const metadata = {
   description:
     'Premium anime merchandise including plushies, t-shirts, and action figures from Naruto, One Piece, Demon Slayer and more.',
   keywords: ['anime merch', 'anime t-shirts', 'anime plushies', 'action figures', 'Naruto', 'Demon Slayer', 'Jujutsu Kaisen', 'One Piece', 'Dragon Ball', 'anime store India'],
+  icons: {
+    icon: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1775382215/New_Logo_Inverted_Background_owdt2k.webp',
+    shortcut: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1775382215/New_Logo_Inverted_Background_owdt2k.webp',
+    apple: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1775382215/New_Logo_Inverted_Background_owdt2k.webp',
+  },
   openGraph: {
     title: 'Dracnoir – Anime Merch Store',
     description: 'Premium anime merch: plushies, tees, and figures from your favourite series.',
