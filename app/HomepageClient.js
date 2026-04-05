@@ -10,12 +10,12 @@ import AppShell from './AppShell'
 // ── Static data ────────────────────────────────────────────────────────────
 
 const UNIVERSES = [
-  { id: 'naruto',          name: 'Naruto',          slug: 'naruto',          image: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1773779314/download_5_qchk4o.webp' },
-  { id: 'jujutsu-kaisen',  name: 'Jujutsu Kaisen',  slug: 'jujutsu-kaisen',  image: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1773779309/SATORU_GOJO_%EF%B8%8F_%EF%B8%8F_cvjgsp.webp' },
+  { id: 'naruto',          name: 'Naruto',          slug: 'naruto',          image: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1775379361/Naruto_Preview_a4e9jv.webp' },
+  { id: 'jujutsu-kaisen',  name: 'Jujutsu Kaisen',  slug: 'jujutsu-kaisen',  image: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1775379424/Jujutsu_Kaisen_Preview_rxrla4.webp' },
   { id: 'attack-on-titan', name: 'Attack on Titan', slug: 'attack-on-titan', image: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1773779309/download_4_cuu1u7.webp' },
-  { id: 'demon-slayer',    name: 'Demon Slayer',    slug: 'demon-slayer',    image: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1773779311/download_3_bn0rhn.webp' },
-  { id: 'dragon-ball',     name: 'Dragon Ball',     slug: 'dragon-ball',     image: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1773779310/download_1_jjffyo.webp' },
-  { id: 'one-piece',       name: 'One Piece',       slug: 'one-piece',       image: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1773779313/download_uqkxoy.webp' },
+  { id: 'demon-slayer',    name: 'Demon Slayer',    slug: 'demon-slayer',    image: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1775379477/Demon_Slayer_Preview_znizer.webp' },
+  { id: 'dragon-ball',     name: 'Dragon Ball',     slug: 'dragon-ball',     image: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1775379423/Dragon_Ball_Preview_p4hkfo.webp' },
+  { id: 'one-piece',       name: 'One Piece',       slug: 'one-piece',       image: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1775379365/One_Piece_Preview_zw00ax.webp' },
 ]
 
 const COLLECTOR_SETUPS = [
