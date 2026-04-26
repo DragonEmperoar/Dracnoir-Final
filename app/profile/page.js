@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { User, MapPin, Package, Heart, Settings, Trash2, XCircle } from 'lucide-react'
+import { User, MapPin, Package, Heart, Settings, Trash2, XCircle, ChevronDown, Truck } from 'lucide-react'
 import AppShell from '../AppShell'
 
 const emptyForm = {
@@ -28,6 +28,7 @@ const ProfilePage = () => {
   const [error, setError] = useState('')
   const [orders, setOrders] = useState([])
   const [cancellingOrderId, setCancellingOrderId] = useState(null)
+  const [expandedOrderId, setExpandedOrderId] = useState(null)
   const [wishlist, setWishlist] = useState([])
   const [loadingWishlist, setLoadingWishlist] = useState(false)
   const [preferences, setPreferences] = useState({
@@ -260,37 +261,130 @@ const ProfilePage = () => {
                 {orders.length === 0 ? (
                   <p className="text-xs text-muted-foreground">No orders yet. They will show up here after you place one.</p>
                 ) : (
-                  <div className="space-y-2 text-xs">
+                  <div className="space-y-3 text-xs">
                     {orders.map((order) => {
                       const cancellable = !['delivered', 'cancelled', 'shipped'].includes(order.status?.toLowerCase())
+                      const isExpanded = expandedOrderId === order.id
+                      const ORDER_STEPS = ['placed', 'confirmed', 'processing', 'shipped', 'delivered']
+                      const currentStepIdx = order.status === 'cancelled'
+                        ? -1
+                        : ORDER_STEPS.indexOf(order.status?.toLowerCase())
+                      // Estimate delivery: order date + 7 days
+                      const orderDate = new Date(order.createdAt)
+                      const estDelivery = new Date(orderDate)
+                      estDelivery.setDate(estDelivery.getDate() + 7)
+                      const stepLabels = ['Order Placed', 'Confirmed', 'Processing', 'Shipped', 'Delivered']
                       return (
-                        <div key={order.id} className="rounded-xl border border-border bg-card/80 px-3 py-2">
-                          <div className="flex w-full items-center justify-between">
-                            <button
-                              type="button"
-                              className="flex flex-1 items-center justify-between text-left hover:text-violet-400 transition-colors"
-                              onClick={() => router.push(`/orders/${order.id}`)}
-                            >
-                              <div>
-                                <p className="font-medium">#{order.id?.slice?.(-6) || order.id}</p>
-                                <p className="text-muted-foreground">{new Date(order.createdAt).toLocaleString()} • {order.items?.length || 0} item{order.items?.length === 1 ? '' : 's'}</p>
-                              </div>
-                              <p className={`ml-3 font-medium ${order.status === 'cancelled' ? 'text-red-400' : 'text-emerald-500'}`}>
-                                {order.status}
+                        <div key={order.id} className="rounded-xl border border-border bg-card/80 overflow-hidden">
+                          {/* Order header */}
+                          <div className="flex w-full items-center justify-between px-3 py-2.5">
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium">#{order.id?.slice?.(-6) || order.id}</p>
+                              <p className="text-muted-foreground text-[11px]">
+                                {new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} • {order.items?.length || 0} item{order.items?.length === 1 ? '' : 's'} • ₹{order.subtotal?.toFixed(0)}
                               </p>
-                            </button>
-                            {cancellable && (
+                            </div>
+                            <div className="flex items-center gap-2 ml-3 flex-shrink-0">
+                              <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                                order.status === 'delivered' ? 'bg-emerald-500/15 text-emerald-500' :
+                                order.status === 'cancelled' ? 'bg-red-500/15 text-red-400' :
+                                order.status === 'shipped' ? 'bg-cyan-500/15 text-cyan-500' :
+                                'bg-violet-500/15 text-violet-500'
+                              }`}>{order.status}</span>
+                              {cancellable && (
+                                <button
+                                  type="button"
+                                  disabled={cancellingOrderId === order.id}
+                                  onClick={() => handleCancelOrder(order.id)}
+                                  className="flex items-center gap-1 rounded-full border border-red-500/40 px-2 py-0.5 text-[10px] font-medium text-red-400 hover:bg-red-500/10 disabled:opacity-50 transition-colors"
+                                >
+                                  <XCircle className="h-3 w-3" />
+                                  {cancellingOrderId === order.id ? 'Cancelling...' : 'Cancel'}
+                                </button>
+                              )}
                               <button
                                 type="button"
-                                disabled={cancellingOrderId === order.id}
-                                onClick={() => handleCancelOrder(order.id)}
-                                className="ml-3 flex items-center gap-1 rounded-full border border-red-500/40 px-2.5 py-1 text-[10px] font-medium text-red-400 hover:bg-red-500/10 disabled:opacity-50 transition-colors flex-shrink-0"
+                                onClick={() => setExpandedOrderId(isExpanded ? null : order.id)}
+                                className="rounded-lg border border-border bg-muted p-1 hover:bg-muted/80 transition-colors"
                               >
-                                <XCircle className="h-3 w-3" />
-                                {cancellingOrderId === order.id ? 'Cancelling...' : 'Cancel'}
+                                <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                               </button>
-                            )}
+                            </div>
                           </div>
+
+                          {/* Delivery tracker (expanded) */}
+                          {isExpanded && (
+                            <div className="border-t border-border px-3 py-3 space-y-3 bg-muted/30">
+                              {order.status === 'cancelled' ? (
+                                <p className="text-xs text-red-400 font-medium flex items-center gap-1.5">
+                                  <XCircle className="h-3.5 w-3.5" /> This order was cancelled.
+                                </p>
+                              ) : (
+                                <>
+                                  {/* Status stepper */}
+                                  <div className="flex items-center gap-0">
+                                    {ORDER_STEPS.map((step, idx) => {
+                                      const done = idx <= currentStepIdx
+                                      const active = idx === currentStepIdx
+                                      return (
+                                        <div key={step} className="flex flex-1 items-center">
+                                          <div className="flex flex-col items-center gap-1">
+                                            <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center text-[9px] font-bold flex-shrink-0 ${
+                                              done ? 'border-violet-500 bg-violet-500 text-white' : 'border-border bg-card text-muted-foreground'
+                                            } ${active ? 'ring-2 ring-violet-400/40' : ''}`}>
+                                              {done ? '✓' : idx + 1}
+                                            </div>
+                                            <span className={`text-[9px] text-center leading-tight w-12 ${done ? 'text-violet-500 font-medium' : 'text-muted-foreground'}`}>
+                                              {stepLabels[idx]}
+                                            </span>
+                                          </div>
+                                          {idx < ORDER_STEPS.length - 1 && (
+                                            <div className={`flex-1 h-0.5 mx-0.5 mb-3.5 rounded ${idx < currentStepIdx ? 'bg-violet-500' : 'bg-border'}`} />
+                                          )}
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+                                  {/* Estimated delivery */}
+                                  <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2">
+                                    <Truck className="h-3.5 w-3.5 text-violet-500 flex-shrink-0" />
+                                    <div>
+                                      <p className="text-[11px] font-medium text-foreground">
+                                        {order.status === 'delivered'
+                                          ? 'Delivered successfully!'
+                                          : `Est. delivery by ${estDelivery.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`}
+                                      </p>
+                                      <p className="text-[10px] text-muted-foreground">Standard delivery • 5–7 business days</p>
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                              {/* Items list */}
+                              {order.items?.length > 0 && (
+                                <div className="space-y-1.5">
+                                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Items</p>
+                                  {order.items.map((item, i) => (
+                                    <div key={i} className="flex items-center gap-2 text-[11px]">
+                                      {item.image && <img src={item.image} alt={item.title} className="h-8 w-8 rounded object-contain bg-card border border-border flex-shrink-0" />}
+                                      <span className="flex-1 truncate text-foreground/80">{item.title}</span>
+                                      {item.size && <span className="text-muted-foreground">({item.size})</span>}
+                                      <span className="text-muted-foreground">×{item.quantity}</span>
+                                      <span className="text-violet-500 font-medium">₹{item.price?.toFixed(0)}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                              {/* Shipping address */}
+                              {order.addressSnapshot && (
+                                <div className="rounded-lg border border-border bg-card px-3 py-2 text-[11px] text-muted-foreground">
+                                  <p className="font-medium text-foreground/80 mb-0.5">Shipping to</p>
+                                  <p>{order.addressSnapshot.name}{order.addressSnapshot.phone ? ` • ${order.addressSnapshot.phone}` : ''}</p>
+                                  <p>{order.addressSnapshot.line1}{order.addressSnapshot.line2 ? `, ${order.addressSnapshot.line2}` : ''}</p>
+                                  <p>{order.addressSnapshot.city}, {order.addressSnapshot.state} {order.addressSnapshot.postalCode}</p>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       )
                     })}
