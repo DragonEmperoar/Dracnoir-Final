@@ -25,14 +25,14 @@ const STATUS_COLORS = {
 
 const emptyProduct = {
   title: '', description: '', price: '799', categorySlug: 't-shirts',
-  type: 'tshirt', material: '240 GSM French Terry Cotton', dimensions: '', series: '', images: '', stock: '', subcategory: '', imagePositions: [],
+  type: 'tshirt', material: '240 GSM French Terry Cotton', dimensions: '', series: '', images: '', stock: '', subcategory: '', imagePositions: [], aspectRatio: '4/3',
 }
 
 // Smart defaults per category
 const CATEGORY_DEFAULTS = {
   't-shirts':       { type: 'tshirt',        material: '240 GSM French Terry Cotton', price: '799', dimensions: '' },
   'plushes':        { type: 'plush',          material: 'Cotton',                      price: '',    dimensions: '' },
-  'action-figures': { type: 'action-figure',  material: '',                            price: '',    dimensions: '' },
+  'action-figures': { type: 'action-figure',  material: 'PVC Plastic',                 price: '',    dimensions: '', subcategory: 'premium' },
 }
 
 const emptyCoupon = {
@@ -163,6 +163,7 @@ const AdminDashboard = () => {
       images: (p.images || []).join(', '), stock: p.stock || '',
       subcategory: p.subcategory || '',
       imagePositions: p.imagePositions || (p.imagePosition ? [p.imagePosition] : []),
+      aspectRatio: p.aspectRatio || '4/3',
     })
     setProductColors(Array.isArray(p.colors) ? p.colors.map(c => ({
       id: c.id || '',
@@ -185,7 +186,7 @@ const AdminDashboard = () => {
       material: defaults.material !== undefined ? defaults.material : prev.material,
       price: 'price' in defaults ? defaults.price : prev.price,
       dimensions: defaults.dimensions !== undefined ? defaults.dimensions : prev.dimensions,
-      subcategory: '',
+      subcategory: defaults.subcategory !== undefined ? defaults.subcategory : '',
     }))
     // Auto-load preset colors only for t-shirts
     if (newCategorySlug === 't-shirts' && productColors.length === 0) {
@@ -221,6 +222,7 @@ const AdminDashboard = () => {
         stock: Number(productForm.stock) || 0,
         images: productForm.images ? productForm.images.split(',').map(s => s.trim()).filter(Boolean) : [],
         imagePositions: productForm.imagePositions || [],
+        aspectRatio: productForm.aspectRatio || '4/3',
         colors: serializedColors,
       }
       const url = editingProduct ? `/api/admin/products/${editingProduct.id}` : '/api/admin/products'
@@ -881,6 +883,29 @@ const AdminDashboard = () => {
                         Select an image below, then click on it to set which spot stays visible when cropped.
                       </p>
 
+                      {/* Aspect ratio selector */}
+                      <div className="flex items-center gap-2">
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Aspect Ratio:</p>
+                        {[
+                          { label: '4:3', value: '4/3' },
+                          { label: '16:9', value: '16/9' },
+                          { label: '9:16', value: '9/16' },
+                        ].map(ratio => (
+                          <button
+                            key={ratio.value}
+                            type="button"
+                            onClick={() => setProductForm(p => ({ ...p, aspectRatio: ratio.value }))}
+                            className={`rounded-lg border px-3 py-1 text-xs font-semibold transition-all ${
+                              (productForm.aspectRatio || '4/3') === ratio.value
+                                ? 'border-violet-500 bg-violet-500/20 text-violet-400'
+                                : 'border-border bg-card text-muted-foreground hover:border-violet-500/40 hover:text-foreground'
+                            }`}
+                          >
+                            {ratio.label}
+                          </button>
+                        ))}
+                      </div>
+
                       {/* Image tabs */}
                       {imgList.length > 1 && (
                         <div className="flex gap-2 flex-wrap">
@@ -945,8 +970,13 @@ const AdminDashboard = () => {
 
                         {/* 4:3 preview */}
                         <div className="w-36 flex-shrink-0 space-y-1">
-                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Card preview (4:3)</p>
-                          <div className="relative w-full overflow-hidden rounded-xl border border-border bg-card" style={{ aspectRatio: '4/3' }}>
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                            Preview ({(productForm.aspectRatio || '4/3').replace('/', ':')})
+                          </p>
+                          <div
+                            className="relative w-full overflow-hidden rounded-xl border border-border bg-card"
+                            style={{ aspectRatio: productForm.aspectRatio || '4/3' }}
+                          >
                             <img
                               src={currentImg}
                               alt="preview"
