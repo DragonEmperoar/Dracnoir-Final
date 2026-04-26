@@ -653,6 +653,16 @@ async function handleRoute(request, { params }) {
       }
 
       await ordersCol.insertOne(order)
+      // Decrement stock for each product ordered
+      const productsCol = db.collection('products')
+      for (const item of cart.items) {
+        if (item.productId) {
+          await productsCol.updateOne(
+            { id: item.productId, stock: { $gt: 0 } },
+            { $inc: { stock: -(item.quantity || 1) } }
+          )
+        }
+      }
       // Clear cart after order
       await cartsCol.updateOne(
         { id: cart.id },
@@ -772,7 +782,7 @@ async function handleRoute(request, { params }) {
     if (route === '/products' && method === 'GET') {
       const { searchParams } = new URL(request.url)
       const page = Number(searchParams.get('page') || '1')
-      const limit = Math.min(Number(searchParams.get('limit') || '12'), 500)
+      const limit = Math.min(Number(searchParams.get('limit') || '12'), 1000)
 
       const query = buildProductQuery(searchParams)
       const sort = buildProductSort(searchParams)
@@ -1052,6 +1062,8 @@ async function handleRoute(request, { params }) {
       if (body.subcategory != null) update.subcategory = body.subcategory
       if (body.images != null) update.images = Array.isArray(body.images) ? body.images : [body.images]
       if (body.stock != null) update.stock = Number(body.stock)
+      if (body.imagePosition != null) update.imagePosition = body.imagePosition
+      if (body.imagePositions != null) update.imagePositions = body.imagePositions
       if (body.colors != null) update.colors = Array.isArray(body.colors) ? body.colors : []
       await productsCol.updateOne({ id: productId }, { $set: update })
       const updated = await productsCol.findOne({ id: productId })
@@ -1105,12 +1117,18 @@ async function handleRoute(request, { params }) {
       const query = statusFilter ? { status: statusFilter } : {}
       const ordersCol = db.collection('orders')
       const docs = await ordersCol.find(query).sort({ createdAt: -1 }).limit(200).toArray()
-      // Enrich with user info
+      // Enrich with user info — try matching by id OR email (handles both Google OAuth and credentials)
       const usersCol = db.collection('users')
       const userIds = [...new Set(docs.map(o => o.userId).filter(Boolean))]
-      const users = await usersCol.find({ id: { $in: userIds } }).toArray()
-      const userMap = Object.fromEntries(users.map(u => [u.id, { name: u.name, email: u.email }]))
-      const cleaned = docs.map(({ _id, ...o }) => ({ ...o, user: userMap[o.userId] || null }))
+      const users = await usersCol.find({ $or: [{ id: { $in: userIds } }, { email: { $in: userIds } }] }).toArray()
+      const userMap = Object.fromEntries([
+        ...users.map(u => [u.id, { name: u.name, email: u.email }]),
+        ...users.map(u => [u.email, { name: u.name, email: u.email }]),
+      ])
+      const cleaned = docs.map(({ _id, ...o }) => ({
+        ...o,
+        user: userMap[o.userId] || (o.addressSnapshot?.name ? { name: o.addressSnapshot.name } : null),
+      }))
       return handleCORS(NextResponse.json(cleaned))
     }
 
