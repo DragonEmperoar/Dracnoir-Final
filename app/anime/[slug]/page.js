@@ -9,12 +9,12 @@ import { Button } from '@/components/ui/button'
 import AppShell from '../../AppShell'
 
 const ANIME_INFO = {
-  naruto: { name: 'Naruto', tagline: 'Believe it! — From Konoha to your shelf.', banner: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1775379428/Naruto_Banner_kqlyzx.webp' },
-  'jujutsu-kaisen': { name: 'Jujutsu Kaisen', tagline: 'Throughout heaven and earth, I alone am the honored one.', banner: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1775379426/Jujutsu_Kaisen_Banner_knqsss.webp' },
-  'attack-on-titan': { name: 'Attack on Titan', tagline: 'Fight for freedom. Collect the legacy.', banner: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1775379479/Attack_On_Titan_Banner_2_ncbtzt.webp' },
-  'demon-slayer': { name: 'Demon Slayer', tagline: 'Protect your loved ones. Own the story.', banner: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1775379482/Demon_Slayer_Banner_pg3879.webp' },
-  'dragon-ball': { name: 'Dragon Ball', tagline: "It's over 9000! — Power up your collection.", banner: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1775379425/Dragon_Ball_Banner_ypnotu.webp' },
-  'one-piece': { name: 'One Piece', tagline: 'The adventure never ends. Neither does the merch.', banner: 'https://res.cloudinary.com/dgklaf4bk/image/upload/v1775379372/One_Piece_Banner_i6oui9.webp' },
+  naruto: { name: 'Naruto', tagline: 'Believe it! — From Konoha to your shelf.', banner: 'https://images.unsplash.com/photo-1601850494422-3cf14624b0b3?w=1200&q=80' },
+  'jujutsu-kaisen': { name: 'Jujutsu Kaisen', tagline: 'Throughout heaven and earth, I alone am the honored one.', banner: 'https://images.unsplash.com/photo-1518671645473-e16c96bfae2e?w=1200&q=80' },
+  'attack-on-titan': { name: 'Attack on Titan', tagline: 'Fight for freedom. Collect the legacy.', banner: 'https://images.unsplash.com/photo-1533073526757-2c8ca1df9f1c?w=1200&q=80' },
+  'demon-slayer': { name: 'Demon Slayer', tagline: 'Protect your loved ones. Own the story.', banner: 'https://images.unsplash.com/photo-1542645901-27e5e44b77ad?w=1200&q=80' },
+  'dragon-ball': { name: 'Dragon Ball', tagline: "It's over 9000! — Power up your collection.", banner: 'https://images.unsplash.com/photo-1607462109225-6b64ae2dd3cb?w=1200&q=80' },
+  'one-piece': { name: 'One Piece', tagline: 'The adventure never ends. Neither does the merch.', banner: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1200&q=80' },
 }
 
 function toDisplayName(slug) {
@@ -22,19 +22,27 @@ function toDisplayName(slug) {
 }
 
 function ProductCard({ product, onClick }) {
+  const soldOut = product.stock === 0
   return (
     <Card
       className="group flex cursor-pointer flex-col overflow-hidden border border-border bg-card transition-colors hover:border-violet-500/60"
       onClick={onClick}
     >
-      <div className="relative w-full overflow-hidden bg-muted" style={{ aspectRatio: '4/3' }}>
+      <div className="relative w-full overflow-hidden bg-card" style={{ aspectRatio: '4/3' }}>
         {product.images?.[0] && (
           <Image
             src={product.images[0]}
             alt={`${product.title} anime merchandise`}
             fill
-            className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
+            className={`object-contain transition-transform duration-300 group-hover:scale-105 ${soldOut ? 'blur-[2px] brightness-75' : ''}`}
           />
+        )}
+        {soldOut && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="rounded-full bg-black/70 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white">
+              Sold Out
+            </span>
+          </div>
         )}
       </div>
       <CardContent className="flex flex-1 flex-col justify-between space-y-1 p-3">
