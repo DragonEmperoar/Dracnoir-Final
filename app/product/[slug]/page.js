@@ -290,7 +290,10 @@ function ProductPage() {
                   alt={`${product.title} anime merchandise`}
                   fill
                   className="object-cover object-center transition-transform duration-150"
-                  style={{ cursor: 'zoom-in' }}
+                  style={{
+                    objectPosition: (product.imagePositions?.[activeImage]) || product.imagePosition || 'center',
+                    cursor: 'zoom-in'
+                  }}
                   priority
                 />
               )}
