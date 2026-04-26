@@ -1064,6 +1064,7 @@ async function handleRoute(request, { params }) {
       if (body.stock != null) update.stock = Number(body.stock)
       if (body.imagePosition != null) update.imagePosition = body.imagePosition
       if (body.imagePositions != null) update.imagePositions = body.imagePositions
+      if (body.aspectRatio != null) update.aspectRatio = body.aspectRatio
       if (body.colors != null) update.colors = Array.isArray(body.colors) ? body.colors : []
       await productsCol.updateOne({ id: productId }, { $set: update })
       const updated = await productsCol.findOne({ id: productId })
