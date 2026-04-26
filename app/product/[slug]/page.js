@@ -266,29 +266,53 @@ function ProductPage() {
         <div className="grid gap-10 lg:grid-cols-[minmax(0,_1.2fr)_minmax(0,_1.3fr)]">
           {/* Gallery */}
           <section className="space-y-4">
-            <Card className="overflow-hidden border border-border bg-card">
-              <div className="relative w-full overflow-hidden bg-muted" style={{ aspectRatio: '4/3' }}>
-                {mainImage && (
-                  <Image
-                    src={mainImage}
-                    alt={`${product.title} anime merchandise`}
-                    fill
-                    className="scale-95 object-cover object-center"
-                  />
-                )}
-              </div>
-            </Card>
+            <div
+              className="relative w-full overflow-hidden rounded-xl border border-border bg-card"
+              style={{ aspectRatio: '4/3' }}
+              onMouseMove={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect()
+                const x = ((e.clientX - rect.left) / rect.width) * 100
+                const y = ((e.clientY - rect.top) / rect.height) * 100
+                e.currentTarget.querySelector('img').style.transformOrigin = `${x}% ${y}%`
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.querySelector('img').style.transform = 'scale(2)'
+              }}
+              onMouseLeave={(e) => {
+                const img = e.currentTarget.querySelector('img')
+                img.style.transform = 'scale(1)'
+                img.style.transformOrigin = 'center center'
+              }}
+            >
+              {mainImage && (
+                <Image
+                  src={mainImage}
+                  alt={`${product.title} anime merchandise`}
+                  fill
+                  className="object-cover object-center transition-transform duration-150"
+                  style={{ cursor: 'zoom-in' }}
+                  priority
+                />
+              )}
+              {product.stock === 0 && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] rounded-xl">
+                  <span className="rounded-full bg-black/80 px-4 py-1.5 text-sm font-bold uppercase tracking-widest text-white">
+                    Sold Out
+                  </span>
+                </div>
+              )}
+            </div>
             {images.length > 1 && (
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {images.map((img, idx) => (
                   <button
                     key={img + idx}
                     onClick={() => setActiveImage(idx)}
-                    className={`relative h-16 w-20 flex-shrink-0 overflow-hidden rounded-lg border ${
+                    className={`relative h-16 w-20 flex-shrink-0 overflow-hidden rounded-lg border bg-card ${
                       idx === activeImage ? 'border-violet-500' : 'border-border'
                     }`}
                   >
-                    <Image src={img} alt={`${product.title} view ${idx + 1}`} fill className="object-contain" />
+                    <Image src={img} alt={`${product.title} view ${idx + 1}`} fill className="object-cover object-center" />
                   </button>
                 ))}
               </div>
