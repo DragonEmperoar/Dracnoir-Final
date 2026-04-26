@@ -60,6 +60,7 @@ function ProductCard({ product, onClick }) {
             alt={product.title}
             fill
             className={`object-cover transition-transform duration-300 group-hover:scale-105 ${soldOut ? 'blur-[2px] brightness-75' : ''}`}
+            style={{ objectPosition: product.imagePositions?.[0] || product.imagePosition || 'center' }}
           />
         )}
         {soldOut && (
