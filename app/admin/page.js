@@ -152,6 +152,7 @@ const AdminDashboard = () => {
     setProductColors(COLOR_PRESET.map(c => ({ ...c })))
     setEditingProduct(null)
     setShowProductModal(true)
+    setPickerIndex(0)
   }
   const openEditProduct = (p) => {
     setProductForm({
@@ -171,6 +172,7 @@ const AdminDashboard = () => {
     })) : [])
     setEditingProduct(p)
     setShowProductModal(true)
+    setPickerIndex(0)
   }
 
   // When category changes, auto-apply smart defaults for material, type, price
