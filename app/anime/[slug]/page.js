@@ -22,6 +22,7 @@ function toDisplayName(slug) {
 }
 
 function ProductCard({ product, onClick }) {
+  const soldOut = product.stock === 0
   return (
     <Card
       className="group flex cursor-pointer flex-col overflow-hidden border border-border bg-card transition-colors hover:border-violet-500/60"
@@ -33,8 +34,16 @@ function ProductCard({ product, onClick }) {
             src={product.images[0]}
             alt={`${product.title} anime merchandise`}
             fill
-            className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
+            className={`object-cover transition-transform duration-300 group-hover:scale-105 ${soldOut ? 'blur-[2px] brightness-75' : ''}`}
+            style={{ objectPosition: product.imagePositions?.[0] || product.imagePosition || 'center' }}
           />
+        )}
+        {soldOut && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="rounded-full bg-black/70 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white">
+              Sold Out
+            </span>
+          </div>
         )}
       </div>
       <CardContent className="flex flex-1 flex-col justify-between space-y-1 p-3">
