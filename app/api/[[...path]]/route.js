@@ -1132,21 +1132,26 @@ async function handleRoute(request, { params }) {
       return handleCORS(NextResponse.json(cleaned))
     }
 
-    // PUT /api/admin/orders/[id] - update order status
+    // PUT /api/admin/orders/[id] - update order status + tracking info
     if (segments[0] === 'admin' && segments[1] === 'orders' && segments.length === 3 && method === 'PUT') {
       const orderId = segments[2]
       const admin = await requireAdmin(request, db)
       if (!admin) return handleCORS(NextResponse.json({ error: 'Admin access required' }, { status: 403 }))
       const body = await request.json()
-      const { status } = body || {}
+      const { status, deliveryPartner, trackingId, expectedDelivery } = body || {}
       const validStatuses = ['placed', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled']
-      if (!status || !validStatuses.includes(status)) {
+      if (status && !validStatuses.includes(status)) {
         return handleCORS(NextResponse.json({ error: `status must be one of: ${validStatuses.join(', ')}` }, { status: 400 }))
       }
       const ordersCol = db.collection('orders')
       const existing = await ordersCol.findOne({ id: orderId })
       if (!existing) return handleCORS(NextResponse.json({ error: 'Order not found' }, { status: 404 }))
-      await ordersCol.updateOne({ id: orderId }, { $set: { status, updatedAt: new Date() } })
+      const updateFields = { updatedAt: new Date() }
+      if (status) updateFields.status = status
+      if (deliveryPartner !== undefined) updateFields.deliveryPartner = deliveryPartner
+      if (trackingId !== undefined) updateFields.trackingId = trackingId
+      if (expectedDelivery !== undefined) updateFields.expectedDelivery = expectedDelivery
+      await ordersCol.updateOne({ id: orderId }, { $set: updateFields })
       const updated = await ordersCol.findOne({ id: orderId })
       const { _id, ...rest } = updated
       return handleCORS(NextResponse.json(rest))
