@@ -47,19 +47,27 @@ function buildQueryString(base, filters, page) {
 }
 
 function ProductCard({ product, onClick }) {
+  const soldOut = product.stock === 0
   return (
     <Card
       className="group flex cursor-pointer flex-col overflow-hidden border border-border bg-card transition-colors hover:border-violet-500/60"
       onClick={onClick}
     >
-      <div className="relative w-full overflow-hidden bg-muted" style={{ aspectRatio: '4/3' }}>
+      <div className="relative w-full overflow-hidden bg-card" style={{ aspectRatio: '4/3' }}>
         {product.images?.[0] && (
           <Image
             src={product.images[0]}
             alt={product.title}
             fill
-            className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
+            className={`object-contain transition-transform duration-300 group-hover:scale-105 ${soldOut ? 'blur-[2px] brightness-75' : ''}`}
           />
+        )}
+        {soldOut && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="rounded-full bg-black/70 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white">
+              Sold Out
+            </span>
+          </div>
         )}
       </div>
       <CardContent className="flex flex-1 flex-col justify-between space-y-1 p-3">
