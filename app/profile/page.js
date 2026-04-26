@@ -269,10 +269,11 @@ const ProfilePage = () => {
                       const currentStepIdx = order.status === 'cancelled'
                         ? -1
                         : ORDER_STEPS.indexOf(order.status?.toLowerCase())
-                      // Estimate delivery: order date + 7 days
+                      // Use admin-set expected delivery date, or fallback to order date + 7 days
                       const orderDate = new Date(order.createdAt)
-                      const estDelivery = new Date(orderDate)
-                      estDelivery.setDate(estDelivery.getDate() + 7)
+                      const estDelivery = order.expectedDelivery
+                        ? new Date(order.expectedDelivery)
+                        : new Date(new Date(order.createdAt).setDate(new Date(order.createdAt).getDate() + 7))
                       const stepLabels = ['Order Placed', 'Confirmed', 'Processing', 'Shipped', 'Delivered']
                       return (
                         <div key={order.id} className="rounded-xl border border-border bg-card/80 overflow-hidden">
@@ -348,7 +349,7 @@ const ProfilePage = () => {
                                   {/* Estimated delivery */}
                                   <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2">
                                     <Truck className="h-3.5 w-3.5 text-violet-500 flex-shrink-0" />
-                                    <div>
+                                    <div className="flex-1 min-w-0">
                                       <p className="text-[11px] font-medium text-foreground">
                                         {order.status === 'delivered'
                                           ? 'Delivered successfully!'
@@ -357,6 +358,34 @@ const ProfilePage = () => {
                                       <p className="text-[10px] text-muted-foreground">Standard delivery • 5–7 business days</p>
                                     </div>
                                   </div>
+
+                                  {/* Tracking info */}
+                                  {(order.deliveryPartner || order.trackingId) && (
+                                    <div className="flex items-start gap-2 rounded-lg border border-violet-500/20 bg-violet-500/5 px-3 py-2">
+                                      <Truck className="h-3.5 w-3.5 text-violet-500 flex-shrink-0 mt-0.5" />
+                                      <div className="flex-1 min-w-0">
+                                        {order.deliveryPartner && (
+                                          <p className="text-[11px] font-semibold text-foreground">
+                                            Shipped via {order.deliveryPartner}
+                                          </p>
+                                        )}
+                                        {order.trackingId && (
+                                          <div className="flex items-center gap-2 mt-0.5">
+                                            <p className="text-[11px] text-muted-foreground">
+                                              Tracking ID: <span className="font-mono font-semibold text-foreground">{order.trackingId}</span>
+                                            </p>
+                                            <button
+                                              type="button"
+                                              onClick={() => navigator.clipboard.writeText(order.trackingId)}
+                                              className="rounded bg-muted px-1.5 py-0.5 text-[9px] text-muted-foreground hover:text-foreground transition-colors"
+                                            >
+                                              Copy
+                                            </button>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
                                 </>
                               )}
                               {/* Items list */}
