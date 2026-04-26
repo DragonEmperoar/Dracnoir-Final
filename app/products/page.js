@@ -47,7 +47,7 @@ function ProductCard({ product, onClick }) {
       className="group flex cursor-pointer flex-col overflow-hidden border border-border bg-card transition-colors hover:border-violet-500/60"
       onClick={onClick}
     >
-      <div className="relative w-full overflow-hidden bg-muted" style={{ aspectRatio: '4/3' }}>
+      <div className="relative w-full overflow-hidden bg-muted" style={{ aspectRatio: product.aspectRatio || '4/3' }}>
         {product.images?.[0] && (
           <Image
             src={product.images[0]}
@@ -107,23 +107,17 @@ const ProductsContent = () => {
     maxPrice: searchParams.get('maxPrice') || '',
   }))
   const [products, setProducts] = useState([])
-  const [page, setPage] = useState(1)
-  const [hasMore, setHasMore] = useState(true)
   const [loading, setLoading] = useState(false)
 
   const selectedSeriesOptions = useMemo(() => ANIME_SERIES, [])
 
-  const fetchPage = async (targetPage, opts = { append: false }) => {
+  const fetchPage = async (opts = {}) => {
     setLoading(true)
     try {
-      const qs = buildQueryString(filters, targetPage)
-      const res = await fetch(`/api/products?${qs}`)
+      const qs = buildQueryString(filters, 1)
+      const res = await fetch(`/api/products?${qs}&limit=1000`)
       const data = await res.json()
-      setHasMore(targetPage < (data?.totalPages || 1))
-      setPage(targetPage)
-      setProducts((prev) =>
-        opts.append && targetPage > 1 ? [...prev, ...(data?.items || [])] : data?.items || [],
-      )
+      setProducts(data?.items || [])
     } catch (e) {
       console.error('Failed to load products', e)
     } finally {
@@ -132,7 +126,7 @@ const ProductsContent = () => {
   }
 
   useEffect(() => {
-    fetchPage(1, { append: false })
+    fetchPage()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.search, filters.type, filters.series, filters.sort, filters.minPrice, filters.maxPrice])
 
@@ -157,145 +151,87 @@ const ProductsContent = () => {
     })
   }
 
-  const handleLoadMore = () => {
-    if (!hasMore || loading) return
-    fetchPage(page + 1, { append: true })
-  }
-
   return (
-    <div className="space-y-10">
-      <section className="space-y-3">
+    <div className="space-y-6">
+      <section className="space-y-1">
         <p className="text-xs uppercase tracking-[0.2em] text-violet-500/80">Dracnoir</p>
-        <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-          All products
-        </h1>
+        <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">All products</h1>
         <p className="max-w-xl text-sm text-muted-foreground">
-          Browse the entire hoard of plushes, tees, and figures. Filter by series, price, and more.
+          Browse plushes, tees, and figures. Filter by series, price, and more.
         </p>
       </section>
 
-      <section className="grid gap-8 md:grid-cols-[minmax(0,_1.1fr)_minmax(0,_2.2fr)]">
-        {/* Filters */}
-        <aside className="space-y-5 rounded-2xl border border-border bg-card/80 p-4">
-          <div className="space-y-2">
-            <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-              Filters
-            </p>
-            <Input
-              placeholder="Search by name or series"
-              value={filters.search}
-              onChange={(e) => handleFilterChange({ search: e.target.value })}
-              className="h-9 border-border bg-background text-sm placeholder:text-muted-foreground"
-            />
-          </div>
+      {/* ── Compact filter bar ── */}
+      <div className="flex flex-wrap gap-2 items-end">
+        <Input
+          placeholder="Search..."
+          value={filters.search}
+          onChange={(e) => handleFilterChange({ search: e.target.value })}
+          className="h-8 w-36 border-border bg-background text-xs placeholder:text-muted-foreground"
+        />
 
-          <div className="space-y-2">
-            <p className="text-xs font-medium text-foreground/80">Product type</p>
-            <Select
-              value={filters.type || 'all'}
-              onValueChange={(value) =>
-                handleFilterChange({ type: value === 'all' ? '' : value })
-              }
-            >
-              <SelectTrigger className="h-9 border-border bg-background text-xs">
-                <SelectValue placeholder="All types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="tshirt">T-Shirts</SelectItem>
-                <SelectItem value="plush">Plushes</SelectItem>
-                <SelectItem value="figure">Figures</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        <Select value={filters.type || 'all'} onValueChange={(v) => handleFilterChange({ type: v === 'all' ? '' : v })}>
+          <SelectTrigger className="h-8 w-32 border-border bg-background text-xs"><SelectValue placeholder="Type" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All types</SelectItem>
+            <SelectItem value="tshirt">T-Shirts</SelectItem>
+            <SelectItem value="plush">Plushes</SelectItem>
+            <SelectItem value="figure">Figures</SelectItem>
+          </SelectContent>
+        </Select>
 
-          <div className="space-y-2">
-            <p className="text-xs font-medium text-foreground/80">Anime series</p>
-            <Select
-              value={filters.series || 'all'}
-              onValueChange={(value) =>
-                handleFilterChange({ series: value === 'all' ? '' : value })
-              }
-            >
-              <SelectTrigger className="h-9 border-border bg-background text-xs">
-                <SelectValue placeholder="All series" />
-              </SelectTrigger>
-              <SelectContent className="max-h-64">
-                <SelectItem value="all">All series</SelectItem>
-                {selectedSeriesOptions.map((name) => (
-                  <SelectItem key={name} value={name}>{name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <Select value={filters.series || 'all'} onValueChange={(v) => handleFilterChange({ series: v === 'all' ? '' : v })}>
+          <SelectTrigger className="h-8 w-36 border-border bg-background text-xs"><SelectValue placeholder="Series" /></SelectTrigger>
+          <SelectContent className="max-h-64">
+            <SelectItem value="all">All series</SelectItem>
+            {selectedSeriesOptions.map((name) => (<SelectItem key={name} value={name}>{name}</SelectItem>))}
+          </SelectContent>
+        </Select>
 
-          <div className="space-y-2">
-            <p className="text-xs font-medium text-foreground/80">Price range (₹)</p>
-            <div className="flex gap-2 text-xs">
-              <Input
-                type="number" inputMode="decimal" placeholder="Min"
-                value={filters.minPrice}
-                onChange={(e) => handleFilterChange({ minPrice: e.target.value })}
-                className="h-9 w-full border-border bg-background text-xs"
-              />
-              <Input
-                type="number" inputMode="decimal" placeholder="Max"
-                value={filters.maxPrice}
-                onChange={(e) => handleFilterChange({ maxPrice: e.target.value })}
-                className="h-9 w-full border-border bg-background text-xs"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <p className="text-xs font-medium text-foreground/80">Sort by</p>
-            <Select
-              value={filters.sort}
-              onValueChange={(value) => handleFilterChange({ sort: value })}
-            >
-              <SelectTrigger className="h-9 border-border bg-background text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {sortOptions.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </aside>
-
-        {/* Products grid */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>
-              {products.length > 0
-                ? `Showing ${products.length} item${products.length !== 1 ? 's' : ''}`
-                : loading ? 'Loading drops...' : 'No items match these filters yet.'}
-            </span>
-          </div>
-          <div className="grid gap-2 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onClick={() => router.push(`/product/${product.slug}`)}
-              />
-            ))}
-          </div>
-          {hasMore && (
-            <div className="mt-4 flex justify-center">
-              <Button
-                variant="outline" size="sm" disabled={loading}
-                onClick={handleLoadMore}
-                className="rounded-full border-border text-xs hover:bg-muted"
-              >
-                {loading ? 'Loading more...' : 'Load more'}
-              </Button>
-            </div>
-          )}
+        <div className="flex items-center gap-1">
+          <Input type="number" inputMode="decimal" placeholder="Min ₹"
+            value={filters.minPrice}
+            onChange={(e) => handleFilterChange({ minPrice: e.target.value })}
+            className="h-8 w-20 border-border bg-background text-xs"
+          />
+          <span className="text-muted-foreground text-xs">–</span>
+          <Input type="number" inputMode="decimal" placeholder="Max ₹"
+            value={filters.maxPrice}
+            onChange={(e) => handleFilterChange({ maxPrice: e.target.value })}
+            className="h-8 w-20 border-border bg-background text-xs"
+          />
         </div>
-      </section>
+
+        <Select value={filters.sort} onValueChange={(v) => handleFilterChange({ sort: v })}>
+          <SelectTrigger className="h-8 w-36 border-border bg-background text-xs"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {sortOptions.map((opt) => (<SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>))}
+          </SelectContent>
+        </Select>
+
+        {(filters.search || filters.type || filters.series || filters.minPrice || filters.maxPrice) && (
+          <button
+            onClick={() => handleFilterChange({ search: '', type: '', series: '', minPrice: '', maxPrice: '', sort: 'popularity' })}
+            className="h-8 rounded-lg border border-border px-2.5 text-xs text-muted-foreground hover:text-foreground hover:border-red-400 transition-colors"
+          >
+            Clear
+          </button>
+        )}
+
+        <span className="ml-auto text-xs text-muted-foreground self-center">
+          {loading ? 'Loading…' : `${products.length} item${products.length !== 1 ? 's' : ''}`}
+        </span>
+      </div>
+
+      {/* ── Products grid ── */}
+      <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} onClick={() => router.push(`/product/${product.slug}`)} />
+        ))}
+        {!loading && products.length === 0 && (
+          <p className="col-span-full text-center text-sm text-muted-foreground py-12">No items match these filters.</p>
+        )}
+      </div>
     </div>
   )
 }
