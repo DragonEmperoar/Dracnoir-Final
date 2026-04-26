@@ -44,7 +44,13 @@ export default function PostPage({ params }) {
   const [upvoting, setUpvoting] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deletingCommentId, setDeletingCommentId] = useState(null)
+  const [isAdmin, setIsAdmin] = useState(false)
   const commentInputRef = useRef(null)
+
+  // Check admin status
+  useEffect(() => {
+    fetch('/api/admin/check').then(r => { if (r.ok) setIsAdmin(true) }).catch(() => {})
+  }, [])
 
   // Fetch post + comments
   useEffect(() => {
@@ -164,6 +170,7 @@ export default function PostPage({ params }) {
   if (!post) return null
 
   const isOwner = session?.user?.id === post.userId
+  const canDeletePost = isOwner || isAdmin
 
   return (
     <AppShell>
@@ -201,13 +208,13 @@ export default function PostPage({ params }) {
                   )}
                 </div>
               </div>
-              {/* Delete button (own posts) */}
-              {isOwner && (
+              {/* Delete button (owner OR admin) */}
+              {canDeletePost && (
                 <button
                   onClick={handleDeletePost}
                   disabled={deleting}
                   className="flex-shrink-0 rounded-lg border border-border p-1.5 text-muted-foreground hover:border-red-500/40 hover:text-red-400 transition-colors"
-                  title="Delete post"
+                  title={isAdmin && !isOwner ? 'Delete post (admin)' : 'Delete post'}
                 >
                   {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                 </button>
@@ -321,17 +328,21 @@ export default function PostPage({ params }) {
                         {comment.content}
                       </p>
                     </div>
-                    {/* Delete own comment */}
-                    {session?.user?.id === comment.userId && (
+                    {/* Delete comment — owner or admin */}
+                    {(session?.user?.id === comment.userId || isAdmin) && (
                       <button
                         onClick={() => handleDeleteComment(comment.id)}
                         disabled={deletingCommentId === comment.id}
-                        className="opacity-0 group-hover:opacity-100 flex-shrink-0 text-muted-foreground hover:text-red-400 transition-all"
-                        title="Delete comment"
+                        className={`flex-shrink-0 transition-all text-muted-foreground hover:text-red-400 ${
+                          isAdmin && session?.user?.id !== comment.userId
+                            ? 'opacity-0 group-hover:opacity-100'
+                            : 'opacity-0 group-hover:opacity-100'
+                        }`}
+                        title={isAdmin && session?.user?.id !== comment.userId ? 'Delete comment (admin)' : 'Delete comment'}
                       >
                         {deletingCommentId === comment.id
                           ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          : <X className="h-3.5 w-3.5" />}
+                          : <Trash2 className="h-3.5 w-3.5" />}
                       </button>
                     )}
                   </div>
