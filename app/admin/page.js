@@ -282,6 +282,24 @@ const AdminDashboard = () => {
     finally { setUpdatingOrderId(null) }
   }
 
+  const handleSaveTracking = async (orderId, deliveryPartner, trackingId, expectedDelivery) => {
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deliveryPartner, trackingId, expectedDelivery }),
+      })
+      if (!res.ok) throw new Error('Failed')
+      const updated = await res.json()
+      setOrders(prev => prev.map(o => o.id === orderId ? {
+        ...o,
+        deliveryPartner: updated.deliveryPartner,
+        trackingId: updated.trackingId,
+        expectedDelivery: updated.expectedDelivery,
+      } : o))
+      alert('Tracking info saved!')
+    } catch { alert('Failed to save tracking info') }
+  }
+
   // ── Coupon CRUD ───────────────────────────────────────────────────────────
   const handleSaveCoupon = async () => {
     if (!couponForm.code || !couponForm.value) { alert('Code and value are required.'); return }
@@ -569,7 +587,75 @@ const AdminDashboard = () => {
                         </div>
 
                         {expandedOrderId === order.id && (
-                          <div className="mt-3 border-t border-border pt-3 space-y-2">
+                          <div className="mt-3 border-t border-border pt-3 space-y-3">
+                            {/* Tracking Info — editable */}
+                            <div className="rounded-lg border border-violet-500/20 bg-violet-500/5 p-3 space-y-2">
+                              <p className="text-[11px] font-semibold text-violet-400 uppercase tracking-wider">Delivery Tracking</p>
+                              <div className="flex gap-2 flex-wrap">
+                                <div className="flex-1 min-w-[140px]">
+                                  <p className="text-[10px] text-muted-foreground mb-1">Delivery Partner</p>
+                                  <select
+                                    value={order.deliveryPartner || ''}
+                                    onChange={e => {
+                                      setOrders(prev => prev.map(o => o.id === order.id ? { ...o, deliveryPartner: e.target.value, customPartner: '' } : o))
+                                    }}
+                                    className="w-full h-8 rounded-lg border border-border bg-card px-2 text-xs text-foreground focus:border-violet-500 focus:outline-none"
+                                  >
+                                    <option value="">Select partner...</option>
+                                    {['Delhivery','BlueDart','DTDC','Ekart','Xpressbees','FedEx','Shadowfax','Amazon Logistics','Other'].map(p => (
+                                      <option key={p} value={p}>{p}</option>
+                                    ))}
+                                  </select>
+                                  {/* Custom partner name when 'Other' selected */}
+                                  {order.deliveryPartner === 'Other' && (
+                                    <input
+                                      type="text"
+                                      value={order.customPartner || ''}
+                                      placeholder="Enter partner name..."
+                                      onChange={e => setOrders(prev => prev.map(o => o.id === order.id ? { ...o, customPartner: e.target.value } : o))}
+                                      className="mt-1.5 w-full h-8 rounded-lg border border-border bg-card px-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-violet-500 focus:outline-none"
+                                    />
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-[160px]">
+                                  <p className="text-[10px] text-muted-foreground mb-1">Tracking ID</p>
+                                  <input
+                                    type="text"
+                                    value={order.trackingId || ''}
+                                    placeholder="e.g. 1234567890"
+                                    onChange={e => {
+                                      setOrders(prev => prev.map(o => o.id === order.id ? { ...o, trackingId: e.target.value } : o))
+                                    }}
+                                    className="w-full h-8 rounded-lg border border-border bg-card px-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-violet-500 focus:outline-none"
+                                  />
+                                </div>
+                                <div className="flex-1 min-w-[150px]">
+                                  <p className="text-[10px] text-muted-foreground mb-1">Expected Delivery Date</p>
+                                  <input
+                                    type="date"
+                                    value={order.expectedDelivery ? new Date(order.expectedDelivery).toISOString().split('T')[0] : ''}
+                                    min={new Date().toISOString().split('T')[0]}
+                                    onChange={e => setOrders(prev => prev.map(o => o.id === order.id ? { ...o, expectedDelivery: e.target.value } : o))}
+                                    className="w-full h-8 rounded-lg border border-border bg-card px-2 text-xs text-foreground focus:border-violet-500 focus:outline-none"
+                                  />
+                                </div>
+                                <div className="flex items-end">
+                                  <button
+                                    onClick={() => handleSaveTracking(
+                                      order.id,
+                                      order.deliveryPartner === 'Other' ? (order.customPartner || 'Other') : (order.deliveryPartner || ''),
+                                      order.trackingId || '',
+                                      order.expectedDelivery || ''
+                                    )}
+                                    className="h-8 rounded-lg bg-violet-500 px-3 text-xs font-semibold text-white hover:bg-violet-400 transition-colors whitespace-nowrap"
+                                  >
+                                    Save
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Items */}
                             <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Items</p>
                             {(order.items || []).map(item => (
                               <div key={item.id} className="flex items-center gap-2 text-xs text-foreground/80">
