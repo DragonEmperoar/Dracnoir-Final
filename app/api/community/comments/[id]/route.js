@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../../../auth/[...nextauth]/route'
 
+const ADMIN_EMAILS = ['chirayu1264@gmail.com']
+
 let client, db
 
 async function connectDB() {
@@ -14,10 +16,32 @@ async function connectDB() {
   return db
 }
 
+async function checkIsAdmin(request, database) {
+  try {
+    // 1. Check admin_session cookie (username/password login)
+    const adminSessionCookie = request.cookies?.get?.('admin_session')
+    if (adminSessionCookie?.value) {
+      const adminSession = await database.collection('admin_sessions').findOne({
+        sessionId: adminSessionCookie.value,
+        expiresAt: { $gt: new Date() },
+      })
+      if (adminSession) return true
+    }
+    // 2. Check NextAuth Google OAuth session
+    const session = await getServerSession(authOptions)
+    if (session?.user?.email) {
+      if (ADMIN_EMAILS.includes(session.user.email)) return true
+      const user = await database.collection('users').findOne({ email: session.user.email })
+      if (user?.isAdmin === true) return true
+    }
+    return false
+  } catch { return false }
+}
+
 export async function DELETE(request, { params }) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
+    if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -28,7 +52,11 @@ export async function DELETE(request, { params }) {
     if (!comment) {
       return NextResponse.json({ error: 'Comment not found' }, { status: 404 })
     }
-    if (comment.userId !== session.user.id) {
+
+    const isAdmin = await checkIsAdmin(request, database)
+    const isOwner = comment.userId === session.user.id
+
+    if (!isOwner && !isAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
