@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../context/AuthContext'
 import { Card, CardContent } from '@/components/ui/card'
@@ -25,7 +25,7 @@ const STATUS_COLORS = {
 
 const emptyProduct = {
   title: '', description: '', price: '799', categorySlug: 't-shirts',
-  type: 'tshirt', material: '240 GSM French Terry Cotton', dimensions: '', series: '', images: '', stock: '', subcategory: '',
+  type: 'tshirt', material: '240 GSM French Terry Cotton', dimensions: '', series: '', images: '', stock: '', subcategory: '', imagePositions: [],
 }
 
 // Smart defaults per category
@@ -77,6 +77,7 @@ const AdminDashboard = () => {
   const [deletingProductId, setDeletingProductId] = useState(null)
   const [deduplicating, setDeduplicating] = useState(false)
   const [productCategoryFilter, setProductCategoryFilter] = useState('')
+  const [pickerIndex, setPickerIndex] = useState(0)
 
   // Orders state
   const [orderStatusFilter, setOrderStatusFilter] = useState('')
@@ -109,7 +110,7 @@ const AdminDashboard = () => {
     setLoading(true)
     try {
       const [productsRes, ordersRes, usersRes, couponsRes] = await Promise.all([
-        fetch('/api/products?limit=500'),
+        fetch('/api/products?limit=1000'),
         fetch('/api/admin/orders'),
         fetch('/api/users'),
         fetch('/api/coupons'),
@@ -160,6 +161,7 @@ const AdminDashboard = () => {
       dimensions: p.dimensions || '', series: p.series || '',
       images: (p.images || []).join(', '), stock: p.stock || '',
       subcategory: p.subcategory || '',
+      imagePositions: p.imagePositions || (p.imagePosition ? [p.imagePosition] : []),
     })
     setProductColors(Array.isArray(p.colors) ? p.colors.map(c => ({
       id: c.id || '',
@@ -191,11 +193,15 @@ const AdminDashboard = () => {
     }
   }
 
+  const isSavingRef = useRef(false)
+
   const handleSaveProduct = async () => {
+    if (isSavingRef.current) return          // immediate ref-based guard (before React state update)
     if (!productForm.title || !productForm.price || !productForm.categorySlug) {
       alert('Title, price, and category are required.')
       return
     }
+    isSavingRef.current = true
     setSavingProduct(true)
     try {
       // Serialize colors — convert images string back to array
@@ -212,6 +218,7 @@ const AdminDashboard = () => {
         price: Number(productForm.price),
         stock: Number(productForm.stock) || 0,
         images: productForm.images ? productForm.images.split(',').map(s => s.trim()).filter(Boolean) : [],
+        imagePositions: productForm.imagePositions || [],
         colors: serializedColors,
       }
       const url = editingProduct ? `/api/admin/products/${editingProduct.id}` : '/api/admin/products'
@@ -224,7 +231,7 @@ const AdminDashboard = () => {
       setShowProductModal(false)
       setStats(p => ({ ...p, totalProducts: editingProduct ? p.totalProducts : p.totalProducts + 1 }))
     } catch (e) { alert(e.message || 'Failed to save product') }
-    finally { setSavingProduct(false) }
+    finally { isSavingRef.current = false; setSavingProduct(false) }
   }
 
   const handleDeleteProduct = async (productId) => {
@@ -248,7 +255,7 @@ const AdminDashboard = () => {
       if (!res.ok) throw new Error(data.error || 'Failed')
       alert(data.message || `Removed ${data.removed} duplicate products`)
       // Reload products after dedup
-      const productsRes = await fetch('/api/products?limit=500')
+      const productsRes = await fetch('/api/products?limit=1000')
       if (productsRes.ok) {
         const d = await productsRes.json()
         setProducts(d.items || [])
@@ -418,7 +425,7 @@ const AdminDashboard = () => {
                         <div key={order.id} className="flex items-center justify-between rounded-lg border border-border bg-muted/50 p-3">
                           <div>
                             <p className="text-xs font-medium text-foreground">Order #{order.id?.slice(-6)}</p>
-                            <p className="text-xs text-muted-foreground">{new Date(order.createdAt).toLocaleDateString()} • {order.user?.name || order.user?.email || 'User'}</p>
+                            <p className="text-xs text-muted-foreground">{new Date(order.createdAt).toLocaleDateString()} • {order.user?.name || order.user?.email || order.addressSnapshot?.name || 'User'}</p>
                           </div>
                           <div className="flex items-center gap-3">
                             <p className="text-sm font-semibold text-violet-500">₹{order.subtotal?.toFixed(0)}</p>
@@ -483,7 +490,12 @@ const AdminDashboard = () => {
                           <p className="text-xs font-medium text-foreground line-clamp-1">{product.title}</p>
                           <p className="text-[10px] text-muted-foreground">{product.series || product.categorySlug}</p>
                           <div className="flex items-center justify-between pt-1">
-                            <p className="text-xs font-semibold text-violet-500">₹{product.price?.toFixed(0)}</p>
+                            <div>
+                              <p className="text-xs font-semibold text-violet-500">₹{product.price?.toFixed(0)}</p>
+                              <p className={`text-[10px] font-medium ${product.stock === 0 ? 'text-red-400' : product.stock <= 5 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                                {product.stock === 0 ? 'Out of stock' : product.stock <= 5 ? `Only ${product.stock} left` : `Stock: ${product.stock}`}
+                              </p>
+                            </div>
                             <div className="flex gap-1">
                               <button onClick={() => openEditProduct(product)}
                                 className="rounded border border-border bg-muted p-1 hover:bg-muted/80">
@@ -532,7 +544,7 @@ const AdminDashboard = () => {
                               <span className={`rounded-full border px-2 py-0.5 text-[11px] ${STATUS_COLORS[order.status] || 'bg-muted text-muted-foreground border-border'}`}>{order.status}</span>
                             </div>
                             <p className="mt-1 text-xs text-muted-foreground">
-                              {new Date(order.createdAt).toLocaleString()} • {order.user?.name || order.user?.email || 'Unknown user'}
+                              {new Date(order.createdAt).toLocaleString()} • {order.user?.name || order.user?.email || order.addressSnapshot?.name || 'Unknown user'}
                             </p>
                             <p className="text-xs text-muted-foreground/70">{order.items?.length || 0} item(s)</p>
                           </div>
@@ -760,6 +772,107 @@ const AdminDashboard = () => {
                     className="mt-1 h-9 border-border bg-card text-xs text-foreground" />
                   <p className="mt-1 text-[11px] text-muted-foreground">Paste image URLs. Multiple URLs separated by commas.</p>
                 </div>
+
+                {/* ── FOCAL POINT PICKER — all images ─────────────────── */}
+                {(() => {
+                  const imgList = productForm.images.split(',').map(s => s.trim()).filter(Boolean)
+                  if (imgList.length === 0) return null
+                  const safeIdx = Math.min(pickerIndex, imgList.length - 1)
+                  const currentImg = imgList[safeIdx]
+                  const positions = productForm.imagePositions || []
+                  const currentPos = positions[safeIdx] || '50% 50%'
+                  const updatePos = (x, y) => {
+                    const next = [...imgList.map((_, i) => positions[i] || '50% 50%')]
+                    next[safeIdx] = `${x}% ${y}%`
+                    setProductForm(p => ({ ...p, imagePositions: next }))
+                  }
+                  return (
+                    <div className="sm:col-span-2 space-y-3">
+                      <Label className="text-xs text-muted-foreground">Image Crop Focus Point</Label>
+                      <p className="text-[11px] text-muted-foreground">
+                        Select an image below, then click on it to set which spot stays visible when cropped.
+                      </p>
+
+                      {/* Image tabs */}
+                      {imgList.length > 1 && (
+                        <div className="flex gap-2 flex-wrap">
+                          {imgList.map((url, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => setPickerIndex(idx)}
+                              className={`relative h-12 w-16 flex-shrink-0 overflow-hidden rounded-lg border-2 bg-card transition-all ${
+                                idx === safeIdx ? 'border-violet-500 ring-2 ring-violet-400/30' : 'border-border opacity-60 hover:opacity-100'
+                              }`}
+                            >
+                              <img src={url} alt={`Image ${idx + 1}`} className="h-full w-full object-cover" onError={(e) => { e.target.style.display='none' }} />
+                              <span className="absolute bottom-0.5 right-0.5 rounded bg-black/60 px-1 text-[8px] text-white">{idx + 1}</span>
+                              {(positions[idx] && positions[idx] !== '50% 50%') && (
+                                <span className="absolute top-0.5 left-0.5 h-2 w-2 rounded-full bg-violet-400" title="Custom focal point set" />
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Picker + preview side by side */}
+                      <div className="flex gap-4 items-start">
+                        {/* Clickable full image */}
+                        <div className="flex-1 space-y-1 min-w-0">
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                            Image {safeIdx + 1} — click to set focal point
+                          </p>
+                          <div
+                            className="relative w-full overflow-hidden rounded-xl border border-violet-500/40 bg-card cursor-crosshair select-none"
+                            onClick={(e) => {
+                              const rect = e.currentTarget.getBoundingClientRect()
+                              const x = Math.round(((e.clientX - rect.left) / rect.width) * 100)
+                              const y = Math.round(((e.clientY - rect.top) / rect.height) * 100)
+                              updatePos(x, y)
+                            }}
+                          >
+                            <img
+                              src={currentImg}
+                              alt="focal point picker"
+                              className="w-full h-auto block pointer-events-none"
+                              draggable={false}
+                              onError={(e) => { e.target.style.display = 'none' }}
+                            />
+                            {/* Crosshair */}
+                            <div
+                              className="absolute pointer-events-none transition-all duration-150"
+                              style={{
+                                left: currentPos.split(' ')[0],
+                                top: currentPos.split(' ')[1],
+                                transform: 'translate(-50%, -50%)',
+                              }}
+                            >
+                              <div className="h-6 w-6 rounded-full border-2 border-white bg-violet-500/70 shadow-lg ring-2 ring-black/30" />
+                            </div>
+                          </div>
+                          <p className="text-[11px] text-violet-400 font-medium">
+                            Focal point: {currentPos}
+                          </p>
+                        </div>
+
+                        {/* 4:3 preview */}
+                        <div className="w-36 flex-shrink-0 space-y-1">
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Card preview (4:3)</p>
+                          <div className="relative w-full overflow-hidden rounded-xl border border-border bg-card" style={{ aspectRatio: '4/3' }}>
+                            <img
+                              src={currentImg}
+                              alt="preview"
+                              className="h-full w-full"
+                              style={{ objectFit: 'cover', objectPosition: currentPos }}
+                              onError={(e) => { e.target.style.display = 'none' }}
+                            />
+                          </div>
+                          <p className="text-[10px] text-muted-foreground">How it looks on the product page</p>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })()}
                 {/* Dimensions — hidden for T-Shirts */}
                 {productForm.categorySlug !== 't-shirts' && (
                   <div>
