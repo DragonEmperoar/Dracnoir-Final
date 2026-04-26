@@ -53,13 +53,13 @@ function ProductCard({ product, onClick }) {
       className="group flex cursor-pointer flex-col overflow-hidden border border-border bg-card transition-colors hover:border-violet-500/60"
       onClick={onClick}
     >
-      <div className="relative w-full overflow-hidden bg-card" style={{ aspectRatio: '4/3' }}>
+      <div className="relative w-full overflow-hidden bg-muted" style={{ aspectRatio: '4/3' }}>
         {product.images?.[0] && (
           <Image
             src={product.images[0]}
             alt={product.title}
             fill
-            className={`object-contain transition-transform duration-300 group-hover:scale-105 ${soldOut ? 'blur-[2px] brightness-75' : ''}`}
+            className={`object-cover transition-transform duration-300 group-hover:scale-105 ${soldOut ? 'blur-[2px] brightness-75' : ''}`}
           />
         )}
         {soldOut && (
