@@ -385,6 +385,7 @@ const HomepageClient = () => {
                           alt={product.title}
                           fill
                           className={`object-cover transition-transform group-hover:scale-105 ${product.stock === 0 ? 'blur-[2px] brightness-75' : ''}`}
+                          style={{ objectPosition: product.imagePositions?.[0] || product.imagePosition || 'center' }}
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                         />
                       ) : (
@@ -444,6 +445,7 @@ const HomepageClient = () => {
                             alt={product.title}
                             fill
                             className={`object-cover transition-transform duration-300 group-hover:scale-105 ${stockLeft === 0 ? 'blur-[2px] brightness-75' : ''}`}
+                            style={{ objectPosition: product.imagePositions?.[0] || product.imagePosition || 'center' }}
                             sizes="(max-width: 768px) 50vw, 25vw"
                           />
                         ) : (
